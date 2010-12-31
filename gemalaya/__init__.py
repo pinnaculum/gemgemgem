@@ -1,7 +1,9 @@
+import os
 import os.path
 import argparse
 import shutil
 import concurrent.futures
+import subprocess
 from pathlib import Path
 
 from omegaconf import OmegaConf
@@ -11,9 +13,6 @@ from PySide6.QtQml import qmlRegisterType
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QStandardPaths
 from PySide6.QtCore import Qt
-from PySide6.QtCore import QDir
-from PySide6.QtCore import QFile
-from PySide6.QtCore import QIODeviceBase
 from PySide6.QtGui import QFontDatabase
 
 from gemalaya import gemqti
@@ -28,14 +27,52 @@ default_cfg_path = here.joinpath('default_config.yaml')
 def_bm_path = here.joinpath('bookmarks.yaml')
 
 
+def run_levior(cfg_dir_path: Path,
+               data_path: Path) -> subprocess.Popen:
+    levior_dir = cfg_dir_path.joinpath('levior')
+    levior_dir.mkdir(parents=True, exist_ok=True)
+
+    levior_cache_dir = data_path.joinpath('levior').joinpath('cache')
+    levior_cache_dir.mkdir(parents=True, exist_ok=True)
+
+    lev_path = shutil.which('levior')
+
+    if lev_path:
+        return subprocess.Popen([
+            'python3.9',
+            lev_path,
+            '--cache-path',
+            str(levior_cache_dir),
+            '--cache-enable'
+        ])
+
+
 def run_gemalaya():
     parser = argparse.ArgumentParser()
-    parser.add_argument('ebook', nargs='?')
+    parser.add_argument(
+        '--run-proxy',
+        '--run-http-proxy',
+        '--run-levior',
+        action='store_true',
+        dest='levior',
+        default=False,
+        help='Run the http-to-gemini proxy service (levior)'
+    )
+    parser.add_argument(
+        '--no-proxy',
+        '--no-levior',
+        action='store_true',
+        dest='nolevior',
+        default=False,
+        help='Do not run the http-to-gemini proxy service (levior)'
+    )
+    args = parser.parse_args()
 
     # Config paths
     cfg_dir_path = Path(QStandardPaths.writableLocation(
         QStandardPaths.StandardLocation.ConfigLocation)).joinpath(app_name)
     cfg_dir_path.mkdir(parents=True, exist_ok=True)
+    cfg_dir_path.joinpath('themes').mkdir(parents=True, exist_ok=True)
     cfg_path = cfg_dir_path.joinpath('config.yaml')
 
     # Data path
@@ -44,6 +81,12 @@ def run_gemalaya():
     )).joinpath(app_name)
     data_path.mkdir(parents=True, exist_ok=True)
     sqldb_path = data_path.joinpath('gemalaya.sqlite')
+
+    # Dl path
+    downloads_path = Path(QStandardPaths.writableLocation(
+        QStandardPaths.StandardLocation.DownloadLocation
+    )).joinpath(app_name)
+    downloads_path.mkdir(parents=True, exist_ok=True)
 
     # Load the default config
     with open(default_cfg_path, 'rt') as cfd:
@@ -61,21 +104,6 @@ def run_gemalaya():
             OmegaConf.load(cfd)
         )
 
-    # Load the themes
-
-    for themeName in QDir(':/gemalaya/themes').entryList():
-        tc = QFile(f':/gemalaya/themes/{themeName}/theme.yaml')
-        try:
-            tc.open(QIODeviceBase.ReadOnly)
-            data = tc.readAll().data().decode()
-
-            config = OmegaConf.merge(
-                config,
-                OmegaConf.create(data)
-            )
-        except Exception as err:
-            print(f'Error loading theme {themeName}: {err}')
-
     OmegaConf.save(config, f=str(cfg_path))
 
     # certs
@@ -89,6 +117,12 @@ def run_gemalaya():
 
     app = QApplication([])
     app.threadpool = concurrent.futures.ThreadPoolExecutor()
+    app.levior_proc = None
+
+    # Run levior if requested
+    if (config.levior.enable is True or args.levior is True) and \
+       args.nolevior is False:
+        app.levior_proc = run_levior(cfg_dir_path, data_path)
 
     # NotoColorEmoji
     QFontDatabase.addApplicationFont(
@@ -130,7 +164,9 @@ def run_gemalaya():
     )
     ctx.setContextProperty(
         app_name,
-        gemqti.GemalayaInterface(cfg_path, config, app)
+        gemqti.GemalayaInterface(cfg_dir_path,
+                                 cfg_path,
+                                 config, app)
     )
 
     ctx.setContextProperty(

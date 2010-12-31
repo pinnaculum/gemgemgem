@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>io.gitlab.gemgemgem.Gemalaya</id>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>LGPL-3.0+</project_license>
+    <update_contact>galacteek@protonmail.com</update_contact>
+    <name>Gemalaya</name>
+
+    <translation type="qt">en</translation>
+
+    <summary>Gemini browser</summary>
+    <categories>
+        <category>Network</category>
+    </categories>
+    <keywords>
+        <keyword>Browser</keyword>
+        <keyword>Gemini</keyword>
+        <keyword>QML</keyword>
+    </keywords>
+
+    <description>
+        <p>Gemalaya is a Gemini browser written in QML.</p>
+    </description>
+
+    <launchable type="desktop-id">gemalaya.desktop</launchable>
+
+    <url type="homepage">https://gitlab.com/galacteek/gemgemgem</url>
+    <url type="donation">https://liberapay.com/galacteek</url>
+    <url type="donation">https://github.com/sponsors/pinnaculum</url>
+
+    <provides>
+        <binary>gemalaya</binary>
+    </provides>
+
+    <releases>
+        <release version="0.3.3" date="2023-08-15">
+        </release>
+    </releases>
+</component>

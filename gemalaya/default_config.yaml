@@ -3,6 +3,10 @@ debug: false
 gemini:
   timeout_default: 15
 
+levior:
+  enable: true
+  cache_enable: true
+
 ui:
   # active theme name
   theme: 'sinister'
@@ -19,10 +23,25 @@ ui:
     stepBig: 0.1
     stepSmall: 0.02
 
+  # Font sizes
+  fonts:
+    defaultPointSize: 12
+
+    text:
+      pointSize: 12
+
+    preformattedText:
+      pointSize: 12
+
+    links:
+      pointSize: 14
+      shortcutFontSize: 16
+
   # Shortcuts
   shortcuts:
     bookmark: 'Ctrl+d'
     quit: 'Ctrl+q'
+    themesCycle: 'Ctrl+y'
 
     # URLs
     urlEdit: 'Ctrl+l'
@@ -31,6 +50,11 @@ ui:
     historyBack: 'Ctrl+backspace'
 
     linkOpenTargetSwitch: 'Ctrl+o'
+
+    pageReload: 'Ctrl+r'
+
+    fontSizeIncrease: 'Ctrl++'
+    fontSizeDecrease: 'Ctrl+-'
 
     stack:
       cycle: 'Ctrl+Tab'

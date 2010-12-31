@@ -5,7 +5,7 @@ TextInput {
   id: control
   font.pointSize: Conf.theme.url.fontSize ? Conf.theme.url.fontSize : 16
   font.family: Conf.theme.url.fontFamily ? Conf.theme.url.fontFamily : 'Courier'
-  color: Conf.theme.url.textColor ? Conf.theme.url.textColor : 'white'
+  color: Conf.theme.url.textColor
   selectionColor: Conf.theme.url.selectionColor
   selectedTextColor: Conf.theme.url.selectedTextColor
   cursorDelegate: Rectangle {

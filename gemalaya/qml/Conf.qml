@@ -6,10 +6,18 @@ QtObject {
     return gemalaya.getConfig()
   }
 
-  property var theme: {
-    let activeTheme = c.ui.theme
+  function changeTheme(name) {
+    set('ui.theme', name)
 
-    return c.themes[activeTheme]
+    update()
+  }
+
+  property var themesNames: gemalaya.themesNames()
+
+  property var theme: {
+    let subTheme = c.ui.subTheme ? c.ui.subTheme : c.ui.theme
+
+    return gemalaya.getThemeConfig(c.ui.theme)
   }
 
   property var gemspace: {
@@ -28,6 +36,10 @@ QtObject {
     return theme.heading
   }
 
+  property var fontPrefs: {
+    return c.ui.fonts
+  }
+
   property var shortcuts: {
     return c.ui.shortcuts
   }
@@ -35,10 +47,15 @@ QtObject {
   property var ui: c.ui
 
   function themeRsc(name) {
-    return `qrc:/gemalaya/themes/${c.ui.theme}/${name}`
+    return gemalaya.getThemeRscPath(c.ui.theme, name)
+  }
+
+  function update() {
+    this.c = gemalaya.getConfig()
+    this.theme = gemalaya.getThemeConfig(c.ui.theme)
   }
 
   function set(dotattr, value) {
-    return gemalaya.set(dotattr, value)
+    gemalaya.set(dotattr, value)
   }
 }

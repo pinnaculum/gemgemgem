@@ -16,8 +16,7 @@ ColumnLayout {
   /* The key sequence to access this link */
   property string keybAccessSeq
 
-  property int pointSizeNormal: Conf.links.text.fontSize
-  property int pointSizeLarge: Conf.links.text.fontSizeLarge
+  property int pointSizeNormal: Conf.fontPrefs.links.pointSize ? Conf.fontPrefs.links.pointSize : Conf.fontPrefs.defaultPointSize
 
   signal linkClicked(string baseUrl, string href)
   signal imageClicked(url imgLink)
@@ -39,6 +38,27 @@ ColumnLayout {
     }
   }
 
+  GeminiAgent {
+    id: agent
+    onFileDownloaded: {
+      console.log(resp.meta)
+      if (resp.meta.startsWith('video') || resp.meta.startsWith('audio')) {
+        var component = Qt.createComponent('MPlayer.qml')
+
+        if (component.status == Component.Ready) {
+          var item = component.createObject(itemLayout, {
+            width: itemLayout.width,
+            height: 420,
+            source: resp.path
+          })
+        }
+      } else if (resp.meta.startsWith('image')) {
+        imgPreview.imgPath = resp.path
+        imgPreview.visible = true
+      }
+    }
+  }
+
   Button {
     id: button
 
@@ -52,6 +72,7 @@ ColumnLayout {
       hoverEnabled: true
       onEntered: itemLayout.focus = true
       onExited: itemLayout.focus = false
+      onClicked: linkAction.trigger()
     }
 
     SequentialAnimation {
@@ -98,15 +119,10 @@ ColumnLayout {
             var urlObject = new URL(gem.buildUrl(href, baseUrl))
 
           const ext = urlObject.pathname.split(".").pop()
-          const imgexts = ['png', 'jpg', 'webm']
+          const mediaexts = ['png', 'jpg', 'gif', 'webm', 'mp4', 'avi', 'mp3', 'ogg']
 
-          if (imgexts.includes(ext)) {
-            var path = gem.downloadToFile(urlObject.toString(), {})
-
-            if (path !== undefined) {
-              imgPreview.imgPath = path
-              imgPreview.visible = true
-            }
+          if (urlObject.protocol == 'gemini:' && mediaexts.includes(ext)) {
+            agent.downloadToFile(urlObject.toString(), {})
           } else {
             linkClicked(urlObject.toString(), baseUrl)
           }
@@ -160,7 +176,7 @@ ColumnLayout {
         Text {
           id: keybSeqText
           text: keybAccessSeq
-          font.pointSize: Conf.links.shortcutButton.fontSize
+          font.pointSize: Conf.fontPrefs.links.shortcutFontSize
           color: Conf.links.shortcutButton.textColor
           anchors.centerIn: parent
           Layout.fillWidth: true
@@ -192,4 +208,5 @@ ColumnLayout {
     visible: false
     Layout.fillWidth: true
   }
+
 }

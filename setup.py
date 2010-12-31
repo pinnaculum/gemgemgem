@@ -36,7 +36,7 @@ class _build(build):
 
 setup(
     name='gemgemgem',
-    version='0.3.3',
+    version='0.3.4',
     description='A library to work with gemini and gempub archives',
     url='https://gitlab.com/galacteek/gemgemgem',
     author='cipres',
@@ -67,8 +67,12 @@ setup(
             'kivy'
         ],
         'gemalaya': [
-            'PySide6-essentials>=6.5.1',
+            'PySide6-essentials>=6.5.2',
+            'cffi',
             'cryptography',
+        ],
+        'gemalaya-http-proxy': [
+            'levior @ git+https://gitlab.com/cipres/levior#egg=levior'
         ]
     },
     package_data={

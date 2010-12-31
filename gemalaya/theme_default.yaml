@@ -1,0 +1,126 @@
+# The popup showing the bookmark completions
+urlCompletionPopup:
+  bg:
+    color: '#323232'
+    borderColor: 'black'
+
+  delegate:
+    # Color of selected items in the results
+    colorSelected: 'green'
+    fontSize: 14
+
+# address bar
+url:
+  selectionColor: '#21be2b'
+  selectedTextColor: '#ffffff'
+  fontFamily: 'DejaVu sans'
+  textColor: 'white'
+  fontSize: 16
+
+  animations:
+    urlChanged:
+      0:
+        component: ScaleAnim.qml
+        properties:
+          scale: 1.1
+          duration: 100
+          pause: 50
+
+  bg:
+    color: 'lightgray'
+    colorFocused: 'darkgray'
+    borderWidth: 1
+    borderColor: 'lightsteelblue'
+    radius: 2
+
+  # block cursor
+  cursorWidth: 16
+
+  cursorColor1: 'cornsilk'
+  cursorColor2: 'lightgray'
+
+  # cursor blink animation timers
+  cursorBlinkT1: 800
+  cursorBlinkT2: 200
+  cursorBlinkT3: 200
+
+# gemspace (main widget) config
+gemspace:
+  bgColor: 'black'
+
+  # The text item showing the index of the gemspace in the stack
+  stackIndex:
+    color: 'red'
+    fontSize: 20
+
+# Links configuration
+links:
+  layout:
+    leftMargin: 25
+
+  # Keyboard shortcut button config
+  shortcutButton:
+    color: 'lightsteelblue'
+    borderWidth: 1
+    borderColor: 'darkorange'
+    textColor: '#A52A2A'
+    fontSize: 22
+
+  # Background item
+  bg:
+    borderColor: 'darkgray'
+    borderColorHovered: '#DEB887'
+
+  text:
+    fontFamily: 'DejaVu sans'
+    fontSize: 16
+    fontSizeLarge: 24
+
+    color: '#1e90ff'
+    colorHovered: '#00bfff'
+
+  # Animation when the link is activated
+  openAnim:
+    buttonBgColor: '#FAF0E6'
+
+    # Keyboard shortcut
+    shortcutButtonColor: '#9ACD32'
+    shortcutBorderWidth: 2
+
+# Text items configuration
+text:
+  lineHeight: 1.1
+  fontFamily: 'DejaVuSans'
+  fontSize: 16
+  color: 'cornsilk'
+
+  # Style can be set to 'normal', 'outline', 'raised' or 'sunken'
+  style: 'normal'
+
+  # styleColor defines the secondary text color, used for the text's outline
+  # when style is set to 'outline'
+  styleColor: 'white'
+
+  # Zoom the text when focus changes
+  focusZoom:
+    enabled: true
+    color: 'white'
+    timeout: 300
+    lineHeight: 1.3
+
+    fontSize: 20
+    fontWordSpacing: 10
+
+    style: 'outline'
+    styleColor: 'blue'
+
+heading:
+  h1:
+    color: '#4a9ea1'
+    fontSize: 24
+  h2:
+    color: 'lightsteelblue'
+    fontSize: 20
+  h3:
+    color: 'lightsteelblue'
+    fontSize: 16

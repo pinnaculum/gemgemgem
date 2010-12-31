@@ -39,6 +39,8 @@ Rectangle {
         addrc.focusInput()
       else
         sview.page.forceActiveFocus()
+
+      gsIndexAnim.running = true
     }
   }
 
@@ -73,6 +75,11 @@ Rectangle {
     }
   }
 
+  ScaleAnim {
+    id: gsIndexAnim
+    targetItem: gsStackIndex
+  }
+
   Scheduler {
     id: sched
   }
@@ -89,14 +96,25 @@ Rectangle {
     }
   }
 
+  Action {
+    shortcut: Conf.shortcuts.pageReload
+    enabled: gemspace.visible
+    onTriggered: {
+      if (addrc.url) {
+        sview.browse(addrc.url, null)
+      }
+    }
+  }
+
   ColumnLayout {
     anchors.fill: parent
 
     RowLayout {
       Text {
+        id: gsStackIndex
         text: gemspace.StackLayout.index
-        color: 'red'
-        font.pointSize: 24
+        color: Conf.gemspace.stackIndex.color
+        font.pointSize: Conf.gemspace.stackIndex.fontSize
       }
 
       NavBackButton {
@@ -169,7 +187,7 @@ Rectangle {
       }
 
       QuitButton {
-        onClicked: Qt.quit()
+        onClicked: gemalaya.quit()
         enabled: true
       }
     }

@@ -16,11 +16,8 @@ Label {
   property int origWidth
   property int origHeight
 
-  property int pointSizeNormal: 18
-  property int pointSizeLarge: 20
-
-  property string colorDefault: Conf.text.color ? Conf.text.color : 'white'
-  property string colorHovered: Conf.text.focusZoom.color ? Conf.text.focusZoom.color : 'white'
+  property string colorDefault: Conf.text.color
+  property string colorHovered: Conf.text.focusZoom.color
 
   KeyNavigation.backtab: prevLinkItem
   KeyNavigation.priority: KeyNavigation.BeforeItem
@@ -50,17 +47,15 @@ Label {
 
   TextMetrics {
     id: textmn
-    font.family: textType == "preformatted" ? "Courier" : "DejaVuSans"
-    font.pointSize: Conf.text.fontSize
+    font.family: textType == "preformatted" ? "Courier" : Conf.text.fontFamily
+    font.pointSize: {
+      if (textType == "preformatted")
+        return Conf.fontPrefs.preformattedText.pointSize
+
+      return Conf.fontPrefs.text.pointSize ? Conf.fontPrefs.text.pointSize : Conf.fontPrefs.defaultPointSize
+    }
     font.italic: quote === true
     text: textType == 'listitem' ? '- ' + content : content
-  }
-
-  TextMetrics {
-    id: textml
-    font.family: "DejaVuSans"
-    font.pointSize: pointSizeLarge
-    text: content
   }
 
   background: Rectangle {
@@ -70,14 +65,27 @@ Label {
   color: colorDefault
   text: textmn.text
   font: textmn.font
-  lineHeight: Conf.text.lineHeight
+  lineHeight: textType == "preformatted" ? 1 : Conf.text.lineHeight
   renderType: Text.NativeRendering
-
-  style: focus || hovered ? tsConv(Conf.text.focusZoom.style) : tsConv(Conf.text.style)
-  styleColor: focus || hovered ? Conf.text.focusZoom.styleColor : Conf.text.styleColor
-
   antialiasing: true
-  wrapMode: Text.WordWrap
+  wrapMode: textType == "preformatted" ? Text.NoWrap : Text.WordWrap
+
+  /*
+  Setting style to anything else than Text.Normal randomly crashes
+  the app with an malloc() message :\
+
+  style: {
+    if ((focus || hovered) && Conf.text.focusZoom.style) {
+      return tsConv(Conf.text.focusZoom.style)
+    } else if (Conf.text.style) {
+      return tsConv(Conf.text.style)
+    } else {
+      return Text.Normal
+    }
+  }
+
+  styleColor: focus || hovered ? Conf.text.focusZoom.styleColor : Conf.text.styleColor
+  */
 
   Scheduler {
     id: sched
@@ -103,23 +111,9 @@ Label {
 
     PropertyAnimation {
       target: control
-      property: 'height'
-      from: control.height
-      to: control.height * 1.2
-      duration: 10
-    }
-    PropertyAnimation {
-      target: control
-      property: 'width'
-      from: control.width
-      to: control.width * 0.9
-      duration: 10
-    }
-    PropertyAnimation {
-      target: control
       property: 'font.pointSize'
       from: control.font.pointSize
-      to: Conf.text.focusZoom.fontSize
+      to: textmn.font.pointSize * 1.4
       duration: 10
     }
     PropertyAnimation {
@@ -159,23 +153,9 @@ Label {
 
     PropertyAnimation {
       target: control
-      property: 'height'
-      from: control.height
-      to: control.height * 0.8
-      duration: 30
-    }
-    PropertyAnimation {
-      target: control
-      property: 'width'
-      from: control.width
-      to: origWidth
-      duration: 30
-    }
-    PropertyAnimation {
-      target: control
       property: 'font.pointSize'
       from: control.font.pointSize
-      to: pointSizeNormal
+      to: textmn.font.pointSize
       duration: 10
     }
     PropertyAnimation {
@@ -206,7 +186,6 @@ Label {
       to: 10
       duration: 10
     }
-
   }
 
   onFocusRequested: hovered = true

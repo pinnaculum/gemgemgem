@@ -1,0 +1,47 @@
+url:
+  fontSize: 18
+  selectionColor: '#323232'
+  textColor: 'cornsilk'
+
+  bg:
+    color: 'black'
+    colorFocused: 'darkcyan'
+    borderColor: 'white'
+
+  cursorWidth: 20
+  cursorColor1: 'lightgray'
+  cursorColor2: 'lightsteelblue'
+  cursorBlinkT1: 300
+  cursorBlinkT2: 250
+  cursorBlinkT3: 100
+
+gemspace:
+  bgColor: 'black'
+  stackIndex:
+    color: 'cornsilk'
+
+links:
+  shortcutButton:
+    color: 'transparent'
+    borderColor: 'darkblue'
+    textColor: 'yellow'
+
+  bg:
+    borderColor: 'darkgray'
+
+  text:
+    color: '#1e90ff'
+    colorHovered: '#00bfff'
+
+  openAnim:
+    buttonBgColor: 'darkorange'
+
+text:
+  fontFamily: 'Arial'
+  color: 'cornsilk'
+  style: 'sunken'
+
+  focusZoom:
+    color: 'white'
+    style: 'outline'
+    styleColor: 'darkorange'

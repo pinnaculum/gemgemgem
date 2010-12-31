@@ -11,23 +11,9 @@ ToolButton {
 
   property string icolor: button.enabled ? 'transparent' : 'gray'
 
-  SequentialAnimation {
+  ScaleAnim {
     id: anim
-
-    ScaleAnimator {
-      target: button
-      from: 1
-      to: 1.4
-      duration: 300
-    }
-    PauseAnimation {
-      duration: 300
-    }
-    ScaleAnimator {
-      target: button
-      to: 1
-      duration: 100
-    }
+    targetItem: button
   }
 
   action: Action {

@@ -2,6 +2,8 @@ import QtQuick 2.2
 import QtQuick.Controls 2.4
 import Qt.labs.qmlmodels 1.0
 
+import "."
+
 Item {
   id: control
   property int editDelay: Conf.ui.urlCompletionTimeout
@@ -44,6 +46,10 @@ Item {
 
   Scheduler {
     id: sched
+  }
+
+  onUrlChanged: {
+    //ElementAnimator.animate(Conf.theme.url.animations.urlChanged, control)
   }
 
   Keys.onEscapePressed: {
@@ -126,9 +132,10 @@ Item {
   Rectangle {
     id: bgr
     anchors.fill: parent
-    color: '#2f4f4f'
-    border.width: 1
-    border.color: 'lightsteelblue'
+    color: urlField.focus ? Conf.theme.url.bg.colorFocused : Conf.theme.url.bg.color
+    border.width: Conf.theme.url.bg.borderWidth
+    border.color: Conf.theme.url.bg.borderColor
+    radius: Conf.theme.url.bg.radius
   }
 
   ListModel {
@@ -138,14 +145,14 @@ Item {
   Popup {
     id: bmpopup
     width: control.width
-    height: 250
+    height: Conf.theme.urlCompletionPopup.height ? Conf.theme.urlCompletionPopup.height : 280
     x: urlField.x
     y: urlField.y + urlField.height
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
     background: Rectangle {
-      color: '#2f4a3f'
+      color: Conf.theme.urlCompletionPopup.bg.color
       border.width: 1
-      border.color: 'black'
+      border.color: Conf.theme.urlCompletionPopup.bg.borderColor
     }
 
     contentItem: TableView {
@@ -181,13 +188,13 @@ Item {
         required property bool selected
         required property bool current
         implicitWidth: column == 0 ? control.width * 0.7 : control.width * 0.2
-        implicitHeight: 32
-        color: current ? 'blue' : 'transparent'
+        implicitHeight: textm.height + 8
+        color: current ? Conf.theme.urlCompletionPopup.delegate.colorSelected : 'transparent'
 
         TextMetrics {
           id: textm
           font.family: 'Courier'
-          font.pointSize: 16
+          font.pointSize: Conf.theme.urlCompletionPopup.delegate.fontSize
           font.bold: column == 0
           text: display
           elideWidth: del.width * 0.9

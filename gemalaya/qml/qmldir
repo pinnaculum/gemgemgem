@@ -4,6 +4,7 @@ GemAddressCtrl 1.0 GemAddressCtrl.qml
 QuitButton 1.0 QuitButton.qml
 HeadingItem 1.0 HeadingItem.qml
 Scheduler 1.0 Scheduler.qml
+ScaleAnim 1.0 ScaleAnim.qml
 ErrorItem 1.0 ErrorItem.qml
 GemSpaceNextAction 1.0 GemSpaceNextAction.qml
 GemSpacePreviousAction 1.0 GemSpacePreviousAction.qml
@@ -18,5 +19,7 @@ NavNextButton 1.0 NavNextButton.qml
 LinkItem 1.0 LinkItem.qml
 GemSpaceCycleAction 1.0 GemSpaceCycleAction.qml
 GemSpace 1.0 GemSpace.qml
+MPlayer 1.0 MPlayer.qml
 GemStackLayout 1.0 GemStackLayout.qml
 GemUrlInput 1.0 GemUrlInput.qml
+singleton ElementAnimator 1.0 ElementAnimator.qml
