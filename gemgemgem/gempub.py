@@ -9,6 +9,7 @@ import traceback
 import zipfile
 import shutil
 from pathlib import Path
+import os.path
 
 from . import gget
 
@@ -67,14 +68,42 @@ class GemPubArchive:
     def m(self):
         return asdict(self.metadata)
 
+    def ref(self, path: str, title: str = None):
+        if path not in self._index_links:
+            self._index_links[path] = title if title else path
+
+    def from_toc(self, toc):
+        for item in toc:
+            if not item[0]:
+                continue
+
+            self.ref(item[0], item[1])
+
     def z(self):
         return zipfile.ZipFile(str(self.zip_path), 'r')
 
-    def coverFrom(self, path: Path):
+    def coverFrom(self, path: Path) -> None:
+        """
+        Copy the image from path and use it as the cover for this gempub
+        """
         shutil.copy(str(path), str(self.workdir))
         self.metadata.cover = path.name
 
-    def write(self, path: Path):
+    def add(self, subpath: str, data, title: str = None) -> None:
+        """
+        Add a file in the gempub
+        """
+        mode = 'w+t' if isinstance(data, str) else 'wb'
+        dst = self.workdir.joinpath(os.path.dirname(subpath))
+        dst.mkdir(parents=True, exist_ok=True)
+
+        with open(self.workdir.joinpath(subpath), mode) as fd:
+            fd.write(data)
+
+        if title:
+            self.ref(subpath, title)
+
+    def write(self, path: Path) -> bool:
         """
         Write the gempub to the given path
         """
@@ -86,7 +115,7 @@ class GemPubArchive:
                 m.write(f'{k}: {v}\n')
 
         with open(self.workdir.joinpath('index.gmi'), 'w+t') as i:
-            for n, p in self._index_links.items():
+            for p, n in self._index_links.items():
                 i.write(f'=> {p}    {n}\n\n')
 
         with zipfile.ZipFile(str(path), 'w',
@@ -94,11 +123,13 @@ class GemPubArchive:
             for fp in self.workdir.glob("**/*"):
                 zipf.write(fp, arcname=fp.relative_to(self.workdir))
 
+        return True
+
     def pull(self, url: URL, title: str = None):
         rlpath = gget(url, self.workdir)
 
         if title:
-            self._index_links[title] = rlpath
+            self.ref(rlpath, title)
 
     def __enter__(self):
         return self
@@ -111,12 +142,9 @@ def get(url: URL, ipfs_client=None):
     metadata = None
 
     if url.scheme == 'dweb' and ipfs_client:
-        print('getting from ipfs')
         data = ipfs_client.cat(url.path)
     elif url.scheme == 'ipfs' and ipfs_client:
-        p = f'/ipfs/{url.host}/{url.path}'
-        print('getting from ipfs', p)
-        data = ipfs_client.cat(p)
+        data = ipfs_client.cat(f'/ipfs/{url.host}/{url.path}')
     else:
         response = ignition.request(str(url))
 
