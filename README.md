@@ -16,3 +16,11 @@ gempubify book.epub
 
 gempubify -o gembook.gpub book.epub
 ```
+
+If you have access to an IPFS (kubo) daemon and want to import the
+gempub file to IPFS, use *--ipfs-import*. The CID of the directory
+containing the gempub will be printed on the console.
+
+```sh
+gempubify --ipfs-import book.epub
+```

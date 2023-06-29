@@ -11,12 +11,13 @@ from pathlib import Path
 
 from lxml import etree
 import ebooklib
+import ipfshttpclient
 from ebooklib import epub
 
 from gemgemgem import gempub
 
 
-def html2gem(html: str) -> str:
+def html2gem(html: str) -> tuple:
     """
     Transform some HTML code to gemtext
     """
@@ -25,7 +26,9 @@ def html2gem(html: str) -> str:
     md = markdownify('\n'.join(lines),
                      heading_style='ATX',
                      strip=['script', 'style'])
-    return md2gemini(md, links='copy'), None
+    return md2gemini(md, links='copy',
+                     md_links=True,
+                     geminize_html_links=True), None
 
 
 def gmin(name: str) -> str:
@@ -90,10 +93,15 @@ def parse_epub_toc(xml: str):
         yield from walk(ol_node)
 
 
-def gempubify_file(src: Path, dst: Path = None) -> gempub.GemPubArchive:
+def gempubify_file(args,
+                   src: Path,
+                   dst: Path = None) -> gempub.GemPubArchive:
     """
     Transform something (for now only epubs supported) to a gempub archive
     """
+
+    ipfs_client = ipfshttpclient.Client(args.ipfsapi_maddr)
+
     def meta(bk, attr: str) -> str:
         try:
             return bk.get_metadata('DC', attr).pop()[0]
@@ -104,7 +112,7 @@ def gempubify_file(src: Path, dst: Path = None) -> gempub.GemPubArchive:
         dst = Path(src.with_suffix('.gpub'))
 
     try:
-        book = epub.read_epub(str(src))
+        book = epub.read_epub(str(src), options={'ignore_ncx': True})
 
         with gempub.create() as gp:
             nav = None
@@ -148,6 +156,19 @@ def gempubify_file(src: Path, dst: Path = None) -> gempub.GemPubArchive:
 
             gp.write(dst)
 
+        if args.ipfsout:
+            try:
+                entries = ipfs_client.add(
+                    str(dst),
+                    cid_version=1,
+                    wrap_with_directory=True
+                )
+                assert entries
+
+                print(entries[-1]['Hash'])
+            except Exception:
+                raise
+
         return gp
     except Exception as e:
         raise e
@@ -159,11 +180,28 @@ def gempubify():
         '--output',
         '-o',
         dest='dst',
+        help='Output file path',
         default=None
     )
+    parser.add_argument(
+        '--ipfs-import',
+        dest='ipfsout',
+        action='store_true',
+        default=False,
+        help='Import the generated gempub archive to IPFS'
+    )
+    parser.add_argument(
+        '--ipfs-maddr',
+        '-m',
+        dest='ipfsapi_maddr',
+        default='/ip4/127.0.0.1/tcp/5001',
+        help='Use a specific IPFS daemon multiaddr'
+    )
+
     parser.add_argument('src')
 
     args = parser.parse_args()
 
-    gempubify_file(Path(args.src),
+    gempubify_file(args,
+                   Path(args.src),
                    dst=Path(args.dst) if args.dst else None)

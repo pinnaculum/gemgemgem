@@ -11,12 +11,14 @@ setup(
     packages=['gemgemgem'],
     install_requires=[
         'attrs',
+        'ebooklib',
         'ignition-gemini',
-        'trimgmi',
         'ipfshttpclient',
+        'md2gemini @ git+https://github.com/pinnaculum/md2gemini#egg=md2gemini',
         'markdownify',
-        'md2gemini',
-        'python-dateutil'
+        'python-dateutil',
+        'trimgmi',
+        'yarl'
     ],
     license='MIT',
     entry_points={

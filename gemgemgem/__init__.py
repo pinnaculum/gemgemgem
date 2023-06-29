@@ -41,8 +41,6 @@ def gget(url: URL, basedir: Path, handled: list = [],
         else:
             path = dstd.joinpath(url.name)
 
-    print(url, '=>', path)
-
     if path.is_file():
         return
 
