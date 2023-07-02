@@ -1,0 +1,81 @@
+image: python:3.9
+
+variables:
+  VERSION: "0.2.0"
+  TAGNAME: "continuous-${CI_COMMIT_BRANCH}"
+
+  WHEEL_FILENAME: "${CI_PROJECT_NAME}-${VERSION}-py3-none-any.whl"
+  WHEEL_ARTIFACT_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/continuous-${CI_COMMIT_BRANCH}/${CI_PROJECT_NAME}-${VERSION}-py3-none-any.whl"
+
+  APPIMAGE_FILENAME: "GemV-${VERSION}-x86_64.AppImage"
+  APPIMAGE_LATEST_FILENAME: "GemV-latest-x86_64.AppImage"
+  APPIMAGE_ARTIFACT_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/continuous-${CI_COMMIT_BRANCH}/GemV-${VERSION}-x86_64.AppImage"
+
+stages:
+  - build
+  - release
+
+build:
+  stage: build
+  only:
+    - master
+    - devel
+    - viewer
+  script:
+    - apt-get -y update
+    - apt-get install -y fuse
+
+    - python3 -m pip install --upgrade pip
+    - python3 -m venv venv
+    - source venv/bin/activate
+
+    - pip install wheel
+    - pip install '.[ui]'
+    - python setup.py build bdist_wheel
+
+    - ./ci/appimage-build
+
+  artifacts:
+    paths:
+      - "*.AppImage"
+      - dist/*.whl
+
+release:
+  image: registry.gitlab.com/gitlab-org/release-cli
+  stage: release
+  only:
+    - master
+    - devel
+    - viewer
+  script:
+    - apk add curl
+
+    - >
+      curl
+      --request DELETE
+      --header "JOB-TOKEN: $CI_JOB_TOKEN"
+      --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}"
+      "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/${TAGNAME}"
+
+    - >
+     curl --header "JOB-TOKEN: $CI_JOB_TOKEN"
+     --upload-file
+     dist/${WHEEL_FILENAME}
+     ${WHEEL_ARTIFACT_URL}
+
+    - >
+     curl --header "JOB-TOKEN: $CI_JOB_TOKEN"
+     --upload-file
+     ${APPIMAGE_FILENAME}
+     ${APPIMAGE_ARTIFACT_URL}
+
+    - >
+      release-cli create
+      --name release-${CI_COMMIT_SHA}
+      --description README.md
+      --tag-name $TAGNAME
+      --ref $CI_COMMIT_SHA
+      --assets-link
+      "{\"name\": \"${WHEEL_FILENAME}\", \"filepath\": \"/${WHEEL_FILENAME}\", \"url\": \"${WHEEL_ARTIFACT_URL}\"}"
+      --assets-link
+      "{\"name\": \"${APPIMAGE_FILENAME}\", \"filepath\": \"/${APPIMAGE_LATEST_FILENAME}\", \"url\": \"${APPIMAGE_ARTIFACT_URL}\"}"

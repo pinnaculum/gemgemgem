@@ -1,0 +1,133 @@
+#:import rgba kivy.utils.get_color_from_hex
+<Viewer>:
+    BoxLayout:
+        orientation: 'vertical'
+
+        BoxLayout:
+            size_hint: 1, 0.08
+            orientation: 'horizontal'
+            spacing: 5
+            padding: 10, 10, 10, 10
+            Button:
+                id: toc_button
+                size_hint: 0.2, 1
+                text: "Table of contents"
+                disabled: True if root.book_loaded() is False else False
+                on_release: root.show_toc()
+
+            Button:
+                size_hint: 0.2, 1
+                text: "Open"
+                on_release: root.show_load()
+
+            Button:
+                size_hint: 0.2, 1
+                text: "Quit"
+                on_release: app.stop()
+
+        BoxLayout:
+            size_hint: 1, 0.08
+            orientation: 'horizontal'
+            Label:
+                id: title
+                color: rgba("#ffff60")
+                font_size: 22
+                font_family: "Times"
+                text: ''
+
+        ScrollView:
+            id: scroll_view
+            do_scroll_x: False
+            do_scroll_y: True
+            padding: 30, 30, 30, 30
+            bar_width: 12
+            bar_color: rgba("#00bfff")
+            bar_inactive_color: rgba("#696969")
+            scroll_distance: 80
+            scroll_wheel_distance: 100
+            scroll_type: ["bars", "content"]
+
+            Label:
+                id: page
+                text: ''
+                size_hint_x: 0.9
+                size_hint_y: None
+                text_size: self.width, None
+                font_size: 22
+                font_family: "Times"
+                markup: True
+                mipmap: True
+                line_height: 1.5
+                color: rgba("#FFF8DC")
+                on_ref_press: root.link_clicked(args[1])
+                height: self.texture_size[1]
+
+        BoxLayout:
+            size_hint: 1, 0.10
+            orientation: 'horizontal'
+            spacing: 5
+            padding: 10, 10, 10, 10
+            Button:
+                id: prev_button
+                size_hint: 0.2, 0.5
+                text: "Previous"
+                disabled: False
+                on_release: root.toc_prev()
+
+            Button:
+                size_hint: 0.1, 0.5
+                text: "Smaller font"
+                disabled: False
+                on_release: page.font_size -= 2
+
+            Button:
+                size_hint: 0.1, 0.5
+                text: "Larger font"
+                disabled: False
+                on_release: page.font_size += 2
+
+            Button:
+                id: next_button
+                size_hint: 0.2, 0.5
+                text: "Next"
+                disabled: False
+                on_release: root.toc_next()
+
+<CoverDialog>:
+    id: cover_dlg
+    FloatLayout:
+        pos: root.pos
+        Image:
+            pos: root.pos
+            source: cover_dlg.cover_path
+
+<ImagePopup>:
+    id: image_popup
+    FloatLayout:
+        pos: root.pos
+        Image:
+            pos: root.pos
+            source: image_popup.image_path
+
+<LoadDialog>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+            filters: ["*.epub", "*.gpub"]
+            path: root.get_default_path()
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Load"
+                on_release:
+                    root.open(filechooser.path, filechooser.selection[0])
+                    root.close()
+                    root.show_cover()
+
+            Button:
+                text: "Cancel"
+                on_release: root.close()

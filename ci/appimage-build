@@ -1,0 +1,46 @@
+#!/bin/sh
+
+if [ ! -f "python3.9.13-cp39-cp39-manylinux2010_x86_64.AppImage" ]; then
+    wget https://github.com/niess/python-appimage/releases/download/python3.9/python3.9.13-cp39-cp39-manylinux2010_x86_64.AppImage
+fi
+
+if [ -d squashfs-root ]; then
+    rm -rf squashfs-root
+fi
+
+# Extract this AppImage
+chmod +x python*-manylinux2010_x86_64.AppImage
+./python*-manylinux2010_x86_64.AppImage --appimage-extract
+
+# Install deps into the extracted AppDir
+./squashfs-root/AppRun -m pip install mistune
+./squashfs-root/AppRun -m pip install '.[ui]'
+
+rm -f squashfs-root/AppRun
+cp ci/AppRun ./squashfs-root
+
+# Edit the desktop file
+rm squashfs-root/usr/share/applications/python3.9.*.desktop
+cp gemv.desktop squashfs-root/usr/share/applications/gemv.desktop
+rm squashfs-root/*.desktop
+cp squashfs-root/usr/share/applications/*.desktop squashfs-root/
+
+# Add icon
+mkdir -p squashfs-root/usr/share/icons/hicolor/128x128/apps/
+cp gemv.png squashfs-root/usr/share/icons/hicolor/128x128/apps/
+cp gemv.png squashfs-root/io.gitlab.gemgemgem.GemV.png
+cp squashfs-root/usr/share/icons/hicolor/128x128/apps/gemv.png squashfs-root/
+
+# cleanup
+rm -rf squashfs-root/opt/python3.9/include
+rm -rf squashfs-root/usr/share/tcltk
+rm -rf squashfs-root/usr/lib/libtk*
+rm -rf squashfs-root/usr/lib/libtcl*
+find squashfs-root | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf
+
+export VERSION=$(cat squashfs-root/opt/python3.9/lib/python3.9/site-packages/gemgemgem-*.dist-info/METADATA | grep "^Version:.*" | cut -d " " -f 2)
+
+wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+chmod +x appimagetool*.AppImage
+
+./appimagetool-x86_64.AppImage squashfs-root/

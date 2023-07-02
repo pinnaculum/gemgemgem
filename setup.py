@@ -8,9 +8,10 @@ setup(
     url='https://gitlab.com/galacteek/gemgemgem',
     author='cipres',
     keywords=['gemini', 'gempub'],
-    packages=['gemgemgem'],
+    packages=['gemgemgem', 'gemgemgem.ui'],
     install_requires=[
         'attrs',
+        'DoubleLinkedList',
         'ebooklib',
         'ignition-gemini',
         'ipfshttpclient',
@@ -20,10 +21,23 @@ setup(
         'trimgmi',
         'yarl'
     ],
+    extras_require={
+        'ui': [
+            'kivy'
+        ]
+    },
+    package_data={
+        '': [
+            '*.kv'
+        ]
+    },
     license='MIT',
     entry_points={
+        'gui_scripts': [
+            'gemv = gemgemgem.ui:run_gempubv'
+        ],
         'console_scripts': [
-            'gempubify = gemgemgem.gempubify:gempubify',
+            'gempubify = gemgemgem.gempubify:gempubify'
         ]
     },
     classifiers=[

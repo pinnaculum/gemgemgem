@@ -93,14 +93,13 @@ def parse_epub_toc(xml: str):
         yield from walk(ol_node)
 
 
-def gempubify_file(args,
-                   src: Path,
-                   dst: Path = None) -> gempub.GemPubArchive:
+def gempubify_file(src: Path,
+                   dst: Path = None,
+                   ipfsapi_maddr: str = None,
+                   ipfsout: bool = False) -> gempub.GemPubArchive:
     """
     Transform something (for now only epubs supported) to a gempub archive
     """
-
-    ipfs_client = ipfshttpclient.Client(args.ipfsapi_maddr)
 
     def meta(bk, attr: str) -> str:
         try:
@@ -156,8 +155,9 @@ def gempubify_file(args,
 
             gp.write(dst)
 
-        if args.ipfsout:
+        if ipfsout:
             try:
+                ipfs_client = ipfshttpclient.Client(ipfsapi_maddr)
                 entries = ipfs_client.add(
                     str(dst),
                     cid_version=1,
@@ -169,7 +169,7 @@ def gempubify_file(args,
             except Exception:
                 raise
 
-        return gp
+        return gp, dst
     except Exception as e:
         raise e
 
@@ -202,6 +202,7 @@ def gempubify():
 
     args = parser.parse_args()
 
-    gempubify_file(args,
-                   Path(args.src),
-                   dst=Path(args.dst) if args.dst else None)
+    gempubify_file(Path(args.src),
+                   dst=Path(args.dst) if args.dst else None,
+                   ipfsapi_maddr=args.ipfsapi_maddr,
+                   ipfsout=args.ipfsout)

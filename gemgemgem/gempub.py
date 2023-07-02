@@ -1,6 +1,7 @@
 from yarl import URL
 
 from attrs import define, asdict
+from DoubleLinkedList import DLinked
 
 import re
 import ignition
@@ -10,6 +11,9 @@ import zipfile
 import shutil
 from pathlib import Path
 import os.path
+
+from trimgmi import Document as GmiDocument
+from trimgmi import LineType as GmiLineType
 
 from . import gget
 
@@ -36,7 +40,7 @@ class GemPubMetadata:
     version: str = ''
     description: str = ''
     revisionDate: str = ''
-    index: str = ''
+    index: str = 'index.gmi'
     charset: str = 'UTF-8'
     cover: str = ''
     copyright: str = ''
@@ -59,7 +63,6 @@ class GemPubArchive:
         self.workdir = workdir if workdir else Path(tempfile.mkdtemp())
         self.url = url
         self.metadata = metadata if metadata else GemPubMetadata()
-        self.zip = zipfile
         self.zip_path = zip_path
 
         self._index_links = {}
@@ -67,6 +70,55 @@ class GemPubArchive:
     @property
     def m(self):
         return asdict(self.metadata)
+
+    @property
+    def toc(self):
+        return self.get_toc()
+
+    def read_doc(self, path: str) -> bytes:
+        # Read a document in the gempub and return its raw data
+
+        try:
+            with zipfile.ZipFile(str(self.zip_path), 'r') as zip:
+                with zip.open(path, 'r') as f:
+                    return f.read()
+        except Exception:
+            return None
+
+    def extract_item(self, path: str) -> Path:
+        # Read a document in the gempub and write its data to a temporary file
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, mode='wb') as tf:
+                with zipfile.ZipFile(str(self.zip_path), 'r') as zip:
+                    with zip.open(path, 'r') as f:
+                        tf.write(f.read())
+
+            return Path(tf.name)
+        except Exception:
+            return None
+
+    def index(self) -> bytes:
+        # Return the book's index document
+
+        return self.read_doc(self.m.get('index', 'index.gmi'))
+
+    def get_toc(self):
+        toc = DLinked.Linked()
+        doc = GmiDocument()
+        idx = self.index()
+
+        if not idx:
+            return
+
+        [doc.append(line) for line in idx.decode().split('\n')]
+
+        for line in doc.emit_line_objects(auto_tidy=True):
+            if line.type == GmiLineType.LINK:
+                toc.pushback(
+                    (line.extra, line.text if line.text else line.extra)
+                )
+
+        return toc
 
     def ref(self, path: str, title: str = None):
         if path not in self._index_links:
@@ -123,6 +175,8 @@ class GemPubArchive:
             for fp in self.workdir.glob("**/*"):
                 zipf.write(fp, arcname=fp.relative_to(self.workdir))
 
+        self.zip_path = path
+
         return True
 
     def pull(self, url: URL, title: str = None):
@@ -138,9 +192,26 @@ class GemPubArchive:
         return self
 
 
-def get(url: URL, ipfs_client=None):
-    metadata = None
+def load(path: Path):
+    exp = Path(tempfile.mkdtemp())
 
+    with zipfile.ZipFile(path, 'r') as zip:
+        with zip.open('metadata.txt', 'r') as meta:
+            metadata = metadata_as_dict(meta.read().decode())
+            if not metadata:
+                raise ValueError('invalid gempub')
+
+        try:
+            meta = GemPubMetadata(**metadata)
+        except TypeError:
+            raise
+
+        return GemPubArchive(exp,
+                             meta,
+                             zip_path=path)
+
+
+def get(url: URL, ipfs_client=None):
     if url.scheme == 'dweb' and ipfs_client:
         data = ipfs_client.cat(url.path)
     elif url.scheme == 'ipfs' and ipfs_client:
@@ -154,28 +225,12 @@ def get(url: URL, ipfs_client=None):
         data = response.data()
 
     try:
-        exp = Path(tempfile.mkdtemp())
         with tempfile.NamedTemporaryFile(suffix='.zip',
                                          delete=False,
                                          mode='wb') as gpf:
             gpf.write(data)
 
-        with zipfile.ZipFile(gpf.name, 'r') as zip:
-            zip.extractall(str(exp))
-
-            with zip.open('metadata.txt', 'r') as meta:
-                metadata = metadata_as_dict(meta.read().decode())
-                if not metadata:
-                    raise ValueError(f'{url}: invalid gempub')
-
-            try:
-                meta = GemPubMetadata(**metadata)
-            except TypeError:
-                raise
-
-            return GemPubArchive(exp, meta,
-                                 url=url, zipfile=zip,
-                                 zip_path=Path(gpf.name))
+        return load(gpf.name)
     except Exception:
         traceback.print_exc()
 

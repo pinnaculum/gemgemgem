@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=GemV
+Comment=Gempub ebooks viewer
+Icon=io.gitlab.gemgemgem.GemV
+Exec=
+Terminal=false
+Categories=Viewer;Graphics
+StartupWMClass=gemv
