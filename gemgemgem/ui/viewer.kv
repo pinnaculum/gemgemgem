@@ -12,12 +12,12 @@
                 id: toc_button
                 size_hint: 0.2, 1
                 text: "Table of contents"
-                disabled: True if root.book_loaded() is False else False
+                disabled: True
                 on_release: root.show_toc()
 
             Button:
                 size_hint: 0.2, 1
-                text: "Open"
+                text: "Open ebook"
                 on_release: root.show_load()
 
             Button:
@@ -29,6 +29,14 @@
             size_hint: 1, 0.08
             orientation: 'horizontal'
             Label:
+                size_hint: 0.3, 1
+                id: chapter
+                color: rgba("#1e90ff")
+                font_size: 18
+                font_family: "Times"
+
+            Label:
+                size_hint: 0.7, 1
                 id: title
                 color: rgba("#ffff60")
                 font_size: 22
@@ -63,34 +71,25 @@
                 height: self.texture_size[1]
 
         BoxLayout:
-            size_hint: 1, 0.10
+            size_hint: 1, 0.08
             orientation: 'horizontal'
-            spacing: 5
+            spacing: 10
             padding: 10, 10, 10, 10
             Button:
                 id: prev_button
-                size_hint: 0.2, 0.5
+                size_hint: 0.10, 1
                 text: "Previous"
-                disabled: False
+                disabled: True
                 on_release: root.toc_prev()
 
-            Button:
-                size_hint: 0.1, 0.5
-                text: "Smaller font"
-                disabled: False
-                on_release: page.font_size -= 2
-
-            Button:
-                size_hint: 0.1, 0.5
-                text: "Larger font"
-                disabled: False
-                on_release: page.font_size += 2
+            Label:
+                size_hint: 0.3, 1
 
             Button:
                 id: next_button
-                size_hint: 0.2, 0.5
+                size_hint: 0.10, 1
                 text: "Next"
-                disabled: False
+                disabled: True
                 on_release: root.toc_next()
 
 <CoverDialog>:

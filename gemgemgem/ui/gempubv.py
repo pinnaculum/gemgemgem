@@ -7,6 +7,7 @@ from kivy.properties import StringProperty
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
+from kivy.core.window import Window
 
 from pathlib import Path
 from DoubleLinkedList.DLinked import ListIteratorForward
@@ -38,11 +39,56 @@ class ImagePopup(FloatLayout):
 
 
 class Viewer(FloatLayout):
-    book = None
-    current_toc_idx = 0
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
 
-    _popup = None
-    _cover_popup = None
+        self.book = None
+        self.current_toc_idx: int = 0
+        self._popup = None
+        self._cover_popup = None
+
+        self._keyboard = Window.request_keyboard(self.on_keyb_press, self)
+        self._keyboard.bind(on_key_down=self.on_keyb_press)
+
+        self.enable_ctrl_buttons(False)
+
+    def on_keyb_press(self, keyboard, keycode, text, modifiers) -> None:
+        """
+        Handle keypress events
+        """
+
+        kc = keycode[1]
+
+        if 'ctrl' in modifiers:
+            # Ctrl +/- for larger/smaller font
+            if kc == '+':
+                self.ids.page.font_size += 2
+            elif kc == '-':
+                self.ids.page.font_size -= 2
+            elif kc == 'o':
+                self.show_load()
+            elif kc == 'q':
+                self.quit()
+            elif kc == 'right':
+                self.toc_next()
+            elif kc == 'left':
+                self.toc_prev()
+        else:
+            # Handle pageup/pagedown
+            dist = self.ids.scroll_view.convert_distance_to_scroll(0, 100)
+
+            if kc == 'pageup' and self.ids.scroll_view.scroll_y < 1:
+                self.ids.scroll_view.scroll_y += dist[1]
+            elif kc == 'up' and self.ids.scroll_view.scroll_y < 1:
+                self.ids.scroll_view.scroll_y += dist[1] / 2
+            elif kc == 'pagedown' and self.ids.scroll_view.scroll_y > 0:
+                self.ids.scroll_view.scroll_y -= dist[1]
+            elif kc == 'down' and self.ids.scroll_view.scroll_y > 0:
+                self.ids.scroll_view.scroll_y -= dist[1] / 2
+            elif kc == 'end':
+                self.ids.scroll_view.scroll_y = 0
+            elif kc == 'home':
+                self.ids.scroll_view.scroll_y = 1
 
     def book_loaded(self) -> bool:
         return self.book is not None
@@ -85,7 +131,9 @@ class Viewer(FloatLayout):
                             size_hint=(0.9, 0.9))
         self._popup.open()
 
-    def load_page(self, path: str = None):
+    def load_page(self, path: str = None, title: str = None):
+        self.ids.chapter.text = ''
+
         doctext = ''
         doc = GmiDocument()
         page = self.book.index() if not path else self.book.read_doc(path)
@@ -128,10 +176,13 @@ class Viewer(FloatLayout):
         self.ids.page.text = doctext
         self.ids.scroll_view.scroll_y = 1
 
+        if title:
+            self.ids.chapter.text = title
+
     def load_from_toc_index(self, idx: int = 1):
         item = self.book.toc.get(idx + 1)
         if item:
-            self.load_page(item[0])
+            self.load_page(item[0], title=item[1])
             self.current_toc_idx = idx
 
     def link_clicked(self, link):
@@ -148,8 +199,13 @@ class Viewer(FloatLayout):
                 self.load_from_toc_index(i)
                 break
 
+    def enable_ctrl_buttons(self, enabled: bool = True) -> None:
+        self.ids.toc_button.disabled = not enabled
+        self.ids.next_button.disabled = not enabled
+        self.ids.prev_button.disabled = not enabled
+
     def open(self, path: str, filename: str) -> bool:
-        self.ids.toc_button.disabled = True
+        self.enable_ctrl_buttons(False)
 
         mtype = mimetypes.guess_type(filename)[0]
         fbase, fext = os.path.splitext(filename)
@@ -170,8 +226,8 @@ class Viewer(FloatLayout):
         self.load_page()
 
         self.ids.title.text = self.book.m['title']
-        self.ids.toc_button.disabled = False
 
+        self.enable_ctrl_buttons(True)
         return True
 
     def show_toc(self) -> None:

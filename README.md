@@ -7,11 +7,13 @@ A small Python toolkit to work with gemini and
 pip install .
 ```
 
-To install the gempub viewer (*GemV*) Kivy dependencies as well:
+To install the gempub viewer (*GemV*) as well:
 
 ```sh
 pip install '.[ui]'
 ```
+
+[Download GemV's latest AppImage (x86_64)](https://gitlab.com/galacteek/gemgemgem/-/releases/continuous-master/downloads/GemV-latest-x86_64.AppImage)
 
 ## Convert an epub to gempub
 
