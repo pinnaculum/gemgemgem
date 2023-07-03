@@ -9,6 +9,7 @@ import tempfile
 import traceback
 import zipfile
 import shutil
+import urllib.request
 from pathlib import Path
 import os.path
 
@@ -75,12 +76,30 @@ class GemPubArchive:
     def toc(self):
         return self.get_toc()
 
+    @property
+    def index_path(self) -> str:
+        # Return the path of the index file in the gempub
+        return self.m.get('index', 'index.gmi')
+
+    @property
+    def index_path_basedir(self) -> str:
+        # Return the directory name of the index file
+        return os.path.dirname(self.index_path)
+
     def read_doc(self, path: str) -> bytes:
         # Read a document in the gempub and return its raw data
 
+        if self.index_path_basedir and not \
+                path.startswith(self.index_path_basedir + '/'):
+            # The index's path in the gempub is in a subdirectory
+            # Load the document from that directory
+            zpath = os.path.join(self.index_path_basedir, path)
+        else:
+            zpath = path
+
         try:
             with zipfile.ZipFile(str(self.zip_path), 'r') as zip:
-                with zip.open(path, 'r') as f:
+                with zip.open(zpath, 'r') as f:
                     return f.read()
         except Exception:
             return None
@@ -212,20 +231,30 @@ def load(path: Path):
 
 
 def get(url: URL, ipfs_client=None):
+    """
+    Fetch a gempub from the given url
+    """
     if url.scheme == 'dweb' and ipfs_client:
         data = ipfs_client.cat(url.path)
     elif url.scheme == 'ipfs' and ipfs_client:
         data = ipfs_client.cat(f'/ipfs/{url.host}/{url.path}')
-    else:
+    elif url.scheme == 'gemini':
         response = ignition.request(str(url))
 
         if not response.success():
             return None
 
         data = response.data()
+    elif url.scheme in ['http', 'https']:
+        with urllib.request.urlopen(str(url)) as f:
+            data = f.read()
+    else:
+        return None
 
     try:
-        with tempfile.NamedTemporaryFile(suffix='.zip',
+        assert data
+
+        with tempfile.NamedTemporaryFile(suffix='.gpub',
                                          delete=False,
                                          mode='wb') as gpf:
             gpf.write(data)

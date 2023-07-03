@@ -10,6 +10,10 @@ It is primarily intended to serve as a container for e-books containing text fil
 
 Click on the "Open ebook" button to open an ebook file. Only .gpub or .epub files will be shown in the files selector. If you select an .epub file it will be converted on-the-fly to a gempub archive.
 
+If you know the URL address of a gempub, you can use the "Load from URL" button. You can either specify a gemini:// URL, an ipfs:// URL, or an http/https URL.
+
+## Keybindings
+
 List of application keybindings:
 
 * Ctrl + +/-: larger/smaller font size

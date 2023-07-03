@@ -18,7 +18,12 @@
             Button:
                 size_hint: 0.2, 1
                 text: "Open ebook"
-                on_release: root.show_load()
+                on_release: root.show_fileload_dialog()
+
+            Button:
+                size_hint: 0.2, 1
+                text: "Load from URL"
+                on_release: root.show_urlload_dialog()
 
             Button:
                 size_hint: 0.2, 1
@@ -83,7 +88,17 @@
                 on_release: root.toc_prev()
 
             Label:
-                size_hint: 0.3, 1
+                size_hint: 0.2, 1
+
+            Button:
+                size_hint: 0.15, 1
+                text: "Ko-fi"
+                on_release:
+                    import webbrowser
+                    webbrowser.open("https://ko-fi.com/galacteek")
+
+            Label:
+                size_hint: 0.2, 1
 
             Button:
                 id: next_button
@@ -124,6 +139,44 @@
                 text: "Load"
                 on_release:
                     root.open(filechooser.path, filechooser.selection[0])
+                    root.close()
+                    root.show_cover()
+
+            Button:
+                text: "Cancel"
+                on_release: root.close()
+
+<LoadFromURLDialog>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        spacing: 30
+
+        Label:
+            size_hint: 1, 0.2
+            text: 'You can pass gemini, http or IPFS URLs'
+
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint: 1, 0.5
+            Label:
+                text: 'URL'
+                size_hint: 0.10, 0.9
+            TextInput:
+                size_hint: 0.80, 0.9
+                multiline: True
+                font_size: 18
+                font_family: "Courier"
+                id: url
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Load"
+                on_release:
+                    root.open(url.text)
                     root.close()
                     root.show_cover()
 

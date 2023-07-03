@@ -2,6 +2,8 @@ import mimetypes
 import os.path
 import sys
 import webbrowser
+import ipfshttpclient
+
 from yarl import URL
 from typing import Union
 
@@ -33,6 +35,13 @@ class LoadDialog(FloatLayout):
         return self.path
 
 
+class LoadFromURLDialog(FloatLayout):
+    load = ObjectProperty()
+    open = ObjectProperty()
+    show_cover = ObjectProperty()
+    close = ObjectProperty()
+
+
 class CoverDialog(FloatLayout):
     cover_path = StringProperty()
 
@@ -53,9 +62,8 @@ class Viewer(FloatLayout):
         self._lib_path: Path = None
         self.current_toc_idx: int = 0
         self._popup = None
-        self._cover_popup = None
 
-        self._keyboard = Window.request_keyboard(self.on_keyb_press, self)
+        self._keyboard = Window.request_keyboard(None, self)
         self._keyboard.bind(on_key_down=self.on_keyb_press)
 
         self.enable_ctrl_buttons(False)
@@ -82,7 +90,7 @@ class Viewer(FloatLayout):
             elif kc == '-':
                 self.ids.page.font_size -= 2
             elif kc == 'o':
-                self.show_load()
+                self.show_fileload_dialog()
             elif kc == 'q':
                 self.quit()
             elif kc == 'right':
@@ -121,10 +129,9 @@ class Viewer(FloatLayout):
 
             content = CoverDialog(cover_path=str(cover_file))
 
-            self._cover_popup = Popup(title="Book cover",
-                                      content=content,
-                                      size_hint=(0.8, 0.8))
-            self._cover_popup.open()
+            Popup(title="Book cover",
+                  content=content,
+                  size_hint=(0.8, 0.8)).open()
 
     def show_image(self, path: str) -> None:
         if self.book and path:
@@ -134,19 +141,30 @@ class Viewer(FloatLayout):
 
             content = ImagePopup(image_path=str(img_file))
 
-            self._popup = Popup(title="",
-                                content=content,
-                                size_hint=(0.8, 0.8))
-            self._popup.open()
+            Popup(title="",
+                  content=content,
+                  size_hint=(0.8, 0.8)).open()
 
-    def show_load(self):
+    def show_fileload_dialog(self):
         content = LoadDialog(open=self.open_from_dir,
-                             close=self.dismiss_popup,
                              show_cover=self.show_cover)
 
-        self._popup = Popup(title="Load file", content=content,
+        popup = Popup(title="Load file", content=content,
                             size_hint=(0.9, 0.9))
-        self._popup.open()
+        content.close = popup.dismiss
+        popup.open()
+
+    def show_urlload_dialog(self):
+        content = LoadFromURLDialog(
+            open=self.open_from_url,
+            show_cover=self.show_cover
+        )
+
+        popup = Popup(title="Load gempub from URL",
+                      content=content,
+                      size_hint=(0.8, 0.4))
+        content.close = popup.dismiss
+        popup.open()
 
     def load_page(self, path: str = None, title: str = None):
         self.ids.chapter.text = ''
@@ -224,6 +242,15 @@ class Viewer(FloatLayout):
         self.ids.next_button.disabled = not enabled
         self.ids.prev_button.disabled = not enabled
 
+    def set_book(self, book) -> bool:
+        self.book = book
+        self.current_toc_idx = 0
+        self.load_page()
+        self.ids.title.text = self.book.m['title']
+
+        self.enable_ctrl_buttons(True)
+        return True
+
     def open(self, filepath: Union[Path, str]) -> bool:
         fp = filepath if isinstance(filepath, Path) else Path(filepath)
 
@@ -242,19 +269,27 @@ class Viewer(FloatLayout):
 
         if mtype == 'application/epub+zip':
             gp, dst = gempubify.gempubify_file(p)
-            self.book = gp
+            if gp:
+                return self.set_book(gp)
         elif mtype is None or fext in ['.gpub', '.gempub']:
             with gempub.load(p) as gp:
-                self.book = gp
+                return self.set_book(gp)
 
-        self.current_toc_idx = 0
+        return False
 
-        self.load_page()
+    def open_from_url(self, url_string: str) -> bool:
+        ipfsc = ipfshttpclient.Client()
+        url = URL(url_string)
 
-        self.ids.title.text = self.book.m['title']
+        try:
+            gp = gempub.get(url, ipfs_client=ipfsc)
+            assert gp
 
-        self.enable_ctrl_buttons(True)
-        return True
+            self.set_book(gp)
+        except Exception:
+            return False
+        else:
+            return True
 
     def open_from_lib(self, filename: str) -> bool:
         if not self.libp:
