@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='gemgemgem',
-    version='0.2.0',
+    version='0.3.0',
     description='A library to work with gemini and gempub archives',
     url='https://gitlab.com/galacteek/gemgemgem',
     author='cipres',
@@ -41,10 +41,11 @@ setup(
         ]
     },
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 2 - Pre-Alpha',
+        'Environment :: X11 Applications',
         'Environment :: Console',
         'Intended Audience :: Developers',
-        'Intended Audience :: System Administrators',
+        'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3.7',

@@ -1,7 +1,7 @@
 image: python:3.9
 
 variables:
-  VERSION: "0.2.0"
+  VERSION: "0.3.0"
   TAGNAME: "continuous-${CI_COMMIT_BRANCH}"
 
   WHEEL_FILENAME: "${CI_PROJECT_NAME}-${VERSION}-py3-none-any.whl"
@@ -23,7 +23,7 @@ build:
     - viewer
   script:
     - apt-get -y update
-    - apt-get install -y fuse
+    - apt-get install -y zip fuse
 
     - python3 -m pip install --upgrade pip
     - python3 -m venv venv
