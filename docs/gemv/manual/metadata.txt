@@ -1,0 +1,6 @@
+title: GemV manual
+author: cipres
+charset: UTF-8
+language: en
+publishDate: 2023-07-02
+gpubVersion: 1.0.0

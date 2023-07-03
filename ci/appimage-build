@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ ! -f "python3.9.13-cp39-cp39-manylinux2010_x86_64.AppImage" ]; then
     wget https://github.com/niess/python-appimage/releases/download/python3.9/python3.9.13-cp39-cp39-manylinux2010_x86_64.AppImage
@@ -13,11 +13,18 @@ chmod +x python*-manylinux2010_x86_64.AppImage
 ./python*-manylinux2010_x86_64.AppImage --appimage-extract
 
 # Install deps into the extracted AppDir
-./squashfs-root/AppRun -m pip install mistune
 ./squashfs-root/AppRun -m pip install '.[ui]'
 
 rm -f squashfs-root/AppRun
 cp ci/AppRun ./squashfs-root
+
+GPLP="$PWD"/squashfs-root/GemPubLibrary
+mkdir -p $GPLP
+
+# Create the manual's gempub
+pushd docs/gemv/manual
+zip -r $GPLP/gemv_manual.gpub .
+popd
 
 # Edit the desktop file
 rm squashfs-root/usr/share/applications/python3.9.*.desktop
@@ -33,6 +40,15 @@ cp squashfs-root/usr/share/icons/hicolor/128x128/apps/gemv.png squashfs-root/
 
 # cleanup
 rm -rf squashfs-root/opt/python3.9/include
+rm -rf squashfs-root/opt/python3.9/bin/rst*
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/ctypes/test
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/distutils/tests
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/idlelib
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/lib2to3
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/site-packages/bs4/tests
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/site-packages/kivy/tests
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/site-packages/pip
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/site-packages/setuptools
 rm -rf squashfs-root/usr/share/tcltk
 rm -rf squashfs-root/usr/lib/libtk*
 rm -rf squashfs-root/usr/lib/libtcl*

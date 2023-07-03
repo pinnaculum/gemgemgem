@@ -1,6 +1,9 @@
 import mimetypes
 import os.path
 import sys
+import webbrowser
+from yarl import URL
+from typing import Union
 
 from kivy.properties import ObjectProperty
 from kivy.properties import StringProperty
@@ -38,11 +41,16 @@ class ImagePopup(FloatLayout):
     image_path = StringProperty()
 
 
+class ViewerConfig:
+    pass
+
+
 class Viewer(FloatLayout):
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
 
         self.book = None
+        self._lib_path: Path = None
         self.current_toc_idx: int = 0
         self._popup = None
         self._cover_popup = None
@@ -51,6 +59,14 @@ class Viewer(FloatLayout):
         self._keyboard.bind(on_key_down=self.on_keyb_press)
 
         self.enable_ctrl_buttons(False)
+
+    @property
+    def libp(self):
+        return self._lib_path
+
+    def set_library_path(self, lpath: Path):
+        if lpath.is_dir():
+            self._lib_path = lpath
 
     def on_keyb_press(self, keyboard, keycode, text, modifiers) -> None:
         """
@@ -75,7 +91,7 @@ class Viewer(FloatLayout):
                 self.toc_prev()
         else:
             # Handle pageup/pagedown
-            dist = self.ids.scroll_view.convert_distance_to_scroll(0, 100)
+            dist = self.ids.scroll_view.convert_distance_to_scroll(0, 120)
 
             if kc == 'pageup' and self.ids.scroll_view.scroll_y < 1:
                 self.ids.scroll_view.scroll_y += dist[1]
@@ -124,7 +140,8 @@ class Viewer(FloatLayout):
             self._popup.open()
 
     def show_load(self):
-        content = LoadDialog(open=self.open, close=self.dismiss_popup,
+        content = LoadDialog(open=self.open_from_dir,
+                             close=self.dismiss_popup,
                              show_cover=self.show_cover)
 
         self._popup = Popup(title="Load file", content=content,
@@ -185,8 +202,11 @@ class Viewer(FloatLayout):
             self.load_page(item[0], title=item[1])
             self.current_toc_idx = idx
 
-    def link_clicked(self, link):
-        toc = self.book.toc
+    def link_clicked(self, link: str) -> None:
+        url = URL(link)
+        if url.scheme in ['http', 'https', 'ftp']:
+            return webbrowser.open(link)
+
         fbase, fext = os.path.splitext(os.path.basename(link))
         mtype = mimetypes.guess_type(os.path.basename(link))[0]
         mtypec = mtype.split('/')[0] if mtype else None
@@ -194,7 +214,7 @@ class Viewer(FloatLayout):
         if mtypec == 'image':
             return self.show_image(link)
 
-        for i, data in enumerate(ListIteratorForward(toc.first)):
+        for i, data in enumerate(ListIteratorForward(self.book.toc.first)):
             if data[0] == link:
                 self.load_from_toc_index(i)
                 break
@@ -204,7 +224,13 @@ class Viewer(FloatLayout):
         self.ids.next_button.disabled = not enabled
         self.ids.prev_button.disabled = not enabled
 
-    def open(self, path: str, filename: str) -> bool:
+    def open(self, filepath: Union[Path, str]) -> bool:
+        fp = filepath if isinstance(filepath, Path) else Path(filepath)
+
+        if fp.is_file():
+            return self.open_from_dir(str(fp.root), fp.name)
+
+    def open_from_dir(self, path: str, filename: str) -> bool:
         self.enable_ctrl_buttons(False)
 
         mtype = mimetypes.guess_type(filename)[0]
@@ -230,6 +256,14 @@ class Viewer(FloatLayout):
         self.enable_ctrl_buttons(True)
         return True
 
+    def open_from_lib(self, filename: str) -> bool:
+        if not self.libp:
+            return
+
+        ep = self.libp.joinpath(filename)
+        if ep.is_file():
+            self.open_from_dir(str(self.libp), filename)
+
     def show_toc(self) -> None:
         self.load_page()
         self.current_toc_idx = 0
@@ -252,8 +286,25 @@ class Viewer(FloatLayout):
 
 
 class ViewerApp(App):
+    def __init__(self, args):
+        super().__init__()
+
+        self.args = args
+
     def build(self):
-        return Viewer()
+        v = Viewer()
+
+        if self.args.libpath:
+            v.set_library_path(Path(self.args.libpath))
+
+        if self.args.ebook:
+            v.open(Path(self.args.ebook))
+
+        if not self.args.ebook and v.libp:
+            # Open manual if no book specified
+            v.open_from_lib('gemv_manual.gpub')
+
+        return v
 
 
 if __name__ == '__main__':
