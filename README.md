@@ -26,6 +26,15 @@ gempubify book.epub
 gempubify -o gembook.gpub book.epub
 ```
 
+You can also create *gempub* archives by passing the path of
+a project file, formatted in YAML.
+
+```sh
+gempubify -o manual.gpub docs/gemv/manual/manual.yaml
+```
+
+See [the manual's project file](https://gitlab.com/galacteek/gemgemgem/-/blob/master/docs/gemv/manual/manual.yaml) for an example.
+
 If you have access to an IPFS (kubo) daemon and want to import the
 gempub file to IPFS, use *--ipfs-import*. The CID of the directory
 containing the gempub will be printed on the console.

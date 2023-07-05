@@ -1,0 +1,39 @@
+title: 'GemV manual'
+author: 'cipres'
+description: 'GemV manual'
+gpubname: 'gemv_manual'
+
+spine:
+  - title: 'GemV manual page'
+    path: manual.gmi
+    content: |-
+      GemV is an easy to use ebooks viewer written with Kivy. It can read ebooks stored as Gempub archives, as well as ebooks in the popular epub format.
+
+      # What is Gempub
+
+      "Gempub" is a proposed new e-book file format that uses the ".gpub" file extension.
+
+      It is primarily intended to serve as a container for e-books containing text files in the "text/gemini" format, allowing the author to avoid the complexity of using web technologies for e-books that do not require them. It has a secondary purpose of functioning as an archival format for Gemini capsules.
+
+      # Usage
+
+      Click on the "Open ebook" button to open an ebook file. Only .gpub or .epub files will be shown in the files selector. If you select an .epub file it will be converted on-the-fly to a gempub archive.
+
+      If you know the URL address of a gempub, you can use the "Load from URL" button. You can either specify a gemini:// URL, an ipfs:// URL, or an http/https URL.
+
+      ## Keybindings
+
+      List of application keybindings:
+
+      * Ctrl + +/-: larger/smaller font size
+      * Ctrl + q: Quit
+      * Ctrl + Down/Up: Go down or up in the page
+      * Ctrl + PageDown/PageUp: Go down or up in the page (fast)
+      * Ctrl + Left/Right: Go to the previous or next page
+      * "Home": Go to the beginning of the current page
+      * "End": Go to the end of the current page
+
+      => https://gitlab.com/galacteek/gemgemgem   Gemgemgem GitLab repository
+
+  - url: 'gemini://shaggypeak.com/library/books/'
+    title: 'Gempub Books (shaggypeak)'
