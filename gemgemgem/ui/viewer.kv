@@ -9,6 +9,13 @@
             spacing: 5
             padding: 10, 10, 10, 10
             Button:
+                id: history_back_button
+                size_hint: 0.05, 1
+                text: "<=="
+                disabled: True
+                on_release: root.history_back()
+
+            Button:
                 id: toc_button
                 size_hint: 0.2, 1
                 text: "Table of contents"
@@ -18,11 +25,15 @@
             Button:
                 size_hint: 0.2, 1
                 text: "Open ebook"
+                bold: True
+                font_size: 20
                 on_release: root.show_fileload_dialog()
 
             Button:
                 size_hint: 0.2, 1
                 text: "Load from URL"
+                bold: True
+                font_size: 20
                 on_release: root.show_urlload_dialog()
 
             Button:
@@ -57,23 +68,24 @@
             bar_color: rgba("#00bfff")
             bar_inactive_color: rgba("#696969")
             scroll_distance: 80
-            scroll_wheel_distance: 100
+            scroll_wheel_distance: 140
             scroll_type: ["bars", "content"]
 
             Label:
                 id: page
-                text: ''
-                size_hint_x: 0.9
+                size_hint_x: 1
                 size_hint_y: None
                 text_size: self.width, None
-                font_size: 22
-                font_family: "Times"
+                font_size: '20sp'
+                font_family: "DejaVuSans"
+                bold: True
                 markup: True
-                mipmap: True
                 line_height: 1.5
                 color: rgba("#FFF8DC")
                 on_ref_press: root.link_clicked(args[1])
                 height: self.texture_size[1]
+                max_lines: 0
+                padding: 20, 20
 
         BoxLayout:
             size_hint: 1, 0.08
@@ -93,6 +105,7 @@
             Button:
                 size_hint: 0.15, 1
                 text: "Ko-fi"
+                bold: True
                 on_release:
                     import webbrowser
                     webbrowser.open("https://ko-fi.com/galacteek")

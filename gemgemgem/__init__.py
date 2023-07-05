@@ -24,6 +24,8 @@ def down(url: URL):
 
 
 def gget(url: URL, basedir: Path, handled: list = [],
+         depth: int = 0,
+         maxdepth: int = 10,
          referer: URL = None):
     # Kind of like a terrible, terrible wget -r for gemini
 
@@ -104,8 +106,17 @@ def gget(url: URL, basedir: Path, handled: list = [],
                     if str(surl) in handled:
                         continue
 
-                    if surl.scheme == 'gemini' or ext in ['.gpub']:
-                        gget(surl, basedir, handled, referer=url)
+                    if ext in ['.gpub']:
+                        gget(surl, basedir, handled, referer=url,
+                             depth=depth, maxdepth=maxdepth)
+                        handled.append(str(surl))
+
+                    elif surl.scheme == 'gemini':
+                        depth += 1
+
+                        if depth < maxdepth:
+                            gget(surl, basedir, handled, referer=url,
+                                 depth=depth, maxdepth=maxdepth)
 
                         handled.append(str(surl))
 

@@ -3,6 +3,7 @@ import os.path
 import sys
 import webbrowser
 import ipfshttpclient
+from collections import deque
 
 from yarl import URL
 from typing import Union
@@ -60,7 +61,9 @@ class Viewer(FloatLayout):
 
         self.book = None
         self._lib_path: Path = None
-        self.current_toc_idx: int = 0
+        self._current_toc_idx: int = 0
+        self._current_doc_path: Path = None
+        self._books_url_hist: deque = deque([], maxlen=16)
         self._popup = None
 
         self._keyboard = Window.request_keyboard(None, self)
@@ -71,6 +74,10 @@ class Viewer(FloatLayout):
     @property
     def libp(self):
         return self._lib_path
+
+    @property
+    def bhist(self):
+        return self._books_url_hist
 
     def set_library_path(self, lpath: Path):
         if lpath.is_dir():
@@ -99,7 +106,7 @@ class Viewer(FloatLayout):
                 self.toc_prev()
         else:
             # Handle pageup/pagedown
-            dist = self.ids.scroll_view.convert_distance_to_scroll(0, 120)
+            dist = self.ids.scroll_view.convert_distance_to_scroll(0, 140)
 
             if kc == 'pageup' and self.ids.scroll_view.scroll_y < 1:
                 self.ids.scroll_view.scroll_y += dist[1]
@@ -120,6 +127,16 @@ class Viewer(FloatLayout):
     def dismiss_popup(self):
         if self._popup:
             self._popup.dismiss()
+
+    def history_back(self):
+        if len(self.bhist) > 1:
+            self.bhist.popleft()
+
+            loc = self.bhist[0]
+            if isinstance(loc, Path):
+                self.open(loc)
+            elif isinstance(loc, URL):
+                self.open_from_url(loc)
 
     def show_cover(self):
         if self.book and self.book.m['cover']:
@@ -166,7 +183,7 @@ class Viewer(FloatLayout):
         content.close = popup.dismiss
         popup.open()
 
-    def load_page(self, path: str = None, title: str = None):
+    def load_page(self, path: str = None, title: str = None) -> bool:
         self.ids.chapter.text = ''
 
         doctext = ''
@@ -175,15 +192,16 @@ class Viewer(FloatLayout):
 
         if not page:
             self.ids.page.text = f'Error loading: {path}'
-            return
+            return False
 
         for line in page.decode().split('\n'):
             doc.append(line)
 
-        for line in doc.emit_line_objects(auto_tidy=True):
+        for lco, line in enumerate(doc.emit_line_objects(auto_tidy=True)):
             if line.type == GmiLineType.LINK:
-                doctext += f"[color=4a9ea1][size=30][ref={line.extra}]" \
-                    f"{line.text}[/ref][/size][/color]\n"
+                link_text = line.text if line.text else line.extra
+                doctext += f'[color=4a9ea1][size=20][ref={line.extra}]' \
+                    f"{link_text}[/ref][/size][/color]\n"
             elif line.type == GmiLineType.PREFORMAT_LINE:
                 doctext += line.text + "\n"
             elif line.type == GmiLineType.HEADING1:
@@ -204,21 +222,26 @@ class Viewer(FloatLayout):
             elif line.type == GmiLineType.LIST_ITEM:
                 # kivy's Label doesn't support [li] :/
                 doctext += f"- {line.text}\n"
-            else:
-                # Default
+            elif line.type == GmiLineType.REGULAR:
                 doctext += line.text + "\n"
+            elif line.type == GmiLineType.BLANK:
+                doctext += "\n"
 
         self.ids.page.text = doctext
+        self.ids.page.texture_update()
         self.ids.scroll_view.scroll_y = 1
 
         if title:
             self.ids.chapter.text = title
 
+        self._current_doc_path = Path(path) if path else None
+        return True
+
     def load_from_toc_index(self, idx: int = 1):
         item = self.book.toc.get(idx + 1)
         if item:
             self.load_page(item[0], title=item[1])
-            self.current_toc_idx = idx
+            self._current_toc_idx = idx
 
     def link_clicked(self, link: str) -> None:
         url = URL(link)
@@ -226,6 +249,29 @@ class Viewer(FloatLayout):
             return webbrowser.open(link)
 
         fbase, fext = os.path.splitext(os.path.basename(link))
+
+        if fext == '.gpub':
+            # Clicked on a gempub
+            if url.scheme in ['gemini',
+                              'ipfs',
+                              'https']:
+                return self.open_from_url(url)
+            elif not url.scheme:
+                # A gempub inside the gempub we're currently viewing
+
+                if self._current_doc_path:
+                    p = self._current_doc_path.parent.joinpath(url.path)
+                else:
+                    p = Path(url.path)
+
+                exgemp = self.book.extract_item(str(p))
+
+                if exgemp:
+                    self.open(exgemp)
+                else:
+                    # TODO: show some error
+                    return
+
         mtype = mimetypes.guess_type(os.path.basename(link))[0]
         mtypec = mtype.split('/')[0] if mtype else None
 
@@ -241,12 +287,17 @@ class Viewer(FloatLayout):
         self.ids.toc_button.disabled = not enabled
         self.ids.next_button.disabled = not enabled
         self.ids.prev_button.disabled = not enabled
+        self.ids.history_back_button.disabled = not len(self.bhist) > 1
 
     def set_book(self, book) -> bool:
         self.book = book
-        self.current_toc_idx = 0
+        self._current_toc_idx = 0
+        self._current_doc_path = None
         self.load_page()
         self.ids.title.text = self.book.m['title']
+
+        if self.book.location and self.book.location not in self.bhist:
+            self._books_url_hist.appendleft(self.book.location)
 
         self.enable_ctrl_buttons(True)
         return True
@@ -255,7 +306,7 @@ class Viewer(FloatLayout):
         fp = filepath if isinstance(filepath, Path) else Path(filepath)
 
         if fp.is_file():
-            return self.open_from_dir(str(fp.root), fp.name)
+            return self.open_from_dir(str(fp.parent), fp.name)
 
     def open_from_dir(self, path: str, filename: str) -> bool:
         self.enable_ctrl_buttons(False)
@@ -277,9 +328,9 @@ class Viewer(FloatLayout):
 
         return False
 
-    def open_from_url(self, url_string: str) -> bool:
+    def open_from_url(self, url_arg: Union[URL, str]) -> bool:
         ipfsc = ipfshttpclient.Client()
-        url = URL(url_string)
+        url = url_arg if isinstance(url_arg, URL) else URL(url_arg)
 
         try:
             gp = gempub.get(url, ipfs_client=ipfsc)
@@ -301,18 +352,18 @@ class Viewer(FloatLayout):
 
     def show_toc(self) -> None:
         self.load_page()
-        self.current_toc_idx = 0
+        self._current_toc_idx = 0
 
     def toc_next(self):
-        if self.book and self.current_toc_idx >= 0:
-            self.load_from_toc_index(self.current_toc_idx + 1)
+        if self.book and self._current_toc_idx >= 0:
+            self.load_from_toc_index(self._current_toc_idx + 1)
 
     def toc_prev(self):
         if not self.book:
             return
 
-        if self.current_toc_idx >= 2:
-            self.load_from_toc_index(self.current_toc_idx - 1)
+        if self._current_toc_idx >= 2:
+            self.load_from_toc_index(self._current_toc_idx - 1)
         else:
             self.show_toc()
 

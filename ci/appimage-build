@@ -22,9 +22,7 @@ GPLP="$PWD"/squashfs-root/GemPubLibrary
 mkdir -p $GPLP
 
 # Create the manual's gempub
-pushd docs/gemv/manual
-zip -r $GPLP/gemv_manual.gpub .
-popd
+gempubify -o $GPLP/gemv_manual.gpub docs/gemv/manual/manual.yaml
 
 # Edit the desktop file
 rm squashfs-root/usr/share/applications/python3.9.*.desktop

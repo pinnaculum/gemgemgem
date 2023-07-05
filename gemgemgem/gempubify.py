@@ -5,6 +5,9 @@ import os.path
 from dateutil import parser
 from markdownify import markdownify
 from md2gemini import md2gemini
+from omegaconf import OmegaConf
+from datetime import datetime
+from yarl import URL
 
 from ebooklib.utils import parse_html_string
 from pathlib import Path
@@ -174,6 +177,51 @@ def gempubify_file(src: Path,
         raise e
 
 
+def gempubify_project(projp: Path,
+                      dst_gempub_path: Path = None) -> Path:
+    """
+    Create a gempub from a gemgemgem YAML project file.
+    """
+    now = datetime.now()
+
+    try:
+        with open(projp, 'rt') as y:
+            cfg = OmegaConf.load(y)
+
+        with gempub.create() as gp:
+            cover_fn = cfg.get('cover', None)
+            cover_path = projp.parent.joinpath(cover_fn) if cover_fn else None
+
+            if cover_path and cover_path.is_file():
+                gp.coverFrom(cover_path)
+
+            gp.metadata.title = cfg.title
+            gp.metadata.author = cfg.author
+            gp.metadata.description = cfg.get('description', 'No description')
+            gp.metadata.publishDate = now.strftime('%Y-%m-%d')
+
+            for entry in cfg.spine:
+                content = entry.get('content', None)
+                title = entry.get('title', None)
+                path = entry.get('path', None)
+                url = entry.get('url', None)
+
+                if isinstance(content, str):
+                    gp.add(path, content, title=title)
+                elif url:
+                    gp.pull(URL(url), entry.title)
+
+        dst = dst_gempub_path if dst_gempub_path else \
+            projp.parent.joinpath(
+                f'{cfg.gpubname}_{gp.metadata.publishDate}.gpub')
+
+        gp.write(dst)
+
+        return dst
+    except Exception:
+        raise
+
+
 def gempubify():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -202,7 +250,15 @@ def gempubify():
 
     args = parser.parse_args()
 
-    gempubify_file(Path(args.src),
-                   dst=Path(args.dst) if args.dst else None,
-                   ipfsapi_maddr=args.ipfsapi_maddr,
-                   ipfsout=args.ipfsout)
+    srcp = Path(args.src)
+    dstp = Path(args.dst) if args.dst else None
+
+    if srcp.name.endswith('.yaml'):
+        # Create a gempub from a project file
+        gempubify_project(srcp,
+                          dst_gempub_path=dstp)
+    else:
+        gempubify_file(srcp,
+                       dst=dstp,
+                       ipfsapi_maddr=args.ipfsapi_maddr,
+                       ipfsout=args.ipfsout)

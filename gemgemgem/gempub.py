@@ -1,5 +1,6 @@
 from yarl import URL
 
+from typing import Union
 from attrs import define, asdict
 from DoubleLinkedList import DLinked
 
@@ -58,11 +59,11 @@ class GemPubArchive:
     def __init__(self,
                  workdir: Path = None,
                  metadata=None,
-                 url: URL = None,
+                 location: Union[URL, Path] = None,
                  zip_path: Path = None,
                  zipfile: zipfile.ZipFile = None):
         self.workdir = workdir if workdir else Path(tempfile.mkdtemp())
-        self.url = url
+        self.location = location
         self.metadata = metadata if metadata else GemPubMetadata()
         self.zip_path = zip_path
 
@@ -107,7 +108,9 @@ class GemPubArchive:
     def extract_item(self, path: str) -> Path:
         # Read a document in the gempub and write its data to a temporary file
         try:
-            with tempfile.NamedTemporaryFile(delete=False, mode='wb') as tf:
+            with tempfile.NamedTemporaryFile(delete=False,
+                                             suffix=os.path.splitext(path)[1],
+                                             mode='wb') as tf:
                 with zipfile.ZipFile(str(self.zip_path), 'r') as zip:
                     with zip.open(path, 'r') as f:
                         tf.write(f.read())
@@ -211,7 +214,8 @@ class GemPubArchive:
         return self
 
 
-def load(path: Path):
+def load(path: Path,
+         location: Union[URL, Path] = None):
     exp = Path(tempfile.mkdtemp())
 
     with zipfile.ZipFile(path, 'r') as zip:
@@ -227,6 +231,7 @@ def load(path: Path):
 
         return GemPubArchive(exp,
                              meta,
+                             location=location if location else path,
                              zip_path=path)
 
 
@@ -259,7 +264,7 @@ def get(url: URL, ipfs_client=None):
                                          mode='wb') as gpf:
             gpf.write(data)
 
-        return load(gpf.name)
+        return load(gpf.name, location=url)
     except Exception:
         traceback.print_exc()
 

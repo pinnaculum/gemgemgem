@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='gemgemgem',
-    version='0.3.0',
+    version='0.3.1',
     description='A library to work with gemini and gempub archives',
     url='https://gitlab.com/galacteek/gemgemgem',
     author='cipres',
@@ -17,6 +17,7 @@ setup(
         'ipfshttpclient',
         'md2gemini @ git+https://github.com/pinnaculum/md2gemini#egg=md2gemini',
         'markdownify',
+        'omegaconf>=2.3.0',
         'python-dateutil',
         'trimgmi',
         'yarl'
