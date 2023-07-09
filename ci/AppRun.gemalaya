@@ -1,0 +1,4 @@
+#!/bin/bash
+
+HERE=$(dirname $(readlink -f "${0}"))
+"${HERE}"/opt/python3.9/bin/python3.9 "${HERE}"/opt/python3.9/bin/gemalaya

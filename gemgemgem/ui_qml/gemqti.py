@@ -1,0 +1,146 @@
+import tempfile
+import traceback
+import ignition
+from yarl import URL
+
+from PyQt6.QtCore import QObject
+from PyQt6.QtCore import QVariant
+from PyQt6.QtCore import QJsonValue
+from PyQt6.QtCore import pyqtSlot
+from PyQt6.QtCore import QByteArray
+
+from trimgmi import Document as GmiDocument
+from trimgmi import LineType as GmiLineType
+
+
+class GeminiInterface(QObject):
+    def __init__(self, certs: tuple, parent=None):
+        super().__init__(parent)
+
+        self.certp, self.keyp = certs
+
+    @pyqtSlot(str, QJsonValue, result=QVariant)
+    def getRaw(self,
+               href: str,
+               options: QJsonValue):
+        try:
+            requ = URL(href)
+            response = ignition.request(
+                str(requ),
+                ca_cert=(self.certp, self.keyp),
+                timeout=5
+            )
+            data = response.data()
+            return QVariant(QByteArray(bytes(data)))
+        except Exception:
+            traceback.print_exc()
+            return QVariant(None)
+
+    @pyqtSlot(str, QJsonValue, result=QVariant)
+    def downloadToFile(self,
+                       href: str,
+                       options: QJsonValue):
+        try:
+            requ = URL(href)
+            response = ignition.request(
+                str(requ),
+                ca_cert=(self.certp, self.keyp)
+            )
+
+            with tempfile.NamedTemporaryFile(mode='wb',
+                                             delete=False) as file:
+                file.write(response.data())
+
+            return QVariant(file.name)
+        except Exception:
+            traceback.print_exc()
+            return QVariant(None)
+
+    @pyqtSlot(str, str, result=str)
+    def buildUrl(self,
+                 path: str,
+                 baseUrl: str):
+        return ignition.url(path, baseUrl)
+
+    @pyqtSlot(str, str, QJsonValue, result=QVariant)
+    def geminiModelize(self,
+                       href: str,
+                       referer: str,
+                       options: QJsonValue):
+        model = []
+        doc = GmiDocument()
+
+        try:
+            requ = URL(href)
+
+            response = ignition.request(
+                str(requ),
+                ca_cert=(self.certp, self.keyp),
+                timeout=10
+            )
+            gemText = response.data()
+
+            if response.is_a(ignition.InputResponse):
+                rsptype = 'input'
+            elif response.is_a(ignition.RedirectResponse):
+                rsptype = 'redirect'
+            elif response.is_a(ignition.TempFailureResponse) or \
+                    response.is_a(ignition.PermFailureResponse) or \
+                    response.is_a(ignition.ErrorResponse):
+                rsptype = 'error'
+            else:
+                rsptype = 'data'
+
+            if rsptype == 'input':
+                return QVariant({
+                    'rsptype': rsptype,
+                    'prompt': gemText,
+                    'model': model,
+                })
+
+            for line in gemText.split('\n'):
+                doc.append(line)
+
+            hrefPrev = None
+            for line in doc.emit_line_objects(auto_tidy=True):
+                if line.type == GmiLineType.LINK:
+                    model.append({
+                        'type': 'link',
+                        'href': line.extra,
+                        'hrefPrev': hrefPrev,
+                        'title': line.text if line.text else line.extra
+                    })
+                    hrefPrev = line.extra
+                elif line.type == GmiLineType.REGULAR:
+                    model.append({
+                        'type': 'regular',
+                        'text': line.text,
+                        'title': line.text if line.text else line.extra
+                    })
+                elif line.type == GmiLineType.QUOTE:
+                    model.append({
+                        'type': 'quote',
+                        'text': line.text,
+                        'title': line.text if line.text else line.extra
+                    })
+                elif line.type == GmiLineType.LIST_ITEM:
+                    model.append({
+                        'type': 'listitem',
+                        'text': line.text
+                    })
+                elif line.type in [GmiLineType.HEADING1,
+                                   GmiLineType.HEADING2,
+                                   GmiLineType.HEADING3]:
+                    model.append({
+                        'type': 'heading',
+                        'text': line.text
+                    })
+
+            return QVariant({
+                'rsptype': rsptype,
+                'model': model,
+                'title': None
+            })
+        except Exception:
+            traceback.print_exc()
+            return QVariant(None)

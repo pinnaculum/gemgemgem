@@ -1,4 +1,5 @@
 from setuptools import setup
+from setuptools import find_packages
 
 
 setup(
@@ -8,7 +9,7 @@ setup(
     url='https://gitlab.com/galacteek/gemgemgem',
     author='cipres',
     keywords=['gemini', 'gempub'],
-    packages=['gemgemgem', 'gemgemgem.ui'],
+    packages=find_packages(),
     install_requires=[
         'attrs',
         'DoubleLinkedList',
@@ -25,17 +26,32 @@ setup(
     extras_require={
         'ui': [
             'kivy'
+        ],
+        'gemv': [
+            'kivy'
+        ],
+        'gemalaya': [
+            'PyQt6>=6.5.1',
+            'cryptography',
         ]
     },
     package_data={
         '': [
             '*.kv'
+        ],
+        'gemgemgem.ui_qml': [
+            '*.ttf'
+        ],
+        'gemgemgem.ui_qml.qml': [
+            '*.qml',
+            '*.png'
         ]
     },
     license='MIT',
     entry_points={
         'gui_scripts': [
-            'gemv = gemgemgem.ui:run_gempubv'
+            'gemv = gemgemgem.ui:run_gempubv',
+            'gemalaya = gemgemgem.ui_qml:run_gemalaya',
         ],
         'console_scripts': [
             'gempubify = gemgemgem.gempubify:gempubify'

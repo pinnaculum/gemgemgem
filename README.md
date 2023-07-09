@@ -3,17 +3,32 @@
 A small Python toolkit to work with gemini and
 [gempub](https://codeberg.org/oppenlab/gempub) archives.
 
+- [gemalaya](#gemalaya): a keyboard-oriented Gemini browser written in QML
+- [gemv](#gemv): a small Gempub viewer
+- gempubify: a command to convert *epub* ebooks to gempub archives
+
 ```sh
 pip install .
 ```
+[Download GemV's latest AppImage (x86_64)](https://gitlab.com/galacteek/gemgemgem/-/releases/continuous-master/downloads/GemV-latest-x86_64.AppImage)
 
-To install the gempub viewer (*GemV*) as well:
+## Gemalaya
+
+*Gemalaya* is a keyboard-oriented Gemini browser written in QML (PyQt6).
+Links can be navigated from the keyboard using simple key sequences.
+One of the goals of this project is to focus on text readibility,
+for example when you hover some text, its formatting, style, font, etc ..
+will change to make this text section more comfortable to read.
+
+Install it with:
 
 ```sh
-pip install '.[ui]'
+pip install '.[gemalaya]'
 ```
 
-[Download GemV's latest AppImage (x86_64)](https://gitlab.com/galacteek/gemgemgem/-/releases/continuous-master/downloads/GemV-latest-x86_64.AppImage)
+Run the browser by running the *gemalaya* command.
+
+
 
 ## Convert an epub to gempub
 
@@ -43,12 +58,18 @@ containing the gempub will be printed on the console.
 gempubify --ipfs-import book.epub
 ```
 
-## Gempub viewer
+## Gemv
 
 *gemv* is a basic gempub viewer written with the Kivy UI library.
 It can also open ebooks in the *epub* format by converting them
 *on-the-fly* to the *gempub* format.
 
+To install and run the gempub viewer (*GemV*), use the following commands:
+
 ```sh
+pip install '.[gemv]'
+
 gemv
 ```
+
+[Download GemV's latest AppImage (x86_64)](https://gitlab.com/galacteek/gemgemgem/-/releases/continuous-master/downloads/GemV-latest-x86_64.AppImage)

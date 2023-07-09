@@ -1,0 +1,60 @@
+#!/bin/bash
+
+if [ ! -f "python3.9.13-cp39-cp39-manylinux2010_x86_64.AppImage" ]; then
+    wget https://github.com/niess/python-appimage/releases/download/python3.9/python3.9.13-cp39-cp39-manylinux2010_x86_64.AppImage
+fi
+
+if [ -d squashfs-root ]; then
+    rm -rf squashfs-root
+fi
+
+# Extract this AppImage
+chmod +x python*-manylinux2010_x86_64.AppImage
+./python*-manylinux2010_x86_64.AppImage --appimage-extract
+
+# Install deps into the extracted AppDir
+./squashfs-root/AppRun -m pip install '.[gemalaya]'
+
+rm -f squashfs-root/AppRun
+cp ci/AppRun.gemalaya ./squashfs-root/AppRun
+
+GPLP="$PWD"/squashfs-root/GemPubLibrary
+mkdir -p $GPLP
+
+# Create the manual's gempub
+# gempubify -o $GPLP/gemv_manual.gpub docs/gemv/manual/manual.yaml
+
+# Edit the desktop file
+rm squashfs-root/usr/share/applications/python3.9.*.desktop
+cp gemalaya.desktop squashfs-root/usr/share/applications/gemalaya.desktop
+rm squashfs-root/*.desktop
+cp squashfs-root/usr/share/applications/*.desktop squashfs-root/
+
+# Add icon
+mkdir -p squashfs-root/usr/share/icons/hicolor/128x128/apps/
+cp gemv.png squashfs-root/usr/share/icons/hicolor/128x128/apps/
+cp gemv.png squashfs-root/io.gitlab.gemgemgem.Gemalaya.png
+cp squashfs-root/usr/share/icons/hicolor/128x128/apps/gemv.png squashfs-root/
+
+# cleanup
+rm -rf squashfs-root/opt/python3.9/include
+rm -rf squashfs-root/opt/python3.9/bin/rst*
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/ctypes/test
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/distutils/tests
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/idlelib
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/lib2to3
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/site-packages/bs4/tests
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/site-packages/kivy/tests
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/site-packages/pip
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/site-packages/setuptools
+rm -rf squashfs-root/usr/share/tcltk
+rm -rf squashfs-root/usr/lib/libtk*
+rm -rf squashfs-root/usr/lib/libtcl*
+find squashfs-root | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf
+
+export VERSION=$(cat squashfs-root/opt/python3.9/lib/python3.9/site-packages/gemgemgem-*.dist-info/METADATA | grep "^Version:.*" | cut -d " " -f 2)
+
+wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+chmod +x appimagetool*.AppImage
+
+./appimagetool-x86_64.AppImage squashfs-root/
