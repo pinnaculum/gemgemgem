@@ -1,5 +1,36 @@
+import subprocess
 from setuptools import setup
 from setuptools import find_packages
+from setuptools import Command
+from distutils.command.build import build
+
+
+def run(*args):
+    p = subprocess.Popen(*args, stdout=subprocess.PIPE)
+    stdout, err = p.communicate()
+    return stdout
+
+
+class build_gemalaya(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        run([
+            'pyside6-rcc',
+            'gemalaya.qrc',
+            '-o',
+            'gemgemgem/ui_qml/rc_gemalaya.py'
+        ])
+
+
+class _build(build):
+    sub_commands = [('build_gemalaya', None)] + build.sub_commands
 
 
 setup(
@@ -10,6 +41,10 @@ setup(
     author='cipres',
     keywords=['gemini', 'gempub'],
     packages=find_packages(),
+    cmdclass={
+        'build': _build,
+        'build_gemalaya': build_gemalaya
+    },
     install_requires=[
         'attrs',
         'DoubleLinkedList',
@@ -31,13 +66,14 @@ setup(
             'kivy'
         ],
         'gemalaya': [
-            'PyQt6>=6.5.1',
+            'PySide6-essentials>=6.5.1',
             'cryptography',
         ]
     },
     package_data={
         '': [
-            '*.kv'
+            '*.kv',
+            '*.yaml'
         ],
         'gemgemgem.ui_qml': [
             '*.ttf'

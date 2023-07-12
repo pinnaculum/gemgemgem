@@ -25,7 +25,14 @@ ScrollView {
   }
 
   function geminiLinkClicked(clickedUrl, baseUrl) {
-    sview.browse(clickedUrl.toString(), baseUrl)
+    var lu = new URL(clickedUrl.toString())
+    var noSchemes = ['http:', 'https:']
+
+    if (noSchemes.includes(lu.protocol)) {
+      console.log('Unsupported protocol: ' + lu.protocol)
+    } else {
+      sview.browse(clickedUrl.toString(), baseUrl)
+    }
   }
 
   function geminiSendInput(sendUrl, value) {
@@ -114,6 +121,7 @@ ScrollView {
           if (component.status == Component.Ready) {
             item = component.createObject(sview.page, props)
             item.linkClicked.connect(geminiLinkClicked)
+
             linkNo += 1
           }
 
@@ -124,14 +132,14 @@ ScrollView {
           var component = Qt.createComponent('TextItem.qml')
           props = {
             content: gemItem.title,
-            width: sview.width,
+            width: sview.width * 0.95,
             quote: gemItem.type === 'quote'
           }
           item = component.createObject(sview.page, props)
           break
           
         default:
-          ;;
+          break
       }
     })
 
@@ -181,22 +189,6 @@ ScrollView {
         children[i].destroy()
       }
       page.children = []
-    }
-
-    function activateNext() {
-      for (let i=0; i < children.length; i++) {
-        let item = children[i]
-
-        if (currentFocusedIndex < 0 || currentFocusedIndex <= (i - 1)) {
-          try {
-            item.focusRequested()
-            currentFocusedIndex = i
-            return
-          } catch(e) {
-            continue
-          }
-        }
-      }
     }
   }
 }

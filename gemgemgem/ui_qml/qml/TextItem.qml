@@ -13,7 +13,7 @@ Text {
   property int origHeight
 
   property int pointSizeNormal: 18
-  property int pointSizeLarge: 24
+  property int pointSizeLarge: 20
 
   property string colorDefault: 'cornsilk'
   property string colorHovered: 'white'
@@ -100,7 +100,7 @@ Text {
       target: control
       property: 'lineHeight'
       from: control.lineHeight
-      to: control.lineHeight + 0.2
+      to: control.lineHeight + 0.1
       duration: 10
     }
 
@@ -152,6 +152,14 @@ Text {
       to: 1.1
       duration: 10
     }
+    PropertyAnimation {
+      target: control
+      property: 'Layout.margins'
+      from: 20
+      to: 10
+      duration: 10
+    }
+
   }
 
   onFocusRequested: hovered = true

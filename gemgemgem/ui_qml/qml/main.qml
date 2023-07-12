@@ -3,6 +3,8 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.4
 import QtQuick.Window 2.2
 
+import "."
+
 Window {
   id: window
   visible: true
@@ -10,14 +12,6 @@ Window {
   Rectangle {
     color: '#323232'
     anchors.fill: parent
-
-    Keys.onPressed: {
-      if ((event.modifiers & Qt.ControlModifier)) {
-        if (event.key === Qt.Key_Q) {
-          Qt.quit()
-        }
-      }
-    }
 
     ColumnLayout {
       anchors.fill: parent
@@ -54,8 +48,7 @@ Window {
         Text {
           id: currentUrl
         }
-        Button {
-          text: "Quit"
+        QuitButton {
           width: 150
           height: 100
           onClicked: Qt.quit()

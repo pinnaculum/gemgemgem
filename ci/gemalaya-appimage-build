@@ -12,8 +12,10 @@ fi
 chmod +x python*-manylinux2010_x86_64.AppImage
 ./python*-manylinux2010_x86_64.AppImage --appimage-extract
 
-# Install deps into the extracted AppDir
+APPDIR="$PWD/squashfs-root"
+
 ./squashfs-root/AppRun -m pip install '.[gemalaya]'
+python setup.py build_gemalaya install
 
 rm -f squashfs-root/AppRun
 cp ci/AppRun.gemalaya ./squashfs-root/AppRun
@@ -43,10 +45,18 @@ rm -rf squashfs-root/opt/python3.9/lib/python3.9/ctypes/test
 rm -rf squashfs-root/opt/python3.9/lib/python3.9/distutils/tests
 rm -rf squashfs-root/opt/python3.9/lib/python3.9/idlelib
 rm -rf squashfs-root/opt/python3.9/lib/python3.9/lib2to3
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/ensurepip
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/tkinter
+
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/site-packages/lxml
 rm -rf squashfs-root/opt/python3.9/lib/python3.9/site-packages/bs4/tests
 rm -rf squashfs-root/opt/python3.9/lib/python3.9/site-packages/kivy/tests
 rm -rf squashfs-root/opt/python3.9/lib/python3.9/site-packages/pip
 rm -rf squashfs-root/opt/python3.9/lib/python3.9/site-packages/setuptools
+
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/site-packages/PySide6/lupdate
+rm -rf squashfs-root/opt/python3.9/lib/python3.9/site-packages/PySide6/Qt/translations/*{fi,nl,pl,ko,cs,ru,sk,zh,ar,pt}*
+
 rm -rf squashfs-root/usr/share/tcltk
 rm -rf squashfs-root/usr/lib/libtk*
 rm -rf squashfs-root/usr/lib/libtcl*

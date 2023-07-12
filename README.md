@@ -3,32 +3,33 @@
 A small Python toolkit to work with gemini and
 [gempub](https://codeberg.org/oppenlab/gempub) archives.
 
-- [gemalaya](#gemalaya): a keyboard-oriented Gemini browser written in QML
+- [gemalaya](#gemalaya): a keyboard-driven Gemini browser written in QML
 - [gemv](#gemv): a small Gempub viewer
 - gempubify: a command to convert *epub* ebooks to gempub archives
 
 ```sh
 pip install .
 ```
+
 [Download GemV's latest AppImage (x86_64)](https://gitlab.com/galacteek/gemgemgem/-/releases/continuous-master/downloads/GemV-latest-x86_64.AppImage)
 
 ## Gemalaya
 
-*Gemalaya* is a keyboard-oriented Gemini browser written in QML (PyQt6).
+*Gemalaya* is a keyboard-driven Gemini browser written in QML (PySide6).
 Links can be navigated from the keyboard using simple key sequences.
 One of the goals of this project is to focus on text readibility,
 for example when you hover some text, its formatting, style, font, etc ..
-will change to make this text section more comfortable to read.
+will change to make the paragraph more comfortable to read.
+*Status: mostly a demonstration browser for now, more work needed.*
 
 Install it with:
 
 ```sh
 pip install '.[gemalaya]'
+python setup.py build_gemalaya install
 ```
 
 Run the browser by running the *gemalaya* command.
-
-
 
 ## Convert an epub to gempub
 

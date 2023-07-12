@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Gemalaya
+Comment=Gemini browser
+Icon=io.gitlab.gemgemgem.Gemalaya
+Exec=
+Terminal=false
+Categories=Network;WebBrowser;Qt

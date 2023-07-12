@@ -7,9 +7,13 @@ variables:
   WHEEL_FILENAME: "${CI_PROJECT_NAME}-${VERSION}-py3-none-any.whl"
   WHEEL_ARTIFACT_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/continuous-${CI_COMMIT_BRANCH}/${CI_PROJECT_NAME}-${VERSION}-py3-none-any.whl"
 
-  APPIMAGE_FILENAME: "GemV-${VERSION}-x86_64.AppImage"
-  APPIMAGE_LATEST_FILENAME: "GemV-latest-x86_64.AppImage"
-  APPIMAGE_ARTIFACT_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/continuous-${CI_COMMIT_BRANCH}/GemV-${VERSION}-x86_64.AppImage"
+  GEMV_APPIMAGE_FILENAME: "GemV-${VERSION}-x86_64.AppImage"
+  GEMV_APPIMAGE_LATEST_FILENAME: "GemV-latest-x86_64.AppImage"
+  GEMV_APPIMAGE_ARTIFACT_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/continuous-${CI_COMMIT_BRANCH}/GemV-${VERSION}-x86_64.AppImage"
+
+  GEMALAYA_APPIMAGE_FILENAME: "Gemalaya-${VERSION}-x86_64.AppImage"
+  GEMALAYA_APPIMAGE_LATEST_FILENAME: "Gemalaya-latest-x86_64.AppImage"
+  GEMALAYA_APPIMAGE_ARTIFACT_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/continuous-${CI_COMMIT_BRANCH}/Gemalaya-${VERSION}-x86_64.AppImage"
 
 stages:
   - build
@@ -21,6 +25,7 @@ build:
     - master
     - devel
     - viewer
+    - /^gemalaya/ 
   script:
     - apt-get -y update
     - apt-get install -y zip fuse
@@ -30,10 +35,11 @@ build:
     - source venv/bin/activate
 
     - pip install wheel
-    - pip install '.[ui]'
-    - python setup.py build bdist_wheel
+    - pip install '.[ui,gemalaya]'
+    - python setup.py build_gemalaya bdist_wheel
 
-    - ./ci/appimage-build
+    - ./ci/gemv-appimage-build
+    - ./ci/gemalaya-appimage-build
 
   artifacts:
     paths:
@@ -47,6 +53,7 @@ release:
     - master
     - devel
     - viewer
+    - /^gemalaya/ 
   script:
     - apk add curl
 
@@ -66,8 +73,14 @@ release:
     - >
      curl --header "JOB-TOKEN: $CI_JOB_TOKEN"
      --upload-file
-     ${APPIMAGE_FILENAME}
-     ${APPIMAGE_ARTIFACT_URL}
+     ${GEMV_APPIMAGE_FILENAME}
+     ${GEMV_APPIMAGE_ARTIFACT_URL}
+
+    - >
+     curl --header "JOB-TOKEN: $CI_JOB_TOKEN"
+     --upload-file
+     ${GEMALAYA_APPIMAGE_FILENAME}
+     ${GEMALAYA_APPIMAGE_ARTIFACT_URL}
 
     - >
       release-cli create
@@ -78,4 +91,6 @@ release:
       --assets-link
       "{\"name\": \"${WHEEL_FILENAME}\", \"filepath\": \"/${WHEEL_FILENAME}\", \"url\": \"${WHEEL_ARTIFACT_URL}\"}"
       --assets-link
-      "{\"name\": \"${APPIMAGE_FILENAME}\", \"filepath\": \"/${APPIMAGE_LATEST_FILENAME}\", \"url\": \"${APPIMAGE_ARTIFACT_URL}\"}"
+      "{\"name\": \"${GEMV_APPIMAGE_FILENAME}\", \"filepath\": \"/${GEMV_APPIMAGE_LATEST_FILENAME}\", \"url\": \"${GEMV_APPIMAGE_ARTIFACT_URL}\"}"
+      --assets-link
+      "{\"name\": \"${GEMALAYA_APPIMAGE_FILENAME}\", \"filepath\": \"/${GEMALAYA_APPIMAGE_LATEST_FILENAME}\", \"url\": \"${GEMALAYA_APPIMAGE_ARTIFACT_URL}\"}"

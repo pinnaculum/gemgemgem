@@ -1,0 +1,13 @@
+main 1.0 main.qml
+singleton Conf 1.0 Conf.qml
+NavBackButton 1.0 NavBackButton.qml
+GemUrlInput 1.0 GemUrlInput.qml
+Scheduler 1.0 Scheduler.qml
+ImagePreview 1.0 ImagePreview.qml
+LinkItem 1.0 LinkItem.qml
+NavNextButton 1.0 NavNextButton.qml
+QuitButton 1.0 QuitButton.qml
+InputItem 1.0 InputItem.qml
+GeminiPageView 1.0 GeminiPageView.qml
+TextItem 1.0 TextItem.qml
+GemAddressCtrl 1.0 GemAddressCtrl.qml

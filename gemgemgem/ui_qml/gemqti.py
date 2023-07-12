@@ -1,13 +1,16 @@
 import tempfile
 import traceback
-import ignition
-from yarl import URL
 
-from PyQt6.QtCore import QObject
-from PyQt6.QtCore import QVariant
-from PyQt6.QtCore import QJsonValue
-from PyQt6.QtCore import pyqtSlot
-from PyQt6.QtCore import QByteArray
+from pathlib import Path
+from yarl import URL
+from omegaconf import OmegaConf
+
+import ignition
+
+from PySide6.QtCore import QObject
+from PySide6.QtCore import QJsonValue
+from PySide6.QtCore import Slot
+from PySide6.QtCore import QByteArray
 
 from trimgmi import Document as GmiDocument
 from trimgmi import LineType as GmiLineType
@@ -19,7 +22,7 @@ class GeminiInterface(QObject):
 
         self.certp, self.keyp = certs
 
-    @pyqtSlot(str, QJsonValue, result=QVariant)
+    @Slot(str, QJsonValue, result="QVariant")
     def getRaw(self,
                href: str,
                options: QJsonValue):
@@ -31,12 +34,12 @@ class GeminiInterface(QObject):
                 timeout=5
             )
             data = response.data()
-            return QVariant(QByteArray(bytes(data)))
+            return QByteArray(bytes(data))
         except Exception:
             traceback.print_exc()
-            return QVariant(None)
+            return None
 
-    @pyqtSlot(str, QJsonValue, result=QVariant)
+    @Slot(str, QJsonValue, result=str)
     def downloadToFile(self,
                        href: str,
                        options: QJsonValue):
@@ -51,18 +54,17 @@ class GeminiInterface(QObject):
                                              delete=False) as file:
                 file.write(response.data())
 
-            return QVariant(file.name)
+            return file.name
         except Exception:
             traceback.print_exc()
-            return QVariant(None)
 
-    @pyqtSlot(str, str, result=str)
+    @Slot(str, str, result=str)
     def buildUrl(self,
                  path: str,
                  baseUrl: str):
         return ignition.url(path, baseUrl)
 
-    @pyqtSlot(str, str, QJsonValue, result=QVariant)
+    @Slot(str, str, QJsonValue, result=dict)
     def geminiModelize(self,
                        href: str,
                        referer: str,
@@ -92,11 +94,11 @@ class GeminiInterface(QObject):
                 rsptype = 'data'
 
             if rsptype == 'input':
-                return QVariant({
+                return {
                     'rsptype': rsptype,
                     'prompt': gemText,
                     'model': model,
-                })
+                }
 
             for line in gemText.split('\n'):
                 doc.append(line)
@@ -136,11 +138,39 @@ class GeminiInterface(QObject):
                         'text': line.text
                     })
 
-            return QVariant({
+            return {
                 'rsptype': rsptype,
                 'model': model,
                 'title': None
-            })
+            }
         except Exception:
             traceback.print_exc()
-            return QVariant(None)
+
+
+class GemalayaInterface(QObject):
+    def __init__(self, cfg_path: Path, config, parent=None):
+        super().__init__(parent)
+
+        self.config = config
+        self.cfg_path = cfg_path
+
+    def __save_config(self):
+        OmegaConf.save(config=self.config, f=str(self.cfg_path))
+
+    @Slot(result=dict)
+    def getConfig(self):
+        return OmegaConf.to_container(self.config)
+
+    @Slot(str, QJsonValue, result=bool)
+    def set(self, attr: str, value: QJsonValue):
+        try:
+            setattr(self.config, attr, value.toVariant())
+        except AttributeError:
+            traceback.print_exc()
+            return False
+        except Exception:
+            traceback.print_exc()
+            return False
+        else:
+            self.__save_config()
+            return True
