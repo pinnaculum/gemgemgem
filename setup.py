@@ -42,7 +42,6 @@ setup(
     keywords=['gemini', 'gempub'],
     packages=find_packages(),
     cmdclass={
-        'build': _build,
         'build_gemalaya': build_gemalaya
     },
     install_requires=[
