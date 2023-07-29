@@ -14,6 +14,7 @@ chmod +x python*-manylinux2010_x86_64.AppImage
 
 APPDIR="$PWD/squashfs-root"
 
+./squashfs-root/AppRun -m pip install -U pip
 ./squashfs-root/AppRun -m pip install '.[gemalaya]'
 python setup.py build_gemalaya install
 

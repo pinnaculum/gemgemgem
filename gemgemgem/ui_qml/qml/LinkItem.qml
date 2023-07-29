@@ -8,18 +8,33 @@ ColumnLayout {
   property string href
   property string baseUrl
 
+  property Item nextLinkItem
+  property Item prevLinkItem
+
   /* The key sequence to access this link */
   property string keybAccessSeq
 
-  property int pointSizeNormal: 16
-  property int pointSizeLarge: 24
+  property int pointSizeNormal: Conf.links.text.fontSize
+  property int pointSizeLarge: Conf.links.text.fontSizeLarge
 
   signal linkClicked(url baseUrl, string href)
   signal imageClicked(url imgLink)
 
-  Layout.maximumWidth: parent.width
   Layout.fillWidth: true
-  Layout.leftMargin: 15
+  Layout.leftMargin: Conf.links.layout.leftMargin
+
+  KeyNavigation.tab: nextLinkItem
+  KeyNavigation.backtab: prevLinkItem
+  KeyNavigation.priority: KeyNavigation.BeforeItem
+  Keys.onReturnPressed: linkAction.trigger()
+
+  MouseArea {
+    anchors.fill: parent
+    Layout.fillWidth: true
+    hoverEnabled: true
+    onEntered: itemLayout.focus = true
+    onExited: itemLayout.focus = false
+  }
 
   Button {
     id: button
@@ -38,36 +53,32 @@ ColumnLayout {
       id: linkOpenAnim
 
       PropertyAnimation {
-        target: itemLayout
-        property: 'Layout.leftMargin'
-        to: 90
-        duration: 300
-      }
-      PropertyAnimation {
         target: buttonBg
         property: 'color'
-        to: '#FAF0E6'
+        to: Conf.links.openAnim.buttonBgColor
         duration: 200
       }
 
       ScaleAnimator {
         target: button
         from: 1
-        to: 1.2
+        to: 1.05
         duration: 300
       }
 
       PropertyAnimation {
-        target: buttonRect
+        target: shortcutButton
         property: 'border.width'
         from: 1
-        to: 2
+        to: Conf.links.openAnim.shortcutBorderWidth
+        //to: 2
         duration: 100
       }
       PropertyAnimation {
-        target: buttonRect
+        target: shortcutButton
         property: 'color'
-        to: '#9ACD32'
+        to: Conf.links.openAnim.shortcutButtonColor
+        //to: '#9ACD32'
         duration: 700
       }
 
@@ -129,27 +140,28 @@ ColumnLayout {
     background: Rectangle {
       id: buttonBg
       border.width: parent.hovered ? 2 : 1
-      border.color: parent.hovered ? '#DEB887' : 'darkgray'
+      border.color: parent.hovered ? Conf.links.bg.borderColorHovered : Conf.links.bg.borderColor
       radius: 4
       color: button.down ? "#FFDAB9" :
-             (parent.hovered ? "#AFEEEE" : "transparent")
+             (itemLayout.focus || parent.hovered ? "#AFEEEE" : "transparent")
     }
 
     contentItem: RowLayout {
       id: buttonLayout
       spacing: 10
+
       Rectangle {
-        id: buttonRect
+        id: shortcutButton
         implicitWidth: keybSeqText.width * 1.1
         implicitHeight: keybSeqText.height * 1.1
-        border.width: 1
-        border.color: 'darkorange'
-        color: 'lightsteelblue'
+        border.width: Conf.links.shortcutButton.borderWidth
+        border.color: Conf.links.shortcutButton.borderColor
+        color: Conf.links.shortcutButton.color
         Text {
           id: keybSeqText
           text: keybAccessSeq
           font.pointSize: 22
-          color: '#A52A2A'
+          color: Conf.links.shortcutButton.textColor
           anchors.centerIn: parent
           Layout.fillWidth: true
         }

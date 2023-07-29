@@ -8,7 +8,6 @@ TextInput {
   color: "white"
   selectionColor: "#21be2b"
   selectedTextColor: "#ffffff"
-  focus: true
   cursorDelegate: Rectangle {
     id: cursor
     visible: false

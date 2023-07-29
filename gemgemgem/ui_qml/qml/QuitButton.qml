@@ -7,7 +7,7 @@ ToolButton {
   icon.height: 32
 
   Shortcut {
-    sequence: 'Ctrl+q'
+    sequence: 'F12'
     onActivated: clicked()
   }
 }

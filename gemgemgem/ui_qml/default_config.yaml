@@ -2,3 +2,45 @@ debug: false
 
 gemini:
   timeout_default: 15
+
+bookmarks:
+  - url: gemini://station.martinrue.com/
+    title: Station
+
+ui:
+  # gemspace (main widget) config
+  gemspace:
+    bgColor: '#323232'
+
+  # Links configuration
+  links:
+    layout:
+      leftMargin: 25
+
+    # Keyboard shortcut button config
+    shortcutButton:
+      color: 'lightsteelblue'
+      borderWidth: 1
+      borderColor: 'darkorange'
+      textColor: '#A52A2A'
+
+    # Background item
+    bg:
+      borderColor: 'darkgray'
+      borderColorHovered: '#DEB887'
+
+    text:
+      fontSize: 16
+      fontSizeLarge: 24
+
+    # Animation when the link is activated
+    openAnim:
+      buttonBgColor: '#FAF0E6'
+
+      # Keyboard shortcut
+      shortcutButtonColor: '#9ACD32'
+      shortcutBorderWidth: 2
+
+  # 
+  shortcuts:
+    bookmark: 'F11'

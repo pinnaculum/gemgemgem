@@ -2,18 +2,118 @@ import QtQuick 2.2
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.4
 
+import Gemalaya 1.0
+
 ScrollView {
   id: sview
 
   property alias page: page
   property Item addrController
 
-  property double bigStep: 0.2
+  property double bigStep: 0.1
 
   Layout.fillWidth: true
   Layout.fillHeight: true
 
   signal urlChanged(url currentUrl)
+
+  GeminiAgent {
+    id: agent
+
+    onSrvError: console.log('Server error')
+
+    onSrvResponse: {
+      let urlString = resp.url
+      var urlObject = new URL(resp.url)
+
+      var firstLink
+      var prevLink
+      var nextLink
+
+      /* Clear the page */
+      page.clear()
+
+      if (resp.rsptype === 'input') {
+        var component = Qt.createComponent('InputItem.qml')
+        var item = component.createObject(sview.page, {
+          sendUrl: urlString,
+          promptText: resp.prompt,
+          width: sview.width
+        })
+        item.sendRequest.connect(geminiSendInput)
+
+        page.forceActiveFocus()
+        urlChanged(urlObject)
+        return
+      }
+
+      resp.model.forEach(function(gemItem) {
+        var props
+        var component
+        var item
+
+        switch(gemItem.type) {
+          case 'link':
+            var keysym
+            var linkUrl
+
+            component = Qt.createComponent('LinkItem.qml')
+
+            props = {
+              title: gemItem.title,
+              baseUrl: urlString,
+              href: gemItem.href,
+              width: sview.width,
+              keybAccessSeq: gemItem.keyseq,
+              nextLinkItem: prevLink ? prevLink : null
+            }
+
+            if (component.status == Component.Ready) {
+              item = component.createObject(sview.page, props)
+              item.linkClicked.connect(geminiLinkClicked)
+
+              if (prevLink) {
+                prevLink.nextLinkItem = item
+              }
+
+              prevLink = item
+
+              if (firstLink === undefined)
+                firstLink = item
+            }
+
+            break
+
+          case 'regular':
+          case 'quote':
+            var component = Qt.createComponent('TextItem.qml')
+            props = {
+              content: gemItem.title,
+              width: sview.width * 0.95,
+              quote: gemItem.type === 'quote'
+            }
+            item = component.createObject(sview.page, props)
+            break
+
+          default:
+            break
+        }
+      })
+
+      addrController.histAdd(urlString)
+
+      urlChanged(urlObject)
+
+      page.forceActiveFocus()
+
+      if (firstLink) {
+        firstLink.forceActiveFocus()
+        firstLink.focus = true
+      }
+
+      vsbar.position = 0
+    }
+  }
 
   ScrollBar.vertical: ScrollBar {
     id: vsbar
@@ -22,6 +122,7 @@ ScrollView {
     y: sview.topPadding
     height: sview.availableHeight
     policy: ScrollBar.AlwaysOn
+    stepSize: 0.02
   }
 
   function geminiLinkClicked(clickedUrl, baseUrl) {
@@ -51,7 +152,6 @@ ScrollView {
 
   function browse(href, baseUrlUnused) {
     var urlObject
-    var linkNo = 0
 
     try {
       urlObject = new URL(href)
@@ -60,95 +160,7 @@ ScrollView {
     }
 
     var urlString = urlObject.toString()
-    var result = gem.geminiModelize(urlString, null, {})
-
-    if (result === undefined)
-      return
-
-    /* Clear the page */
-    page.clear()
-
-    if (result.rsptype === 'input') {
-      var component = Qt.createComponent('InputItem.qml')
-      var item = component.createObject(sview.page, {
-        sendUrl: urlString,
-        promptText: result.prompt,
-        width: sview.width
-      })
-      item.sendRequest.connect(geminiSendInput)
-
-      page.forceActiveFocus()
-      urlChanged(urlObject)
-      return
-    }
-
-    result.model.forEach(function(gemItem) {
-      var props
-      var component
-      var item
-
-      switch(gemItem.type) {
-        case 'link':
-          var keysym
-          var linkUrl
-
-          component = Qt.createComponent('LinkItem.qml')
-
-          if (linkNo <= 9) {
-            keysym = linkNo
-          } else {
-            let n = linkNo - 10
-            let ls = num2letter(n)
-
-            if (isLowerCase(ls) && n < 52) {
-              keysym = ls
-            } else {
-              if (n >= 52)
-                keysym = 'Ctrl+' + ls
-              else
-                keysym = 'Shift+' + ls
-            }
-          }
-
-          props = {
-            title: gemItem.title,
-            baseUrl: href,
-            href: gemItem.href,
-            width: sview.width,
-            keybAccessSeq: keysym
-          }
-
-          if (component.status == Component.Ready) {
-            item = component.createObject(sview.page, props)
-            item.linkClicked.connect(geminiLinkClicked)
-
-            linkNo += 1
-          }
-
-          break
-
-        case 'regular':
-        case 'quote':
-          var component = Qt.createComponent('TextItem.qml')
-          props = {
-            content: gemItem.title,
-            width: sview.width * 0.95,
-            quote: gemItem.type === 'quote'
-          }
-          item = component.createObject(sview.page, props)
-          break
-          
-        default:
-          break
-      }
-    })
-
-    addrController.histAdd(urlString)
-
-    urlChanged(urlObject)
-
-    page.forceActiveFocus()
-    vsbar.position = 0
+    var result = agent.geminiModelize(urlString, null, {})
   }
 
   onUrlChanged: {
