@@ -11,11 +11,14 @@ from PySide6.QtQml import qmlRegisterType
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QStandardPaths
 from PySide6.QtCore import Qt
+from PySide6.QtCore import QDir
+from PySide6.QtCore import QFile
+from PySide6.QtCore import QIODeviceBase
 from PySide6.QtGui import QFontDatabase
 
-from gemgemgem.ui_qml import gemqti
-from gemgemgem.ui_qml import sqldb
-from gemgemgem.ui_qml import rc_gemalaya  # noqa
+from gemalaya import gemqti
+from gemalaya import sqldb
+from gemalaya import rc_gemalaya  # noqa
 from gemgemgem.x509 import x509SelfSignedGenerate
 
 app_name = 'gemalaya'
@@ -56,6 +59,21 @@ def run_gemalaya():
             default_config,
             OmegaConf.load(cfd)
         )
+
+    # Load the themes
+
+    for themeName in QDir(':/gemalaya/themes').entryList():
+        tc = QFile(f':/gemalaya/themes/{themeName}/theme.yaml')
+        try:
+            tc.open(QIODeviceBase.ReadOnly)
+            data = tc.readAll().data().decode()
+
+            config = OmegaConf.merge(
+                config,
+                OmegaConf.create(data)
+            )
+        except Exception as err:
+            print(f'Error loading theme {themeName}: {err}')
 
     OmegaConf.save(config, f=str(cfg_path))
 

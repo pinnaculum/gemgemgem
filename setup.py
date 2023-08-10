@@ -5,10 +5,11 @@ from setuptools import Command
 from distutils.command.build import build
 
 
-def run(*args):
+def run_rcc(*args):
     p = subprocess.Popen(*args, stdout=subprocess.PIPE)
     stdout, err = p.communicate()
-    return stdout
+
+    [print(f'RCC => {line}') for line in stdout.decode().split('\n') if line]
 
 
 class build_gemalaya(Command):
@@ -21,11 +22,11 @@ class build_gemalaya(Command):
         pass
 
     def run(self):
-        run([
+        run_rcc([
             'pyside6-rcc',
             'gemalaya.qrc',
             '-o',
-            'gemgemgem/ui_qml/rc_gemalaya.py'
+            'gemalaya/rc_gemalaya.py'
         ])
 
 
@@ -74,10 +75,10 @@ setup(
             '*.kv',
             '*.yaml'
         ],
-        'gemgemgem.ui_qml': [
+        'gemalaya': [
             '*.ttf'
         ],
-        'gemgemgem.ui_qml.qml': [
+        'gemalaya.qml': [
             '*.qml',
             '*.png'
         ]
@@ -86,7 +87,7 @@ setup(
     entry_points={
         'gui_scripts': [
             'gemv = gemgemgem.ui:run_gempubv',
-            'gemalaya = gemgemgem.ui_qml:run_gemalaya',
+            'gemalaya = gemalaya:run_gemalaya',
         ],
         'console_scripts': [
             'gempubify = gemgemgem.gempubify:gempubify'

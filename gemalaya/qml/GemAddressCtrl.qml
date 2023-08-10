@@ -4,7 +4,7 @@ import Qt.labs.qmlmodels 1.0
 
 Item {
   id: control
-  property int editDelay: 500
+  property int editDelay: Conf.ui.urlCompletionTimeout
   property bool hovered: false
 
   property alias url: urlField.text
@@ -49,10 +49,11 @@ Item {
 
   Action {
     id: focusAction
-    shortcut: 'Ctrl+L'
+    shortcut: Conf.shortcuts.urlEdit
     onTriggered: {
       urlField.forceActiveFocus()
       urlField.selectAll()
+      sched.cancel()
     }
   }
 
@@ -62,6 +63,7 @@ Item {
     onEntered: {
       hovered = true
       urlField.forceActiveFocus()
+      sched.cancel()
     }
     onExited: hovered = false
   }
@@ -87,11 +89,13 @@ Item {
     id: bmpopup
     width: control.width
     height: 250
-    x: control.x
-    y: control.y + control.height
+    x: urlField.x
+    y: urlField.y + urlField.height
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
     background: Rectangle {
-      color: 'lightgray'
+      color: '#2f4a3f'
+      border.width: 1
+      border.color: 'black'
     }
 
     contentItem: TableView {
@@ -106,6 +110,7 @@ Item {
           let bmurl = data[0]
           control.requested(bmurl)
           bmpopup.close()
+          sched.cancel()
         }
       }
 
@@ -125,20 +130,24 @@ Item {
         id: del
         required property bool selected
         required property bool current
-        implicitWidth: 300
+        implicitWidth: column == 0 ? control.width * 0.7 : control.width * 0.2
         implicitHeight: 32
         color: current ? 'blue' : 'transparent'
-        Text {
-          anchors.centerIn: parent
+
+        TextMetrics {
+          id: textm
+          font.family: 'Courier'
+          font.pointSize: 16
+          font.bold: column == 0
           text: display
+          elideWidth: del.width * 0.9
+          elide: Qt.ElideRight
         }
 
-        MouseArea {
-          anchors.fill: parent
-          hoverEnabled: true
-          onClicked: {
-            var data = bookmarksModel.getFromRow(tableview.currentRow)
-          }
+        Text {
+          anchors.centerIn: parent
+          text: textm.elidedText
+          font: textm.font
         }
       }
     }
@@ -146,7 +155,6 @@ Item {
 
   onEdited: {
     bookmarksModel.findSome(text)
-    console.log(bookmarksModel.rowCount())
 
     if (bookmarksModel.rowCount() > 0) {
       tableview.selectionModel.setCurrentIndex(
@@ -166,13 +174,16 @@ Item {
     anchors.topMargin: 16
     anchors.leftMargin: 16
     onTextEdited: {
-      sched.cancel()
-      sched.delay(function() {
-        edited(text)
-      }, editDelay)
+      if (text.length > 0) {
+        sched.cancel()
+        sched.delay(function() {
+          edited(text)
+        }, editDelay)
+      }
     }
     onAccepted: {
       requested(text)
+      sched.cancel()
     }
   }
 }

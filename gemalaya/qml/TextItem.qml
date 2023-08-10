@@ -9,6 +9,9 @@ Text {
   property bool hovered
   property bool quote: false
 
+  property Item nextLinkItem
+  property Item prevLinkItem
+
   property int origWidth
   property int origHeight
 
@@ -18,6 +21,9 @@ Text {
   property string colorDefault: 'cornsilk'
   property string colorHovered: 'white'
 
+  KeyNavigation.backtab: prevLinkItem
+  KeyNavigation.priority: KeyNavigation.BeforeItem
+  KeyNavigation.tab: nextLinkItem
   Layout.margins: 10
   Layout.maximumWidth: width
   Layout.alignment: quote ? Qt.AlignHCenter : Qt.AlignLeft
@@ -28,7 +34,7 @@ Text {
   TextMetrics {
     id: textmn
     font.family: "DejaVuSans"
-    font.pointSize: pointSizeNormal
+    font.pointSize: Conf.text.fontSize
     font.italic: quote === true
     text: content
   }
@@ -43,7 +49,7 @@ Text {
   color: colorDefault
   text: textmn.text
   font: textmn.font
-  lineHeight: 1.1
+  lineHeight: Conf.text.lineHeight
   renderType: Text.NativeRendering
 
   antialiasing: true
@@ -53,11 +59,14 @@ Text {
     id: sched
   }
 
-  onHoveredChanged: {
-    if (hovered) {
+  onFocusChanged: {
+    if (!Conf.text.focusZoom.enabled)
+      return
+
+    if (focus) {
       origWidth = width
 
-      sched.delay(function() { sanimin.running = true }, 500)
+      sched.delay(function() { sanimin.running = true }, Conf.text.focusZoom.timeout)
     } else {
       sched.cancel()
       sanimout.running = true
@@ -86,7 +95,7 @@ Text {
       target: control
       property: 'font.pointSize'
       from: control.font.pointSize
-      to: pointSizeLarge
+      to: Conf.text.focusZoom.fontSize
       duration: 10
     }
     PropertyAnimation {
@@ -100,7 +109,7 @@ Text {
       target: control
       property: 'lineHeight'
       from: control.lineHeight
-      to: control.lineHeight + 0.1
+      to: Conf.text.focusZoom.lineHeight ? Conf.text.focusZoom.lineHeight : control.lineHeight + 0.1
       duration: 10
     }
 

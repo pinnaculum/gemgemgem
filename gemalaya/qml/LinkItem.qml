@@ -28,6 +28,12 @@ ColumnLayout {
   KeyNavigation.priority: KeyNavigation.BeforeItem
   Keys.onReturnPressed: linkAction.trigger()
 
+  onFocusChanged: {
+    if (focus) {
+      console.log('Focus is on: ' + href)
+    }
+  }
+
   MouseArea {
     anchors.fill: parent
     Layout.fillWidth: true
@@ -115,18 +121,9 @@ ColumnLayout {
       }
     }
 
-    function relatedChildren() {
-      var component = Qt.createComponent('ImagePreview.qml')
-      button.ImagePreviewItem = component.createObject(buttonLayout, {
-        imgPath: 'test.png'
-      })
-
-      return [button.ImagePreviewItem]
-    }
-
     TextMetrics {
       id: textm
-      font.family: "DejaVuSans"
+      font.family: Conf.links.text.fontFamily
       font.pointSize: pointSizeNormal
       text: title
 
@@ -150,6 +147,13 @@ ColumnLayout {
       id: buttonLayout
       spacing: 10
 
+      MouseArea {
+        anchors.fill: parent
+        hoverEnabled: true
+        onEntered: itemLayout.focus = true
+        onExited: itemLayout.focus = false
+      }
+
       Rectangle {
         id: shortcutButton
         implicitWidth: keybSeqText.width * 1.1
@@ -160,7 +164,7 @@ ColumnLayout {
         Text {
           id: keybSeqText
           text: keybAccessSeq
-          font.pointSize: 22
+          font.pointSize: Conf.links.shortcutButton.fontSize
           color: Conf.links.shortcutButton.textColor
           anchors.centerIn: parent
           Layout.fillWidth: true
@@ -178,7 +182,7 @@ ColumnLayout {
         elide: Text.ElideRight
         maximumLineCount: 2
         horizontalAlignment: Text.AlignHCenter
-        color: button.hovered ? '#1e90ff' : '#00bfff'
+        color: button.hovered ? Conf.links.text.colorHovered : Conf.links.text.color
       }
     }
 

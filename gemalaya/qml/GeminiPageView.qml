@@ -10,7 +10,7 @@ ScrollView {
   property alias page: page
   property Item addrController
 
-  property double bigStep: 0.1
+  property double bigStep: Conf.ui.page.stepBig
 
   Layout.fillWidth: true
   Layout.fillHeight: true
@@ -19,8 +19,6 @@ ScrollView {
 
   GeminiAgent {
     id: agent
-
-    onSrvError: console.log('Server error')
 
     onSrvResponse: {
       let urlString = resp.url
@@ -90,9 +88,14 @@ ScrollView {
             props = {
               content: gemItem.title,
               width: sview.width * 0.95,
+              nextLinkItem: prevLink ? prevLink : null,
               quote: gemItem.type === 'quote'
             }
             item = component.createObject(sview.page, props)
+            if (prevLink) {
+              prevLink.nextLinkItem = item
+            }
+            prevLink = item
             break
 
           default:
@@ -122,7 +125,7 @@ ScrollView {
     y: sview.topPadding
     height: sview.availableHeight
     policy: ScrollBar.AlwaysOn
-    stepSize: 0.02
+    stepSize: Conf.ui.page.stepSmall
   }
 
   function geminiLinkClicked(clickedUrl, baseUrl) {
@@ -193,6 +196,8 @@ ScrollView {
     anchors.fill: parent
     id: page
     Layout.maximumWidth: sview.width
+
+    property alias scrollView: sview
 
     property int currentFocusedIndex: -1
 

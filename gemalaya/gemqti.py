@@ -115,7 +115,7 @@ class GeminiInterface(QObject):
             requ = URL(href)
 
             inc = self._dcache.get(href)
-            if inc:
+            if inc and 0:
                 return inc
 
             response = ignition.request(
