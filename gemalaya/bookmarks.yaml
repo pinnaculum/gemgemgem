@@ -1,0 +1,11 @@
+- url: gemini://station.martinrue.com
+  title: Station
+
+- url: gemini://localhost/
+  title: local
+
+- url: gemini://geminispace.info
+  title: Geminispace.info
+
+- url: gemini://geminispace.org
+  title: Geminispace.org

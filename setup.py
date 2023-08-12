@@ -36,7 +36,7 @@ class _build(build):
 
 setup(
     name='gemgemgem',
-    version='0.3.1',
+    version='0.3.2',
     description='A library to work with gemini and gempub archives',
     url='https://gitlab.com/galacteek/gemgemgem',
     author='cipres',
@@ -47,6 +47,7 @@ setup(
     },
     install_requires=[
         'attrs',
+        'cachetools',
         'DoubleLinkedList',
         'ebooklib',
         'ignition-gemini',
@@ -79,6 +80,7 @@ setup(
             '*.ttf'
         ],
         'gemalaya.qml': [
+            'qmldir',
             '*.qml',
             '*.png'
         ]

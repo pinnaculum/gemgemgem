@@ -37,8 +37,8 @@ def tSlot(*args, **kws):
         @Slot(*args)
         @functools.wraps(fn)
         def wrapper(*args, **kwargs):
-            emits = kws.get('emitWith')
-            sig = getattr(args[0], emits)
+            sigs = kws.get('sigSuccess')
+            sig = getattr(args[0], sigs)
 
             f = threadpool.submit(fn, *args)
             f.add_done_callback(functools.partial(got_result, sig))
@@ -102,7 +102,7 @@ class GeminiInterface(QObject):
                  baseUrl: str):
         return ignition.url(path, baseUrl)
 
-    @tSlot(str, str, QJsonValue, emitWith="srvResponse")
+    @tSlot(str, str, QJsonValue, sigSuccess="srvResponse")
     def geminiModelize(self,
                        href: str,
                        referer: str,
@@ -114,10 +114,6 @@ class GeminiInterface(QObject):
         try:
             requ = URL(href)
 
-            inc = self._dcache.get(href)
-            if inc and 0:
-                return inc
-
             response = ignition.request(
                 str(requ),
                 ca_cert=(self.certp, self.keyp),
@@ -128,8 +124,29 @@ class GeminiInterface(QObject):
 
             if response.is_a(ignition.InputResponse):
                 rsptype = 'input'
+            elif response.is_a(ignition.ErrorResponse):
+                rsptype = 'error'
             elif response.is_a(ignition.RedirectResponse):
                 rsptype = 'redirect'
+
+                redirUrl = URL(gemText)
+
+                if not redirUrl.is_absolute():
+                    if redirUrl.path.startswith('/'):
+                        redirUrl = URL.build(
+                            scheme='gemini',
+                            host=requ.host,
+                            path=gemText
+                        )
+                    else:
+                        redirUrl = URL(f'{requ}/{gemText}')
+
+                return {
+                    'url': href,
+                    'rsptype': rsptype,
+                    'redirectUrl': str(redirUrl)
+                }
+
             elif response.is_a(ignition.TempFailureResponse) or \
                     response.is_a(ignition.PermFailureResponse) or \
                     response.is_a(ignition.ErrorResponse):
@@ -198,8 +215,16 @@ class GeminiInterface(QObject):
                 elif line.type in [GmiLineType.HEADING1,
                                    GmiLineType.HEADING2,
                                    GmiLineType.HEADING3]:
+                    if line.type == GmiLineType.HEADING1:
+                        hsize = 'h1'
+                    elif line.type == GmiLineType.HEADING2:
+                        hsize = 'h2'
+                    elif line.type == GmiLineType.HEADING3:
+                        hsize = 'h3'
+
                     model.append({
                         'type': 'heading',
+                        'hsize': hsize,
                         'text': line.text
                     })
 

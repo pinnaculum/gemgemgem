@@ -26,10 +26,8 @@ Item {
   }
   function histPop() {
     if (history.length > 1) {
-      let old = history.pop()
-
-      if (history.length > 0)
-        return history[history.length - 1]
+      history.pop()
+      return history[history.length - 1]
     }
   }
 
@@ -62,10 +60,10 @@ Item {
     hoverEnabled: true
     onEntered: {
       hovered = true
-      urlField.forceActiveFocus()
       sched.cancel()
     }
     onExited: hovered = false
+    onClicked: urlField.forceActiveFocus()
   }
 
   Rectangle {
@@ -77,12 +75,6 @@ Item {
 
   ListModel {
     id: bookmarksm
-
-    Component.onCompleted: {
-      Conf.c.bookmarks.forEach(function(bmark) {
-        append(bmark)
-      })
-    }
   }
 
   Popup {
@@ -182,7 +174,11 @@ Item {
       }
     }
     onAccepted: {
-      requested(text)
+      if (!text.startsWith('gemini://')) {
+        requested('gemini://' + text)
+      } else {
+        requested(text)
+      }
       sched.cancel()
     }
   }

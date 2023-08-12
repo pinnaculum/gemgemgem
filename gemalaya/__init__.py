@@ -25,6 +25,7 @@ app_name = 'gemalaya'
 here = Path(os.path.dirname(__file__))
 qmlp = here.joinpath('qml')
 default_cfg_path = here.joinpath('default_config.yaml')
+def_bm_path = here.joinpath('bookmarks.yaml')
 
 
 def run_gemalaya():
@@ -96,10 +97,16 @@ def run_gemalaya():
 
     sqldb.create_db(str(sqldb_path))
 
+    with open(def_bm_path, 'rt') as fd:
+        bml = OmegaConf.load(fd)
+
+        for bm in bml:
+            sqldb.add_bookmark(bm.url, bm.get('title', ''))
+
     bmodel = sqldb.BookmarksTableModel()
     bmodel.setTable('bookmarks')
-    bmodel.setHeaderData(0, Qt.Horizontal, 'Title')
-    bmodel.setHeaderData(1, Qt.Horizontal, 'URL')
+    bmodel.setHeaderData(0, Qt.Horizontal, 'URL')
+    bmodel.setHeaderData(1, Qt.Horizontal, 'Title')
     bmodel.select()
 
     qmlRegisterType(

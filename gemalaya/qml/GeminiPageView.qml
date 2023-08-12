@@ -12,10 +12,17 @@ ScrollView {
 
   property double bigStep: Conf.ui.page.stepBig
 
+  property string linkSeqInput
+
   Layout.fillWidth: true
   Layout.fillHeight: true
 
   signal urlChanged(url currentUrl)
+  signal linkActivated(url linkUrl, url baseUrl)
+
+  Scheduler {
+    id: sched
+  }
 
   GeminiAgent {
     id: agent
@@ -24,6 +31,7 @@ ScrollView {
       let urlString = resp.url
       var urlObject = new URL(resp.url)
 
+      var linkNum = 0
       var firstLink
       var prevLink
       var nextLink
@@ -41,7 +49,17 @@ ScrollView {
         item.sendRequest.connect(geminiSendInput)
 
         page.forceActiveFocus()
+        addrController.histAdd(urlString)
         urlChanged(urlObject)
+        return
+      } else if (resp.rsptype === 'redirect') {
+        let rurl = new URL(resp.redirectUrl)
+
+        sview.browse(rurl.toString(), null)
+        urlChanged(rurl)
+        return
+      } else if (resp.rsptype === 'error') {
+        sview.pageError('error')
         return
       }
 
@@ -62,7 +80,7 @@ ScrollView {
               baseUrl: urlString,
               href: gemItem.href,
               width: sview.width,
-              keybAccessSeq: gemItem.keyseq,
+              keybAccessSeq: linkNum,
               nextLinkItem: prevLink ? prevLink : null
             }
 
@@ -78,6 +96,8 @@ ScrollView {
 
               if (firstLink === undefined)
                 firstLink = item
+
+              linkNum += 1
             }
 
             break
@@ -86,7 +106,7 @@ ScrollView {
           case 'quote':
             var component = Qt.createComponent('TextItem.qml')
             props = {
-              content: gemItem.title,
+              content: gemItem.text,
               width: sview.width * 0.95,
               nextLinkItem: prevLink ? prevLink : null,
               quote: gemItem.type === 'quote'
@@ -98,6 +118,15 @@ ScrollView {
             prevLink = item
             break
 
+          case 'heading':
+            var component = Qt.createComponent('HeadingItem.qml')
+            item = component.createObject(sview.page, {
+              content: gemItem.text,
+              hsize: gemItem.hsize,
+              width: sview.width * 0.95
+            })
+            break
+
           default:
             break
         }
@@ -107,10 +136,9 @@ ScrollView {
 
       urlChanged(urlObject)
 
-      page.forceActiveFocus()
+      sview.forceActiveFocus()
 
       if (firstLink) {
-        firstLink.forceActiveFocus()
         firstLink.focus = true
       }
 
@@ -129,13 +157,12 @@ ScrollView {
   }
 
   function geminiLinkClicked(clickedUrl, baseUrl) {
-    var lu = new URL(clickedUrl.toString())
     var noSchemes = ['http:', 'https:']
 
-    if (noSchemes.includes(lu.protocol)) {
-      console.log('Unsupported protocol: ' + lu.protocol)
+    if (noSchemes.includes(clickedUrl.protocol)) {
+      console.log('Unsupported protocol: ' + clickedUrl.protocol)
     } else {
-      sview.browse(clickedUrl.toString(), baseUrl)
+      linkActivated(clickedUrl, baseUrl)
     }
   }
 
@@ -148,11 +175,6 @@ ScrollView {
            str !== str.toUpperCase();
   }
 
-  function num2letter(number){
-    let alpha = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    return alpha.charAt(number % alpha.length)
-  }
-
   function browse(href, baseUrlUnused) {
     var urlObject
 
@@ -162,8 +184,11 @@ ScrollView {
       return
     }
 
-    var urlString = urlObject.toString()
-    var result = agent.geminiModelize(urlString, null, {})
+    agent.geminiModelize(urlObject.toString(), null, {})
+  }
+
+  function pageError(err) {
+    page.clear()
   }
 
   onUrlChanged: {
@@ -171,6 +196,19 @@ ScrollView {
   }
 
   Keys.onPressed: {
+    let numk = [
+      Qt.Key_0,
+      Qt.Key_1,
+      Qt.Key_2,
+      Qt.Key_3,
+      Qt.Key_4,
+      Qt.Key_5,
+      Qt.Key_6,
+      Qt.Key_7,
+      Qt.Key_8,
+      Qt.Key_9
+    ]
+
     /* Should convert those to Actions */
     if (event.key === Qt.Key_Home) {
       vsbar.position = 0
@@ -190,6 +228,22 @@ ScrollView {
       else
         vsbar.position = 0
     }
+
+    if (event.modifiers & Qt.ControlModifier) {
+      linkSeqInput = ''
+    }
+
+    if (numk.includes(event.key)) {
+      linkSeqInput = linkSeqInput + event.text
+    }
+
+    sched.delay(function() {
+      if (linkSeqInput.length > 0) {
+        page.focusLinkForSequence(linkSeqInput)
+      } else {
+        linkSeqInput = ''
+      }
+    }, Conf.ui.keybSeqTimeout)
   }
 
   ColumnLayout {
@@ -199,13 +253,24 @@ ScrollView {
 
     property alias scrollView: sview
 
-    property int currentFocusedIndex: -1
-
     function clear() {
       for (let i=0; i < children.length; i++) {
         children[i].destroy()
       }
       page.children = []
+    }
+
+    function focusLinkForSequence(seq) {
+      for (let i=0; i < children.length; i++) {
+        let item = children[i]
+
+        if (item.keybAccessSeq == seq) {
+          linkSeqInput = ''
+          item.focus = true
+          item.linkAction.trigger()
+        }
+      }
+      linkSeqInput = ''
     }
   }
 }

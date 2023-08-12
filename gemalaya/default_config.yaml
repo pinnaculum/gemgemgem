@@ -3,10 +3,6 @@ debug: false
 gemini:
   timeout_default: 15
 
-bookmarks:
-  - url: gemini://station.martinrue.com/
-    title: Station
-
 ui:
   # active theme name
   theme: 'sinister'
@@ -14,21 +10,26 @@ ui:
   # edition timeout (ms) for the address bar, completions are shown after that
   urlCompletionTimeout: 800
 
+  keybSeqTimeout: 600
+
   page:
     stepBig: 0.1
     stepSmall: 0.02
 
   # Shortcuts
   shortcuts:
-    bookmark: 'F11'
-    quit: 'F12'
+    bookmark: 'Ctrl+d'
+    quit: 'Ctrl+q'
 
     # URLs
-    urlEdit: 'Ctrl+L'
+    urlEdit: 'Ctrl+l'
 
     # History
     historyBack: 'Ctrl+backspace'
 
+    linkOpenTargetSwitch: 'o'
+
     stack:
       cycle: 'Ctrl+Tab'
       create: 'Ctrl+t'
+      close: 'Ctrl+w'

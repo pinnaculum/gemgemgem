@@ -24,6 +24,10 @@ QtObject {
     return theme.text
   }
 
+  property var heading: {
+    return theme.heading
+  }
+
   property var shortcuts: {
     return c.ui.shortcuts
   }

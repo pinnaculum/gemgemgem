@@ -18,8 +18,8 @@ Text {
   property int pointSizeNormal: 18
   property int pointSizeLarge: 20
 
-  property string colorDefault: 'cornsilk'
-  property string colorHovered: 'white'
+  property string colorDefault: Conf.text.color ? Conf.text.color : 'white'
+  property string colorHovered: Conf.text.focusZoom.color ? Conf.text.focusZoom.color : 'white'
 
   KeyNavigation.backtab: prevLinkItem
   KeyNavigation.priority: KeyNavigation.BeforeItem

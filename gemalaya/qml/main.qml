@@ -15,26 +15,24 @@ Window {
   GemSpaceCycleAction {
     stackLayout: stackl
   }
+  GemSpaceDestroyAction {
+    stackLayout: stackl
+  }
+
+  Action {
+    id: openInTab
+    shortcut: Conf.shortcuts.linkOpenTargetSwitch
+
+    onTriggered: {
+      stackl.openInSwitch()
+    }
+  }
 
   ColumnLayout {
     anchors.fill: parent
 
-    StackLayout {
+    GemStackLayout {
       id: stackl
-      Layout.fillWidth: true
-      Layout.fillHeight: true
-
-      function spawn() {
-        let comp = Qt.createComponent('GemSpace.qml')
-        let obj = comp.createObject(stackl, {stackLayout: stackl})
-
-        currentIndex = count - 1
-        return obj
-      }
-
-      GemSpace {
-        id: gspace0
-      }
     }
   }
 }

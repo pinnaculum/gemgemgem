@@ -3,10 +3,10 @@ import QtQuick.Controls 2.14
 
 Action {
   property Item stackLayout
-  shortcut: Conf.shortcuts.stack.create
+  shortcut: Conf.shortcuts.stack.close
 
   onTriggered: {
-    let obj = stackLayout.spawn(null)
+    stackLayout.spaceCloseRequest(stackLayout.currentIndex)
   }
 }
 

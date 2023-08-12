@@ -8,6 +8,8 @@ ColumnLayout {
   property string href
   property string baseUrl
 
+  property alias linkAction: linkAction
+
   property Item nextLinkItem
   property Item prevLinkItem
 
@@ -28,28 +30,29 @@ ColumnLayout {
   KeyNavigation.priority: KeyNavigation.BeforeItem
   Keys.onReturnPressed: linkAction.trigger()
 
+  Layout.minimumWidth: parent.width * 0.5
+  Layout.maximumWidth: parent.width * 0.8
+
   onFocusChanged: {
     if (focus) {
       console.log('Focus is on: ' + href)
     }
   }
 
-  MouseArea {
-    anchors.fill: parent
-    Layout.fillWidth: true
-    hoverEnabled: true
-    onEntered: itemLayout.focus = true
-    onExited: itemLayout.focus = false
-  }
-
   Button {
     id: button
 
-    Layout.maximumWidth: parent.width * 0.6
-    Layout.minimumWidth: parent.width * 0.3
+    Layout.preferredWidth: parent.width
     Layout.fillWidth: true
 
     Layout.margins: 5
+
+    MouseArea {
+      anchors.fill: parent
+      hoverEnabled: true
+      onEntered: itemLayout.focus = true
+      onExited: itemLayout.focus = false
+    }
 
     SequentialAnimation {
       /*
@@ -76,15 +79,13 @@ ColumnLayout {
         target: shortcutButton
         property: 'border.width'
         from: 1
-        to: Conf.links.openAnim.shortcutBorderWidth
-        //to: 2
+        to: Conf.links.openAnim.shortcutBorderWidth ? Conf.links.openAnim.shortcutBorderWidth : 2
         duration: 100
       }
       PropertyAnimation {
         target: shortcutButton
         property: 'color'
         to: Conf.links.openAnim.shortcutButtonColor
-        //to: '#9ACD32'
         duration: 700
       }
 
@@ -113,7 +114,6 @@ ColumnLayout {
     Action {
       id: linkAction
       text: title
-      shortcut: keybAccessSeq
       onTriggered: {
         /* Just run the animation, link is activated in the
          * animation's clickScript */
@@ -128,7 +128,7 @@ ColumnLayout {
       text: title
 
       /* Elide to the right and set the elide width */
-      elideWidth: parent.width * 0.5
+      elideWidth: button.width * 0.7
       elide: Qt.ElideRight
     }
 
@@ -147,17 +147,10 @@ ColumnLayout {
       id: buttonLayout
       spacing: 10
 
-      MouseArea {
-        anchors.fill: parent
-        hoverEnabled: true
-        onEntered: itemLayout.focus = true
-        onExited: itemLayout.focus = false
-      }
-
       Rectangle {
         id: shortcutButton
-        implicitWidth: keybSeqText.width * 1.1
-        implicitHeight: keybSeqText.height * 1.1
+        implicitWidth: keybSeqText.width
+        implicitHeight: keybSeqText.height
         border.width: Conf.links.shortcutButton.borderWidth
         border.color: Conf.links.shortcutButton.borderColor
         color: Conf.links.shortcutButton.color
@@ -187,7 +180,7 @@ ColumnLayout {
     }
 
     onClicked: {
-      linkAction.trigger(this)
+      linkAction.trigger()
     }
   }
 

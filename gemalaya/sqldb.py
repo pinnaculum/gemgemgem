@@ -1,4 +1,3 @@
-from PySide6.QtCore import Qt
 from PySide6.QtCore import Slot
 
 from PySide6.QtSql import QSqlDatabase
@@ -16,13 +15,14 @@ def add_bookmark(url: str, title: str):
     query = QSqlQuery()
     query.exec("""
         INSERT INTO bookmarks(
-            title,
-            url
+            url,
+            title
         )
         VALUES(?, ?)
     """)
-    query.addBindValue(title)
+
     query.addBindValue(url)
+    query.addBindValue(title)
     query.exec()
 
 
@@ -34,13 +34,12 @@ def create_db(path: str):
     createTableQuery = QSqlQuery()
     createTableQuery.exec("""
         CREATE TABLE bookmarks (
-            title VARCHAR(256) PRIMARY KEY NOT NULL,
-            url VARCHAR(256) NOT NULL
+            url VARCHAR(256) PRIMARY KEY NOT NULL,
+            title VARCHAR(256),
+            shortcut VARCHAR(32),
+            enabled BOOLEAN
         )
     """)
-
-    add_bookmark('station', 'gemini://station.martinrue.com')
-    add_bookmark('local', 'gemini://localhost/')
 
     db.commit()
 
@@ -66,17 +65,3 @@ class BookmarksTableModel(QSqlTableModel):
             return [rec.value(i) for i in range(0, rec.count())]
         except Exception:
             return []
-
-    def roleNames2(self):
-        names = {}
-        # names[hash(Qt.UserRole)] = 'url'.encode()
-        names[Qt.UserRole] = 'url'.encode()
-        # names[hash(Qt.UserRole + 1)] = 'title'.encode()
-        return names
-
-    def data2(self, index, role):
-        if role < Qt.UserRole:
-            return QSqlTableModel.data(self, index, role)
-
-        sr = self.record(index.row())
-        return sr.value(role - Qt.UserRole)

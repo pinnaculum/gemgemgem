@@ -8,6 +8,5 @@ ToolButton {
 
   action: Action {
     shortcut: Conf.shortcuts.historyBack
-    onTriggered: clicked()
   }
 }
