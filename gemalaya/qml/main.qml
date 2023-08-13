@@ -8,6 +8,8 @@ import "."
 Window {
   id: window
   visible: true
+  title: 'Gemalaya'
+  visibility: Window.Maximized
 
   GemSpaceCreateAction {
     stackLayout: stackl
@@ -15,12 +17,18 @@ Window {
   GemSpaceCycleAction {
     stackLayout: stackl
   }
+  GemSpacePreviousAction {
+    stackLayout: stackl
+  }
+  GemSpaceNextAction {
+    stackLayout: stackl
+  }
   GemSpaceDestroyAction {
     stackLayout: stackl
   }
 
   Action {
-    id: openInTab
+    id: openTargetAction
     shortcut: Conf.shortcuts.linkOpenTargetSwitch
 
     onTriggered: {

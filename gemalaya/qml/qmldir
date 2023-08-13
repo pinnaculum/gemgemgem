@@ -4,6 +4,9 @@ GemAddressCtrl 1.0 GemAddressCtrl.qml
 QuitButton 1.0 QuitButton.qml
 HeadingItem 1.0 HeadingItem.qml
 Scheduler 1.0 Scheduler.qml
+ErrorItem 1.0 ErrorItem.qml
+GemSpaceNextAction 1.0 GemSpaceNextAction.qml
+GemSpacePreviousAction 1.0 GemSpacePreviousAction.qml
 GemSpaceDestroyAction 1.0 GemSpaceDestroyAction.qml
 InputItem 1.0 InputItem.qml
 GeminiPageView 1.0 GeminiPageView.qml

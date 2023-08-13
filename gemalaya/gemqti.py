@@ -235,14 +235,11 @@ class GeminiInterface(QObject):
                 'title': None
             }
 
-            if href not in self._dcache:
-                self._dcache[href] = resp
-
             return resp
         except Exception:
             traceback.print_exc()
 
-            self.srvError.emit('Error')
+            self.srvError.emit(traceback.format_exc())
 
 
 class GemalayaInterface(QObject):

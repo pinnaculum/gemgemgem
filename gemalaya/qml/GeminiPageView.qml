@@ -27,6 +27,8 @@ ScrollView {
   GeminiAgent {
     id: agent
 
+    onSrvError: pageError(message)
+
     onSrvResponse: {
       let urlString = resp.url
       var urlObject = new URL(resp.url)
@@ -47,8 +49,8 @@ ScrollView {
           width: sview.width
         })
         item.sendRequest.connect(geminiSendInput)
+        item.focusInput()
 
-        page.forceActiveFocus()
         addrController.histAdd(urlString)
         urlChanged(urlObject)
         return
@@ -59,7 +61,7 @@ ScrollView {
         urlChanged(rurl)
         return
       } else if (resp.rsptype === 'error') {
-        sview.pageError('error')
+        sview.pageError('Gemini request error for: ' + urlString)
         return
       }
 
@@ -189,6 +191,11 @@ ScrollView {
 
   function pageError(err) {
     page.clear()
+
+    let component = Qt.createComponent('ErrorItem.qml')
+    component.createObject(sview.page, {
+      message: err
+    })
   }
 
   onUrlChanged: {
@@ -233,7 +240,7 @@ ScrollView {
       linkSeqInput = ''
     }
 
-    if (numk.includes(event.key)) {
+    if (numk.includes(event.key) && linkSeqInput.length < 8) {
       linkSeqInput = linkSeqInput + event.text
     }
 
@@ -252,6 +259,7 @@ ScrollView {
     Layout.maximumWidth: sview.width
 
     property alias scrollView: sview
+    property bool empty: children.length == 0
 
     function clear() {
       for (let i=0; i < children.length; i++) {

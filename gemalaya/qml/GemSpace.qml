@@ -33,7 +33,10 @@ Rectangle {
 
   function onSpaceChanged(index) {
     if (StackLayout.index == stackLayout.currentIndex) {
-      sview.page.forceActiveFocus()
+      if (sview.page.empty)
+        addrc.focusInput()
+      else
+        sview.page.forceActiveFocus()
     }
   }
 
@@ -67,10 +70,12 @@ Rectangle {
 
   Action {
     shortcut: Conf.shortcuts.bookmark
+    enabled: gemspace.visible
     onTriggered: {
       if (addrc.url) {
         // todo: set title
         bookmarksModel.addBookmark(addrc.url, addrc.url)
+        addrc.animate()
       }
     }
   }
@@ -87,6 +92,7 @@ Rectangle {
 
       NavBackButton {
         id: backb
+        enabled: false
         onClicked: {
           let u = addrc.histPop()
 
@@ -101,10 +107,14 @@ Rectangle {
 
         Layout.fillWidth: true
         Layout.minimumHeight: 60
-        Layout.maximumHeight: 150
+        Layout.maximumHeight: 120
 
         KeyNavigation.backtab: sview
         KeyNavigation.tab: sview
+
+        onHistorySizeChanged: {
+          backb.enabled = hsize > 1
+        }
 
         onRequested: {
           sview.browse(text, null)

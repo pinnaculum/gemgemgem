@@ -18,21 +18,28 @@ Item {
   signal edited(string text)
   signal requested(string text)
   signal hidden()
+  signal historySizeChanged(int hsize)
 
   function histAdd(url) {
     if (!history.includes(url)) {
       history.push(url)
+      historySizeChanged(history.length)
     }
   }
   function histPop() {
     if (history.length > 1) {
       history.pop()
+      historySizeChanged(history.length)
       return history[history.length - 1]
     }
   }
 
   function focusInput() {
     input.forceActiveFocus()
+  }
+
+  function animate() {
+    bmAnim.running = true
   }
 
   Scheduler {
@@ -45,9 +52,59 @@ Item {
     hidden()
   }
 
+  SequentialAnimation {
+    /* Simple animation for when we bookmark the url */
+    id: bmAnim
+
+    PropertyAnimation {
+      target: bgr
+      property: 'border.width'
+      from: 1
+      to: 2
+      duration: 100
+    }
+    PropertyAnimation {
+      target: bgr
+      property: 'border.color'
+      to: 'darkorange'
+      duration: 100
+    }
+    PropertyAnimation {
+      target: bgr
+      property: 'radius'
+      to: 10
+      duration: 100
+    }
+
+    PauseAnimation {
+      duration: 300
+    }
+
+    PropertyAnimation {
+      target: bgr
+      property: 'border.width'
+      from: 2
+      to: 1
+      duration: 100
+    }
+    PropertyAnimation {
+      target: bgr
+      property: 'border.color'
+      to: 'lightsteelblue'
+      duration: 100
+    }
+    PropertyAnimation {
+      target: bgr
+      property: 'radius'
+      to: 0
+      duration: 100
+    }
+  }
+
   Action {
     id: focusAction
     shortcut: Conf.shortcuts.urlEdit
+    enabled: control.visible
     onTriggered: {
       urlField.forceActiveFocus()
       urlField.selectAll()
@@ -67,6 +124,7 @@ Item {
   }
 
   Rectangle {
+    id: bgr
     anchors.fill: parent
     color: '#2f4f4f'
     border.width: 1
@@ -140,6 +198,7 @@ Item {
           anchors.centerIn: parent
           text: textm.elidedText
           font: textm.font
+          color: 'cornsilk'
         }
       }
     }

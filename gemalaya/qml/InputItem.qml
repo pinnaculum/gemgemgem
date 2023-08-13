@@ -11,6 +11,10 @@ Rectangle {
 
   signal sendRequest(url sendUrl, string inputValue)
 
+  function focusInput() {
+    input.forceActiveFocus()
+  }
+
   ColumnLayout {
     anchors.fill: parent
     id: control
@@ -19,21 +23,27 @@ Rectangle {
     Text {
       text: qsTr('Input request: ') + promptText
       color: colorDefault
-      font.pointSize: 26
+      font.pointSize: 24
       Layout.alignment: Qt.AlignHCenter
     }
 
     TextArea {
       id: input
-      wrapMode: TextEdit.WordWrap
+      wrapMode: TextEdit.WrapAnywhere
       selectByMouse: true
       focus: true
+      textMargin: 10
 
-      Layout.margins: 10
-      Layout.minimumWidth: 320
-      Layout.minimumHeight: 240
+      Layout.margins: 20
+      Layout.minimumHeight: 340
       Layout.fillWidth: true
       Layout.fillHeight: true
+
+      Keys.onTabPressed: {
+        /* Focus the send button manually when Tab is pressed here */
+        if (text.length > 0)
+          send.focus = true
+      }
 
       font.pointSize: 22
       font.family: "Segoe UI"
@@ -51,26 +61,33 @@ Rectangle {
     }
 
     ToolButton {
+      id: send
       Layout.alignment: Qt.AlignHCenter
       text: qsTr('Send')
       icon.source: Conf.themeRsc('input-send.png')
       icon.width: 32
       icon.height: 32
+      font.pointSize: 22
+      Keys.onReturnPressed: clicked()
+
       background: Rectangle {
         implicitWidth: 140
         implicitHeight: 50
-        color: parent.checked ? "darkorange" :
-               (parent.hovered ? "#4a9ea1" : "lightsteelblue")
-        border.color: parent.hovered ? 'black' : '#26282a'
-        border.width: 2
+        color: parent.focus ? "lightgreen" : "lightsteelblue"
+        border.color: parent.focus ? 'black' : '#26282a'
+        border.width: parent.focus ? 2 : 1
         radius: 8
       }
 
       onClicked: {
-        var urlObject = new URL(
-          sendUrl + '?' + encodeURIComponent(input.text))
+        if (input.text.length > 0) {
+          var urlObject = new URL(
+            sendUrl + '?' + encodeURIComponent(input.text))
 
-        sendRequest(urlObject, input.text)
+          sendRequest(urlObject, input.text)
+        } else {
+          focusInput()
+        }
       }
     }
   }

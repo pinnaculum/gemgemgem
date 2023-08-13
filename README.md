@@ -1,15 +1,12 @@
 # gemgemgem
 
-A small Python toolkit to work with gemini and
-[gempub](https://codeberg.org/oppenlab/gempub) archives.
+*gemgemgem* (can be heard as *"J'aime j'aime j'aime"*, meaning
+*"I love i love i love"* in French) is a collection of Gemini apps and tools
+written in Python. It includes:
 
 - [gemalaya](#gemalaya): a keyboard-driven Gemini browser written in QML
-- [gemv](#gemv): a small Gempub viewer
+- [gemv](#gemv): a small [Gempub](https://codeberg.org/oppenlab/gempub) viewer
 - gempubify: a command to convert *epub* ebooks to gempub archives
-
-```sh
-pip install .
-```
 
 ## Gemalaya
 
@@ -17,7 +14,7 @@ pip install .
 
 *Gemalaya* is a keyboard-driven Gemini browser written in QML (PySide6).
 Links can be navigated from the keyboard using simple key sequences.
-One of the goals of this project is to focus on simplicity and readability,
+One of the goals of this project is to focus on simplicity and also readability,
 for example when you hover some text, its formatting, style, font, etc ..
 can change to make the paragraph more comfortable to read.
 *Status: mostly a demonstration browser for now, more work needed.*
@@ -29,16 +26,18 @@ Each link in a gemini page is assigned a number. To follow a link, just type in
 the number of the link on the keyboard. The link is opened after a certain
 timeout.
 
-Default keybindings (see *default_config.yaml* for all the shortcuts):
+Default keyboard shortcuts (see *default_config.yaml* for all the shortcuts):
 
-- *Ctrl+Tab*: switch between pages in the stack layout
 - *Tab*: change the focus to the next element in the page
-- *Ctrl+q*: quit
 - *Ctrl+d*: bookmark the current page
 - *Ctrl+t*: open up a new gemspace
 - *Ctrl+Backspace*: go back in the history
-- *o*: Toggle the target for links opened in this page (can be opened in the
-    same gemspace or in a new gemspace)
+- *Ctrl+o*: Toggle the target gemspace for links opened in this page
+  (can be opened in the same gemspace or in a new gemspace)
+- *Ctrl+b*: go to the previous gemspace
+- *Ctrl+n*: go to the next gemspace
+- *Ctrl+Tab*: cycle between gemspaces in the stack layout
+- *Ctrl+q*: quit
 
 Download the AppImage or install it with:
 

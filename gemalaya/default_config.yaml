@@ -27,9 +27,12 @@ ui:
     # History
     historyBack: 'Ctrl+backspace'
 
-    linkOpenTargetSwitch: 'o'
+    linkOpenTargetSwitch: 'Ctrl+o'
 
     stack:
       cycle: 'Ctrl+Tab'
       create: 'Ctrl+t'
       close: 'Ctrl+w'
+
+      previous: 'Ctrl+b'
+      next: 'Ctrl+n'

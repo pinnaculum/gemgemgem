@@ -65,14 +65,14 @@ ColumnLayout {
         target: buttonBg
         property: 'color'
         to: Conf.links.openAnim.buttonBgColor
-        duration: 200
+        duration: 100
       }
 
       ScaleAnimator {
         target: button
         from: 1
         to: 1.05
-        duration: 300
+        duration: 200
       }
 
       PropertyAnimation {
@@ -86,7 +86,7 @@ ColumnLayout {
         target: shortcutButton
         property: 'color'
         to: Conf.links.openAnim.shortcutButtonColor
-        duration: 700
+        duration: 300
       }
 
       ScriptAction {
