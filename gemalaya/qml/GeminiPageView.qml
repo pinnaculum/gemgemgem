@@ -106,11 +106,14 @@ ScrollView {
 
           case 'regular':
           case 'quote':
+          case 'preformatted':
+          case 'listitem':
             var component = Qt.createComponent('TextItem.qml')
             props = {
               content: gemItem.text,
               width: sview.width * 0.95,
               nextLinkItem: prevLink ? prevLink : null,
+              textType: gemItem.type,
               quote: gemItem.type === 'quote'
             }
             item = component.createObject(sview.page, props)
@@ -158,11 +161,15 @@ ScrollView {
     stepSize: Conf.ui.page.stepSmall
   }
 
-  function geminiLinkClicked(clickedUrl, baseUrl) {
-    var noSchemes = ['http:', 'https:']
+  function geminiLinkClicked(clickedUrlString, baseUrl) {
+    var clickedUrl = new URL(clickedUrlString)
+    var unsSchemes = ['http:', 'https:']
 
-    if (noSchemes.includes(clickedUrl.protocol)) {
-      console.log('Unsupported protocol: ' + clickedUrl.protocol)
+    if (unsSchemes.includes(clickedUrl.protocol)) {
+      if (Conf.ui.openUnsupportedUrls == true)
+        gemalaya.browserOpenUrl(clickedUrl.toString())
+      else
+        console.log('Unsupported protocol: ' + clickedUrl.protocol)
     } else {
       linkActivated(clickedUrl, baseUrl)
     }

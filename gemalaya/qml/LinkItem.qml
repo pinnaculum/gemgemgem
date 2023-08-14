@@ -19,7 +19,7 @@ ColumnLayout {
   property int pointSizeNormal: Conf.links.text.fontSize
   property int pointSizeLarge: Conf.links.text.fontSizeLarge
 
-  signal linkClicked(url baseUrl, string href)
+  signal linkClicked(string baseUrl, string href)
   signal imageClicked(url imgLink)
 
   Layout.fillWidth: true
@@ -92,7 +92,10 @@ ColumnLayout {
       ScriptAction {
         id: clickScript
         script: {
-          var urlObject = new URL(gem.buildUrl(href, baseUrl))
+          if (href.startsWith('http'))
+            var urlObject = new URL(href)
+          else
+            var urlObject = new URL(gem.buildUrl(href, baseUrl))
 
           const ext = urlObject.pathname.split(".").pop()
           const imgexts = ['png', 'jpg', 'webm']
@@ -105,7 +108,7 @@ ColumnLayout {
               imgPreview.visible = true
             }
           } else {
-            linkClicked(urlObject, baseUrl)
+            linkClicked(urlObject.toString(), baseUrl)
           }
         }
       }

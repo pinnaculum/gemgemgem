@@ -1,6 +1,7 @@
 import tempfile
 import traceback
 import string
+import webbrowser
 
 from pathlib import Path
 from yarl import URL
@@ -166,6 +167,8 @@ class GeminiInterface(QObject):
                 doc.append(line)
 
             hrefPrev = None
+            pf = []
+
             for line in doc.emit_line_objects(auto_tidy=True):
                 if line.type == GmiLineType.LINK:
                     # Compute keyboard sequence shortcut
@@ -201,6 +204,10 @@ class GeminiInterface(QObject):
                         'text': line.text,
                         'title': line.text if line.text else line.extra
                     })
+                elif line.type == GmiLineType.BLANK:
+                    model.append({
+                        'type': 'blank'
+                    })
                 elif line.type == GmiLineType.QUOTE:
                     model.append({
                         'type': 'quote',
@@ -227,6 +234,16 @@ class GeminiInterface(QObject):
                         'hsize': hsize,
                         'text': line.text
                     })
+                elif line.type == GmiLineType.PREFORMAT_START:
+                    pf = []
+                elif line.type == GmiLineType.PREFORMAT_LINE and line.text:
+                    pf.append(line.text)
+                elif line.type == GmiLineType.PREFORMAT_END:
+                    if pf:
+                        model.append({
+                            'type': 'preformatted',
+                            'text': '\n'.join(pf)
+                        })
 
             resp = {
                 'url': href,
@@ -269,3 +286,13 @@ class GemalayaInterface(QObject):
         else:
             self.__save_config()
             return True
+
+    @Slot(str)
+    def browserOpenUrl(self, urlString: str):
+        try:
+            url = URL(urlString)
+            assert url.scheme in ['http', 'https']
+
+            webbrowser.open(str(url), new=2)
+        except Exception:
+            traceback.print_exc()

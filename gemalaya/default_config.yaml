@@ -12,6 +12,9 @@ ui:
 
   keybSeqTimeout: 600
 
+  # open web URLs with the webbrowser module
+  openUnsupportedUrls: false
+
   page:
     stepBig: 0.1
     stepSmall: 0.02

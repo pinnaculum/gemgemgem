@@ -62,13 +62,25 @@ themes:
       fontSize: 16
       color: 'cornsilk'
 
+      # Style can be set to 'normal', 'outline', 'raised' or 'sunken'
+      style: 'normal'
+
+      # styleColor defines the secondary text color, used for the text's outline
+      # when style is set to 'outline'
+      styleColor: 'white'
+
       # Zoom the text when focus changes
       focusZoom:
         enabled: true
         color: 'white'
         timeout: 300
         lineHeight: 1.3
+
         fontSize: 20
+        fontWordSpacing: 10
+
+        style: 'outline'
+        styleColor: 'blue'
 
     heading:
       h1:
