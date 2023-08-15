@@ -7,12 +7,26 @@ StackLayout {
   Layout.fillWidth: true
   Layout.fillHeight: true
 
+  property alias gspace0: gspace0
+
   signal openInSwitch()
   signal spaceChanged(int index)
-  signal spaceCloseRequest(int index)
+  signal spaceCloseRequested(int index)
 
   onCurrentIndexChanged: {
     spaceChanged(currentIndex)
+  }
+
+  function get(idx) {
+    /* Get the item in the stack with this index */
+    if (idx <= children.length - 1)
+      return children[idx]
+  }
+
+  function closeAll() {
+    for (let i=1; i < children.length; i++) {
+      children[i].close()
+    }
   }
 
   function spawn(linkUrl) {

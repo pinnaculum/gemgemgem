@@ -32,7 +32,11 @@ Default keyboard shortcuts (see *default_config.yaml* for all the shortcuts):
 - *Ctrl+d*: bookmark the current page
 - *Ctrl+t*: open up a new gemspace
 - *Ctrl+Backspace*: go back in the history
-- *Ctrl+o*: Toggle the target gemspace for links opened in this page
+- *Ctrl+o*: Change the target for links opened in this page (the
+    target indicator is shown right next to the URL):
+  - H (yellow): open here (the default)
+  - T (blue): open in a new tab/gemspace
+  - W (red): open in a new window
   (can be opened in the same gemspace or in a new gemspace)
 - *Ctrl+b*: go to the previous gemspace
 - *Ctrl+n*: go to the next gemspace

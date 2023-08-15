@@ -13,6 +13,8 @@ Rectangle {
   /* Where to open pages */
   property int openIn: 0
 
+  property alias currentUrl: addrc.url
+
   color: Conf.gemspace.bgColor
 
   function chSpaceSwitch() {
@@ -22,7 +24,7 @@ Rectangle {
           openIn = 1
           break
         case 1:
-          openIn = 0
+          openIn = 2
           break
         case 2:
           openIn = 0
@@ -50,10 +52,17 @@ Rectangle {
     }
   }
 
+  function close() {
+    gemspace.parent = null
+
+    if (stackLayout.currentIndex > 0) {
+      stackLayout.currentIndex -= 1
+    }
+  }
+
   Component.onCompleted: {
     stackLayout.openInSwitch.connect(chSpaceSwitch)
     stackLayout.spaceChanged.connect(onSpaceChanged)
-    stackLayout.spaceCloseRequest.connect(onSpaceClose)
 
     if (startUrl.toString().length > 0) {
       /* In new space */
@@ -121,10 +130,6 @@ Rectangle {
         }
       }
 
-      Text {
-        id: currentUrl
-      }
-
       Rectangle {
         id: openType
         width: 32
@@ -136,18 +141,27 @@ Rectangle {
 
         property string ocolor: {
           if (openIn == 0) {
-            return 'blue'
+            return 'yellow'
           }
           if (openIn == 1) {
-            return 'red'
+            return 'blue'
           }
           if (openIn == 2) {
-            return 'green'
+            return 'red'
           }
         }
 
         Text {
-          text: openIn == 0 ? 'S' : 'N'
+          text: {
+            switch(openIn) {
+              case 0:
+                return 'H'
+              case 1:
+                return 'T'
+              case 2:
+                return 'W'
+            }
+          }
           anchors.centerIn: parent
           font.pointSize: 18
           color: openType.ocolor
@@ -166,9 +180,15 @@ Rectangle {
 
       onLinkActivated: {
         if (openIn === 0) {
+          /* Open in this gemspace */
           sview.browse(linkUrl.toString(), baseUrl)
         } else if (openIn === 1) {
+          /* Open in new gemspace */
           let space = stackLayout.spawn(linkUrl)
+        } else if (openIn === 2) {
+          /* Open in new window */
+          var component = Qt.createComponent('GemalayaWindow.qml')
+          component.createObject(null, {initUrl: linkUrl})
         }
       }
     }
