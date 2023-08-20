@@ -24,7 +24,9 @@ can change to make the paragraph more comfortable to read.
 *Status: mostly a demonstration browser for now, more work needed.*
 
 *Gemalaya* doesn't use a tab bar for now, there's just a stack layout with
-pages in it, you'll see the page index on the top-left corner.
+pages in it, you'll see the page index on the top-left corner. The browser
+will automatically generate a certificate, if you want to use an already
+generated certificate, copy it as *$HOME/.config/gemalaya/client.{crt,key}*.
 
 Each link in a gemini page is assigned a number. To follow a link, just type in
 the number of the link on the keyboard. The link is opened after a certain

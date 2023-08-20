@@ -168,8 +168,8 @@ ColumnLayout {
 
       Rectangle {
         id: shortcutButton
-        implicitWidth: keybSeqText.width
-        implicitHeight: keybSeqText.height
+        implicitWidth: keybSeqText.width + 8
+        implicitHeight: keybSeqText.height + 4
         border.width: Conf.links.shortcutButton.borderWidth
         border.color: Conf.links.shortcutButton.borderColor
         color: Conf.links.shortcutButton.color

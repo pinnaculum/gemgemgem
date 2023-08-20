@@ -3,5 +3,6 @@
 HERE=$(dirname $(readlink -f "${0}"))
 export PATH="${HERE}"/opt/python3.9/bin:"${HERE}"/usr/bin:$PATH
 export PYTHONPATH="${HERE}"/opt/python3.9/lib/python3.9/site-packages:$PYTHONPATH
+export SSL_CERT_FILE="${HERE}/opt/_internal/certs.pem"
 
 python3.9 "${HERE}"/opt/python3.9/bin/gemalaya "$@"
