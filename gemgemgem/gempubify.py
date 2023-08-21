@@ -1,6 +1,8 @@
 import argparse
 import re
 import os.path
+import sys
+import traceback
 
 from dateutil import parser
 from markdownify import markdownify
@@ -29,9 +31,15 @@ def html2gem(html: str) -> tuple:
     md = markdownify('\n'.join(lines),
                      heading_style='ATX',
                      strip=['script', 'style'])
-    return md2gemini(md, links='copy',
-                     md_links=True,
-                     geminize_html_links=True), None
+    try:
+        return md2gemini(md, links='copy',
+                         md_links=True,
+                         geminize_html_links=True), None
+    except Exception:
+        # md2gemini will fail and produce an exception when it
+        # generates an empty gemtext document
+        traceback.print_exc()
+        return None, None
 
 
 def gmin(name: str) -> str:
@@ -107,7 +115,9 @@ def gempubify_file(src: Path,
     def meta(bk, attr: str) -> str:
         try:
             return bk.get_metadata('DC', attr).pop()[0]
-        except Exception:
+        except Exception as err:
+            print(f'Failed to get metadata {attr} from epub: {src}: {err}',
+                  file=sys.stderr)
             return ''
 
     if not dst:
@@ -146,8 +156,14 @@ def gempubify_file(src: Path,
                     gp.add(name, content)
                     gp.metadata.cover = name
                 elif itype == ebooklib.ITEM_DOCUMENT:
-                    gem, _title = html2gem(content.decode())
-                    gp.add(gmin(name), gem)
+                    gemt, _title = html2gem(content.decode())
+                    if not gemt:
+                        # Conversion failed or empty document: non-fatal
+                        print(f'Error converting document {name} (skipping)',
+                              file=sys.stderr)
+                        continue
+
+                    gp.add(gmin(name), gemt)
 
                     if os.path.basename(name).startswith('toc'):
                         navXml = etree.XML(content)
