@@ -322,11 +322,14 @@ class Viewer(FloatLayout):
         if not p.is_file():
             return False
 
-        if mtype == 'application/epub+zip':
+        print(f'{p}: fext: {fext}, mimetype is: {mtype}')
+
+        if fext.lower() in ['.epub',
+                            '.epub3'] or mtype == 'application/epub+zip':
             gp, dst = gempubify.gempubify_file(p)
             if gp:
                 return self.set_book(gp)
-        elif mtype is None or fext in ['.gpub', '.gempub']:
+        elif mtype is None or fext.lower() in ['.gpub', '.gempub']:
             with gempub.load(p) as gp:
                 return self.set_book(gp)
 
