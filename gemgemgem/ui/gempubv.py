@@ -7,6 +7,7 @@ from collections import deque
 
 from yarl import URL
 from typing import Union
+from urllib.parse import urldefrag
 
 from kivy.properties import ObjectProperty
 from kivy.properties import StringProperty
@@ -183,7 +184,10 @@ class Viewer(FloatLayout):
         content.close = popup.dismiss
         popup.open()
 
-    def load_page(self, path: str = None, title: str = None) -> bool:
+    def load_page(self, page_path: str = None, title: str = None) -> bool:
+        # Defragment first
+        path = urldefrag(page_path).url
+
         self.ids.chapter.text = ''
 
         doctext = ''
