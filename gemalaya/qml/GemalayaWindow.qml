@@ -118,11 +118,8 @@ Window {
     }
   }
 
-  ColumnLayout {
+  GemStackLayout {
+    id: stackl
     anchors.fill: parent
-
-    GemStackLayout {
-      id: stackl
-    }
   }
 }

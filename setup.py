@@ -36,7 +36,7 @@ class _build(build):
 
 setup(
     name='gemgemgem',
-    version='0.3.4',
+    version='0.3.5',
     description='A library to work with gemini and gempub archives',
     url='https://gitlab.com/galacteek/gemgemgem',
     author='cipres',

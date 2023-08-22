@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import QtQuick.Controls 2.14
+import QtQuick.Layouts 1.4
 
 ColumnLayout {
   id: itemLayout
@@ -9,6 +10,8 @@ ColumnLayout {
   property string baseUrl
 
   property alias linkAction: linkAction
+
+  property ColumnLayout pageLayout
 
   property Item nextLinkItem
   property Item prevLinkItem
@@ -21,16 +24,12 @@ ColumnLayout {
   signal linkClicked(string baseUrl, string href)
   signal imageClicked(url imgLink)
 
-  Layout.fillWidth: true
   Layout.leftMargin: Conf.links.layout.leftMargin
 
   KeyNavigation.tab: nextLinkItem
   KeyNavigation.backtab: prevLinkItem
   KeyNavigation.priority: KeyNavigation.BeforeItem
   Keys.onReturnPressed: linkAction.trigger()
-
-  Layout.minimumWidth: parent.width * 0.5
-  Layout.maximumWidth: parent.width * 0.8
 
   onFocusChanged: {
     if (focus) {
@@ -41,7 +40,8 @@ ColumnLayout {
   GeminiAgent {
     id: agent
     onFileDownloaded: {
-      console.log(resp.meta)
+      console.log(`${resp.url}: meta is ${resp.meta}`)
+
       if (resp.meta.startsWith('video') || resp.meta.startsWith('audio')) {
         var component = Qt.createComponent('MPlayer.qml')
 
@@ -62,9 +62,7 @@ ColumnLayout {
   Button {
     id: button
 
-    Layout.preferredWidth: parent.width
     Layout.fillWidth: true
-
     Layout.margins: 5
 
     MouseArea {
@@ -111,7 +109,7 @@ ColumnLayout {
       }
 
       ScriptAction {
-        id: clickScript
+        id: openScript
         script: {
           if (href.startsWith('http'))
             var urlObject = new URL(href)
@@ -135,7 +133,7 @@ ColumnLayout {
       text: title
       onTriggered: {
         /* Just run the animation, link is activated in the
-         * animation's clickScript */
+         * animation's openScript */
         linkOpenAnim.running = true
       }
     }
@@ -147,7 +145,7 @@ ColumnLayout {
       text: title
 
       /* Elide to the right and set the elide width */
-      elideWidth: button.width * 0.7
+      elideWidth: itemLayout.width * 0.9
       elide: Qt.ElideRight
     }
 
@@ -196,6 +194,17 @@ ColumnLayout {
         horizontalAlignment: Text.AlignHCenter
         color: button.hovered ? Conf.links.text.colorHovered : Conf.links.text.color
       }
+
+      AnimatedImage {
+        id: loadingClip
+        property bool isActive: linkOpenAnim.running || agent.dlqsize > 0
+        visible: isActive
+        playing: isActive
+        source: Conf.themeRsc('loading.gif')
+        fillMode: Image.PreserveAspectFit
+        Layout.maximumWidth: 32
+        Layout.maximumHeight: 32
+      }
     }
 
     onClicked: {
@@ -206,7 +215,6 @@ ColumnLayout {
   ImagePreview {
     id: imgPreview
     visible: false
-    Layout.fillWidth: true
+    Layout.maximumWidth: pageLayout.width
   }
-
 }

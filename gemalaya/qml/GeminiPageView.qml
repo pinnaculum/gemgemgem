@@ -41,27 +41,29 @@ ScrollView {
       /* Clear the page */
       page.clear()
 
+      urlChanged(urlObject)
+
       if (resp.rsptype === 'input') {
         var component = Qt.createComponent('InputItem.qml')
         var item = component.createObject(sview.page, {
+          pageLayout: page,
           sendUrl: urlString,
-          promptText: resp.prompt,
-          width: sview.width
+          promptText: resp.prompt
         })
         item.sendRequest.connect(geminiSendInput)
         item.focusInput()
 
+        pageOaRestore.running = true
         addrController.histAdd(urlString)
-        urlChanged(urlObject)
         return
       } else if (resp.rsptype === 'redirect') {
         let rurl = new URL(resp.redirectUrl)
 
         sview.browse(rurl.toString(), null)
-        urlChanged(rurl)
         return
-      } else if (resp.rsptype === 'error') {
-        sview.pageError('Gemini request error for: ' + urlString)
+      } else if (resp.rsptype === 'error' || resp.rsptype === 'failure') {
+        sview.pageError('Error: ' + resp.message)
+        pageOaRestore.running = true
         return
       }
 
@@ -78,6 +80,7 @@ ScrollView {
             component = Qt.createComponent('LinkItem.qml')
 
             props = {
+              pageLayout: page,
               title: gemItem.title,
               baseUrl: urlString,
               href: gemItem.href,
@@ -139,8 +142,6 @@ ScrollView {
 
       addrController.histAdd(urlString)
 
-      urlChanged(urlObject)
-
       sview.forceActiveFocus()
 
       if (firstLink) {
@@ -148,6 +149,7 @@ ScrollView {
       }
 
       vsbar.position = 0
+      pageOaRestore.running = true
     }
   }
 
@@ -260,6 +262,21 @@ ScrollView {
     }, Conf.ui.keybSeqTimeout)
   }
 
+  OpacityAnimator {
+    id: pageOaRestore
+    target: page
+    from: 0.2
+    to: 1
+    duration: 1000
+  }
+  OpacityAnimator {
+    id: pageOaDim
+    target: page
+    from: 1
+    to: 0.2
+    duration: 10
+  }
+
   ColumnLayout {
     anchors.fill: parent
     id: page
@@ -269,14 +286,17 @@ ScrollView {
     property bool empty: children.length == 0
 
     function clear() {
-      for (let i=0; i < children.length; i++) {
-        children[i].destroy()
+      pageOaDim.running = true
+
+      for(var i = children.length; i > 0 ; i--) {
+        children[i-1].destroy()
       }
+
       page.children = []
     }
 
     function focusLinkForSequence(seq) {
-      for (let i=0; i < children.length; i++) {
+      for (var i=0; i < children.length; i++) {
         let item = children[i]
 
         if (item.keybAccessSeq == seq) {

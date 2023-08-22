@@ -7,6 +7,7 @@ import signal
 import string
 import webbrowser
 
+from collections import deque
 from pathlib import Path
 from yarl import URL
 from omegaconf import OmegaConf
@@ -18,6 +19,7 @@ from PySide6.QtCore import QFile
 from PySide6.QtCore import QIODeviceBase
 from PySide6.QtCore import QObject
 from PySide6.QtCore import QJsonValue
+from PySide6.QtCore import Property
 from PySide6.QtCore import Slot
 from PySide6.QtCore import Signal
 from PySide6.QtCore import QByteArray
@@ -64,14 +66,21 @@ class GeminiInterface(QObject):
     fileDownloaded = Signal(dict, arguments=['resp'])
     fileDownloadError = Signal(str, arguments=['error'])
 
+    dlqSizeChanged = Signal(int, arguments=['qsize'])
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
         self.app = QApplication.instance()
         self._dcache = TTLCache(16, 60)
+        self._dlq = deque([])
 
         self.certp = self.app.default_certp
         self.keyp = self.app.default_keyp
+
+    @Property(int, notify=dlqSizeChanged)
+    def dlqsize(self):
+        return len(self._dlq)
 
     @Slot(str, QJsonValue, result="QVariant")
     def getRaw(self,
@@ -96,6 +105,11 @@ class GeminiInterface(QObject):
                        options: QJsonValue):
         try:
             requ = URL(href)
+            assert requ.scheme == 'gemini'
+
+            self._dlq.appendleft(str(requ))
+            self.dlqSizeChanged.emit(len(self._dlq))
+
             response = ignition.request(
                 str(requ),
                 ca_cert=(self.certp, self.keyp)
@@ -111,7 +125,11 @@ class GeminiInterface(QObject):
             else:
                 raise Exception(f'Download error for: {href}')
 
+            self._dlq.remove(str(requ))
+            self.dlqSizeChanged.emit(len(self._dlq))
+
             return {
+                'url': href,
                 'meta': response.meta,
                 'path': file.name
             }
@@ -146,10 +164,20 @@ class GeminiInterface(QObject):
 
             gemText = response.data()
 
+            if response.is_a(ignition.ErrorResponse):
+                return {
+                    'url': href,
+                    'rsptype': 'error',
+                    'message': gemText
+                }
+
             if response.is_a(ignition.InputResponse):
                 rsptype = 'input'
-            elif response.is_a(ignition.ErrorResponse):
-                rsptype = 'error'
+            elif response.is_a(ignition.ClientCertRequiredResponse):
+                rsptype = 'certrequired'
+            elif response.is_a(ignition.TempFailureResponse) or \
+                    response.is_a(ignition.PermFailureResponse):
+                rsptype = 'failure'
             elif response.is_a(ignition.RedirectResponse):
                 rsptype = 'redirect'
 
@@ -170,11 +198,6 @@ class GeminiInterface(QObject):
                     'rsptype': rsptype,
                     'redirectUrl': str(redirUrl)
                 }
-
-            elif response.is_a(ignition.TempFailureResponse) or \
-                    response.is_a(ignition.PermFailureResponse) or \
-                    response.is_a(ignition.ErrorResponse):
-                rsptype = 'error'
             else:
                 rsptype = 'data'
 

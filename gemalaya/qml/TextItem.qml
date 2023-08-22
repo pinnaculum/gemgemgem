@@ -188,8 +188,6 @@ Label {
     }
   }
 
-  onFocusRequested: hovered = true
-
   MouseArea {
     anchors.fill: parent
     hoverEnabled: true
@@ -199,5 +197,6 @@ Label {
     onExited: {
       hovered = false
     }
+    onClicked: control.focus = !control.focus
   }
 }

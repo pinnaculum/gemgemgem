@@ -3,6 +3,7 @@
     <file>gemalaya/themes/sinister/arrow-back.png</file>
     <file>gemalaya/themes/sinister/arrow-next.png</file>
     <file>gemalaya/themes/sinister/input-send.png</file>
+    <file>gemalaya/themes/sinister/loading.gif</file>
     <file>gemalaya/themes/sinister/sinister.yaml</file>
     <file>gemalaya/themes/sinister/quit.png</file>
   </qresource>

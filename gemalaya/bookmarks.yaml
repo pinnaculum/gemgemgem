@@ -9,3 +9,27 @@
 
 - url: gemini://geminispace.org
   title: Geminispace.org
+
+- url: gemini://warmedal.se/~antenna/
+  title: Antenna (Gemini Feed Aggregator)
+
+- url: gemini://gemini.locrian.zone/library
+  title: The Locrian.Zone library
+
+- url: gemini://geminiquickst.art
+  title: Gemini Quickstart
+
+- url: gemini://rawtext.club
+  title: 'rawtext.club: The slow social network'
+
+- url: gemini://rawtext.club/~sloum/spacewalk.gmi
+  title: 'SpaceWalk: gemlog aggregator'
+
+- url: gemini://tilde.pink
+  title: 'tilde.pink: an open tilde server'
+
+- url: gemini://medusae.space
+  title: 'medusae.space: gemini directory'
+
+- url: gemini://shaggypeak.com/library/books/
+  title: The Library
