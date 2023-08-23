@@ -6,6 +6,25 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.6] - 2023-08-23
+
+Major changes in gemalaya
+
+### Changed
+
+- Use a Flickable instead of a ScrollView
+- When a link is focused, the following keys will
+  open the link: Kp_Enter (Enter key), the Return key and the space key
+
+### Added
+
+- Add config settings for the Flickable item
+- Add keyboard shortcuts to cycle between the elements in the page
+
+## [0.3.5] - 2023-08-21
+
+Minor changes in gemalaya
+
 ## [0.3.4] - 2023-08-20
 
 ### Added

@@ -42,6 +42,7 @@ links:
 
   # Background item
   bg:
+    colorActive: '#2F4F4F'
     borderColor: 'darkgray'
     borderColorHovered: '#DEB887'
 
@@ -55,7 +56,7 @@ links:
 
   # Animation when the link is activated
   openAnim:
-    buttonBgColor: '#FAF0E6'
+    buttonBgColor: '#E0FFFF'
 
     # Keyboard shortcut
     shortcutButtonColor: '#9ACD32'

@@ -19,9 +19,29 @@ ui:
   # open web URLs with the webbrowser module
   openUnsupportedUrls: false
 
+  # Settings for the QML flickable item that contains the gemini page
   page:
-    stepBig: 0.1
-    stepSmall: 0.02
+    # The rate at which a flick will decelerate
+    # The higher the number, the faster it slows down when the user
+    # stops flicking via keyboard, touch, touchpad or mouse wheel.
+    flickDeceleration: 600
+
+    # In pixels per second, this sets the maximum velocity with which the
+    # user can flick the view
+    maximumFlickVelocity: 2400
+
+    # In pixels per second, determines how much we flick the page
+    # up and down when the "up" or "down" keys are pressed
+    downFlickPPS: -500
+    upFlickPPS: 500
+
+    # In pixels per second, determines how much we flick the page
+    # up and down when the "page up" or "page down" keys are pressed
+    pageDownFlickPPS: -1200
+    pageUpFlickPPS: 1200
+
+    # Scroll to the item that gets the focus in the page when you press Tab
+    scrollToItemOnFocus: true
 
   # Font sizes
   fonts:

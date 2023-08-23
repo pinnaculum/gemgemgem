@@ -10,7 +10,7 @@ written in Python. It includes:
 
 ## Gemalaya
 
-![bbs](https://gemalaya.gitlab.io/screenshots/gemalaya-bbs-small.png)
+![bbs](https://gitlab.com/galacteek/gemgemgem/-/raw/master/media/screenshots/gemalaya-bbs-vim-small.png))
 
 [Download Gemalaya's latest AppImage (x86_64)](https://gitlab.com/galacteek/gemgemgem/-/releases/continuous-master/downloads/Gemalaya-latest-x86_64.AppImage) **Be sure to have all the xcb libraries installed before running the AppImage** (run with *QT_DEBUG_PLUGINS=1* if you get an error the xcb plugin failing to
 load)

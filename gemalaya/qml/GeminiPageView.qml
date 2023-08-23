@@ -4,18 +4,35 @@ import QtQuick.Layouts 1.4
 
 import Gemalaya 1.0
 
-ScrollView {
-  id: sview
+Flickable {
+  id: flickable
+
+  clip: true
+  flickDeceleration: Conf.ui.page.flickDeceleration
+  flickableDirection: Flickable.VerticalFlick
+  maximumFlickVelocity: Conf.ui.page.maximumFlickVelocity
 
   property alias page: page
   property Item addrController
-
-  property double bigStep: Conf.ui.page.stepBig
 
   property string linkSeqInput
 
   Layout.fillWidth: true
   Layout.fillHeight: true
+
+  contentHeight: page.height
+
+  rebound: Transition {
+    NumberAnimation {
+      properties: "x,y"
+      duration: 1200
+      easing.type: Easing.OutBounce
+    }
+  }
+
+  onContentYChanged: {
+    console.log('Y position is now: ' + contentY)
+  }
 
   signal urlChanged(url currentUrl)
   signal linkActivated(url linkUrl, url baseUrl)
@@ -45,7 +62,7 @@ ScrollView {
 
       if (resp.rsptype === 'input') {
         var component = Qt.createComponent('InputItem.qml')
-        var item = component.createObject(sview.page, {
+        var item = component.createObject(flickable.page, {
           pageLayout: page,
           sendUrl: urlString,
           promptText: resp.prompt
@@ -59,10 +76,10 @@ ScrollView {
       } else if (resp.rsptype === 'redirect') {
         let rurl = new URL(resp.redirectUrl)
 
-        sview.browse(rurl.toString(), null)
+        flickable.browse(rurl.toString(), null)
         return
       } else if (resp.rsptype === 'error' || resp.rsptype === 'failure') {
-        sview.pageError('Error: ' + resp.message)
+        flickable.pageError('Error: ' + resp.message)
         pageOaRestore.running = true
         return
       }
@@ -84,13 +101,13 @@ ScrollView {
               title: gemItem.title,
               baseUrl: urlString,
               href: gemItem.href,
-              width: sview.width,
+              width: flickable.width,
               keybAccessSeq: linkNum,
               nextLinkItem: prevLink ? prevLink : null
             }
 
             if (component.status == Component.Ready) {
-              item = component.createObject(sview.page, props)
+              item = component.createObject(flickable.page, props)
               item.linkClicked.connect(geminiLinkClicked)
 
               if (prevLink) {
@@ -114,12 +131,12 @@ ScrollView {
             var component = Qt.createComponent('TextItem.qml')
             props = {
               content: gemItem.text,
-              width: sview.width * 0.95,
+              width: flickable.width * 0.95,
               nextLinkItem: prevLink ? prevLink : null,
               textType: gemItem.type,
               quote: gemItem.type === 'quote'
             }
-            item = component.createObject(sview.page, props)
+            item = component.createObject(flickable.page, props)
             if (prevLink) {
               prevLink.nextLinkItem = item
             }
@@ -128,10 +145,10 @@ ScrollView {
 
           case 'heading':
             var component = Qt.createComponent('HeadingItem.qml')
-            item = component.createObject(sview.page, {
+            item = component.createObject(flickable.page, {
               content: gemItem.text,
               hsize: gemItem.hsize,
-              width: sview.width * 0.95
+              width: flickable.width * 0.95
             })
             break
 
@@ -142,7 +159,7 @@ ScrollView {
 
       addrController.histAdd(urlString)
 
-      sview.forceActiveFocus()
+      flickable.forceActiveFocus()
 
       if (firstLink) {
         firstLink.focus = true
@@ -155,12 +172,11 @@ ScrollView {
 
   ScrollBar.vertical: ScrollBar {
     id: vsbar
-    parent: sview
-    x: sview.mirrored ? 0 : sview.width - width
-    y: sview.topPadding
-    height: sview.availableHeight
+    parent: flickable
+    x: flickable.width - width
+    height: flickable.contentHeight
     policy: ScrollBar.AlwaysOn
-    stepSize: Conf.ui.page.stepSmall
+    //stepSize: Conf.ui.page.stepSmall
   }
 
   function geminiLinkClicked(clickedUrlString, baseUrl) {
@@ -178,7 +194,7 @@ ScrollView {
   }
 
   function geminiSendInput(sendUrl, value) {
-    sview.browse(sendUrl, null)
+    flickable.browse(sendUrl, null)
   }
 
   function isLowerCase(str) {
@@ -202,7 +218,7 @@ ScrollView {
     page.clear()
 
     let component = Qt.createComponent('ErrorItem.qml')
-    component.createObject(sview.page, {
+    component.createObject(flickable.page, {
       message: err
     })
   }
@@ -227,26 +243,40 @@ ScrollView {
 
     /* Should convert those to Actions */
     if (event.key === Qt.Key_Home) {
+      /* Go to the top and flick it, this will trigger a rebound */
       vsbar.position = 0
+
+      flickable.flick(0, Conf.ui.page.upFlickPPS)
     }
     if (event.key === Qt.Key_End) {
+      /* Go to the bottom and flick it, this will trigger a rebound */
       vsbar.position = 1.0 - vsbar.size
+
+      flickable.flick(0, Conf.ui.page.downFlickPPS)
+    }
+    if (event.key === Qt.Key_Down) {
+     flickable.flick(0, Conf.ui.page.downFlickPPS)
+    }
+    if (event.key === Qt.Key_Up) {
+     flickable.flick(0, Conf.ui.page.upFlickPPS)
     }
     if (event.key === Qt.Key_PageDown) {
-      if (vsbar.position < (1.0 - vsbar.size - bigStep))
-        vsbar.position += bigStep
-      else
-        vsbar.position = 1.0 - vsbar.size
+     flickable.flick(0, Conf.ui.page.pageDownFlickPPS)
     }
     if (event.key === Qt.Key_PageUp) {
-      if (vsbar.position > bigStep)
-        vsbar.position -= bigStep
-      else
-        vsbar.position = 0
+      flickable.flick(0, Conf.ui.page.pageUpFlickPPS)
     }
 
     if (event.modifiers & Qt.ControlModifier) {
       linkSeqInput = ''
+    }
+
+    if (event.modifiers & Qt.ControlModifier && event.key === Qt.Key_Right) {
+      page.focusNextElement()
+    }
+
+    if (event.modifiers & Qt.ControlModifier && event.key === Qt.Key_Left) {
+      page.focusPreviousElement()
     }
 
     if (numk.includes(event.key) && linkSeqInput.length < 8) {
@@ -265,24 +295,23 @@ ScrollView {
   OpacityAnimator {
     id: pageOaRestore
     target: page
-    from: 0.2
+    from: 0.1
     to: 1
-    duration: 1000
+    duration: 500
   }
   OpacityAnimator {
     id: pageOaDim
     target: page
     from: 1
-    to: 0.2
+    to: 0.1
     duration: 10
   }
 
   ColumnLayout {
-    anchors.fill: parent
     id: page
-    Layout.maximumWidth: sview.width
+    Layout.maximumWidth: flickable.width
 
-    property alias scrollView: sview
+    property alias scrollView: flickable
     property bool empty: children.length == 0
 
     function clear() {
@@ -295,14 +324,68 @@ ScrollView {
       page.children = []
     }
 
+    function delayScrollTo(pos){
+      if (Conf.ui.page.scrollToItemOnFocus == true) {
+        sched.delay(function() {
+          instantScrollTo(pos)
+        }, 800)
+      } else {
+        sched.cancel()
+      }
+    }
+
+    function instantScrollTo(ypos) {
+      var posm = (flickable.height + flickable.contentY) - 128
+
+      if (ypos > posm) {
+        flickable.contentY = ypos - (flickable.height / 8)
+      }
+    }
+
+    function focusPreviousElement() {
+      for (var i=0; i < children.length; i++) {
+        let item = children[i]
+        if (item.activeFocus == true && i > 0) {
+          item.focus = false
+          children[i-1].focus = true
+          return
+        }
+      }
+    }
+
+    function focusNextElement() {
+      for (var i=0; i < children.length; i++) {
+        let item = children[i]
+        if (item.activeFocus == true) {
+          item.focus = false
+          console.log(item + 'had the focus')
+          children[i+1].focus = true
+          return
+        }
+      }
+    }
+
     function focusLinkForSequence(seq) {
       for (var i=0; i < children.length; i++) {
         let item = children[i]
 
         if (item.keybAccessSeq == seq) {
+          var posm = (flickable.height + item.y) - 128
+
           linkSeqInput = ''
           item.focus = true
-          item.linkAction.trigger()
+
+          if (item.y > (flickable.contentY + flickable.height) ||
+              item.y < flickable.contentY) {
+            /* The link isn't visible to the user: scroll the flickable to its
+             * position in the page but don't activate it (it's unlikely that
+             * you'd want to open a link that's outside of the page's scope
+             * just based on its number) */
+            flickable.contentY = item.y - (flickable.height / 8)
+          } else {
+            /* The link is visible, just open it */
+            item.linkAction.trigger()
+          }
         }
       }
       linkSeqInput = ''

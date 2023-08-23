@@ -29,11 +29,17 @@ ColumnLayout {
   KeyNavigation.tab: nextLinkItem
   KeyNavigation.backtab: prevLinkItem
   KeyNavigation.priority: KeyNavigation.BeforeItem
+
+  /* The Return, Enter or Space keys will open the link */
   Keys.onReturnPressed: linkAction.trigger()
+  Keys.onEnterPressed: linkAction.trigger()
+  Keys.onSpacePressed: linkAction.trigger()
 
   onFocusChanged: {
     if (focus) {
       console.log('Focus is on: ' + href)
+
+      pageLayout.delayScrollTo(itemLayout.y)
     }
   }
 
@@ -68,8 +74,6 @@ ColumnLayout {
     MouseArea {
       anchors.fill: parent
       hoverEnabled: true
-      onEntered: itemLayout.focus = true
-      onExited: itemLayout.focus = false
       onClicked: linkAction.trigger()
     }
 
@@ -156,8 +160,7 @@ ColumnLayout {
       border.width: parent.hovered ? 2 : 1
       border.color: parent.hovered ? Conf.links.bg.borderColorHovered : Conf.links.bg.borderColor
       radius: 4
-      color: button.down ? "#FFDAB9" :
-             (itemLayout.focus || parent.hovered ? "#AFEEEE" : "transparent")
+      color: itemLayout.focus || parent.hovered ? Conf.links.bg.colorActive : "transparent"
     }
 
     contentItem: RowLayout {
@@ -192,7 +195,7 @@ ColumnLayout {
         elide: Text.ElideRight
         maximumLineCount: 2
         horizontalAlignment: Text.AlignHCenter
-        color: button.hovered ? Conf.links.text.colorHovered : Conf.links.text.color
+        color: itemLayout.focus || button.hovered ? Conf.links.text.colorHovered : Conf.links.text.color
       }
 
       AnimatedImage {

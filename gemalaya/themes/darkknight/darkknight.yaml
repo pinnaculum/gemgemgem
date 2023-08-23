@@ -4,12 +4,12 @@ url:
   textColor: 'cornsilk'
 
   bg:
-    color: 'black'
-    colorFocused: 'darkcyan'
-    borderColor: 'white'
+    color: '#191970'
+    colorFocused: '#2F4F4F'
+    borderColor: '#F5FFFA'
 
   cursorWidth: 20
-  cursorColor1: 'lightgray'
+  cursorColor1: '#FFFFE0'
   cursorColor2: 'lightsteelblue'
   cursorBlinkT1: 300
   cursorBlinkT2: 250
@@ -27,14 +27,15 @@ links:
     textColor: 'yellow'
 
   bg:
-    borderColor: 'darkgray'
+    colorActive: '#2F4F4F'
+    borderColor: '#F5FFFA'
 
   text:
     color: '#1e90ff'
-    colorHovered: '#00bfff'
+    colorHovered: 'cornsilk'
 
   openAnim:
-    buttonBgColor: 'darkorange'
+    buttonBgColor: '#1E90FF'
 
 text:
   fontFamily: 'Arial'
