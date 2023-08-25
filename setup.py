@@ -36,8 +36,8 @@ class _build(build):
 
 setup(
     name='gemgemgem',
-    version='0.3.6',
-    description='A library to work with gemini and gempub archives',
+    version='0.3.7',
+    description='Collection of Gemini apps and tools',
     url='https://gitlab.com/galacteek/gemgemgem',
     author='cipres',
     keywords=['gemini', 'gempub'],
@@ -81,7 +81,8 @@ setup(
             '*.yaml'
         ],
         'gemalaya': [
-            '*.ttf'
+            '*.ttf',
+            '*.json'
         ],
         'gemalaya.qml': [
             'qmldir',
@@ -89,6 +90,7 @@ setup(
             '*.png'
         ]
     },
+    include_package_data=True,
     license='MIT',
     entry_points={
         'gui_scripts': [

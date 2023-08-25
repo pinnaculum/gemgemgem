@@ -1,6 +1,6 @@
 import QtQuick 2.15
 
-Image {
+AnimatedImage {
   property string imgPath
   source: imgPath ? 'file://' + imgPath : ''
   fillMode: Image.PreserveAspectFit

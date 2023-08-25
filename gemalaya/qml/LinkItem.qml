@@ -9,6 +9,11 @@ ColumnLayout {
   property string href
   property string baseUrl
 
+  /* full URL */
+  property url linkUrl
+
+  property bool autoPreview: false
+
   property alias linkAction: linkAction
 
   property ColumnLayout pageLayout
@@ -40,6 +45,21 @@ ColumnLayout {
       console.log('Focus is on: ' + href)
 
       pageLayout.delayScrollTo(itemLayout.y)
+    }
+  }
+
+  function setup() {
+    var objUrl = new URL(linkUrl)
+    var mtype = gemalaya.mimeTypeGuess(objUrl.pathname)
+
+    var mcfg = Conf.cfgForMimeType(mtype)
+
+    if (mcfg != null) {
+      /* See if we want to automatically preview this object */
+      if (mcfg.hasOwnProperty('autoPreview') && mcfg.autoPreview == true) {
+        autoPreview = true
+        linkAction.trigger()
+      }
     }
   }
 
@@ -115,15 +135,14 @@ ColumnLayout {
       ScriptAction {
         id: openScript
         script: {
-          if (href.startsWith('http'))
-            var urlObject = new URL(href)
-          else
-            var urlObject = new URL(gem.buildUrl(href, baseUrl))
+          var urlObject = new URL(linkUrl)
 
-          const ext = urlObject.pathname.split(".").pop()
-          const mediaexts = ['png', 'jpg', 'gif', 'webm', 'mp4', 'avi', 'mp3', 'ogg']
+          var mtype = gemalaya.mimeTypeGuess(urlObject.pathname)
+          var [mcat, mclass] = mtype.split('/')
+          var mediacats = ['image', 'audio', 'video']
 
-          if (urlObject.protocol == 'gemini:' && mediaexts.includes(ext)) {
+          if (urlObject.protocol == 'gemini:' &&
+              (mediacats.includes(mcat) || autoPreview)) {
             agent.downloadToFile(urlObject.toString(), {})
           } else {
             linkClicked(urlObject.toString(), baseUrl)
@@ -218,6 +237,6 @@ ColumnLayout {
   ImagePreview {
     id: imgPreview
     visible: false
-    Layout.maximumWidth: pageLayout.width
+    Layout.maximumWidth: pageLayout.width * 0.75
   }
 }

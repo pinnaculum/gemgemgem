@@ -46,6 +46,16 @@ QtObject {
 
   property var ui: c.ui
 
+  function cfgForMimeType(mtype) {
+    /* Find the configuration for a certain MIME type */
+    for (let [mregex, cfg] of Object.entries(c.ui.mimeConfig)) {
+      if (mtype.match(mregex)) {
+        return cfg
+      }
+    }
+    return null
+  }
+
   function themeRsc(name) {
     return gemalaya.getThemeRscPath(c.ui.theme, name)
   }

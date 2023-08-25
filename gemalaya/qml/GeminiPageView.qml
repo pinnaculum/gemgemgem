@@ -30,10 +30,6 @@ Flickable {
     }
   }
 
-  onContentYChanged: {
-    console.log('Y position is now: ' + contentY)
-  }
-
   signal urlChanged(url currentUrl)
   signal linkActivated(url linkUrl, url baseUrl)
 
@@ -94,11 +90,18 @@ Flickable {
             var keysym
             var linkUrl
 
+            if (gemItem.href.startsWith('http://') ||
+                gemItem.href.startsWith('https://'))
+              linkUrl = new URL(gemItem.href)
+            else
+              linkUrl = new URL(gem.buildUrl(gemItem.href, urlString))
+
             component = Qt.createComponent('LinkItem.qml')
 
             props = {
               pageLayout: page,
               title: gemItem.title,
+              linkUrl: linkUrl,
               baseUrl: urlString,
               href: gemItem.href,
               width: flickable.width,
@@ -109,6 +112,7 @@ Flickable {
             if (component.status == Component.Ready) {
               item = component.createObject(flickable.page, props)
               item.linkClicked.connect(geminiLinkClicked)
+              item.setup()
 
               if (prevLink) {
                 prevLink.nextLinkItem = item
@@ -363,6 +367,11 @@ Flickable {
           return
         }
       }
+    }
+
+    function itemVisible(item) {
+      return (item.y < (flickable.contentY + flickable.height) ||
+              item.y > flickable.contentY)
     }
 
     function focusLinkForSequence(seq) {

@@ -22,12 +22,13 @@ Label {
   KeyNavigation.backtab: prevLinkItem
   KeyNavigation.priority: KeyNavigation.BeforeItem
   KeyNavigation.tab: nextLinkItem
+
   Layout.margins: 10
   Layout.leftMargin: textType == 'listitem' ? 30 : 10
   Layout.bottomMargin: textType == 'listitem' ? 15 : 10
   Layout.maximumWidth: width
+  Layout.fillWidth: true
   Layout.alignment: quote ? Qt.AlignHCenter : Qt.AlignLeft
-  width: width
 
   signal focusRequested()
 
@@ -106,14 +107,14 @@ Label {
   }
 
   SequentialAnimation {
-    /* Animation for when the text's hovered with the mouse */
+    /* Animation for when the text's being focused */
     id: sanimin
 
     PropertyAnimation {
       target: control
       property: 'font.pointSize'
       from: control.font.pointSize
-      to: textmn.font.pointSize * 1.4
+      to: textmn.font.pointSize * 1.2
       duration: 10
     }
     PropertyAnimation {

@@ -1,6 +1,8 @@
 import json
+import mimetypes
 import os
 import os.path
+import pkg_resources
 import tempfile
 import traceback
 import signal
@@ -330,9 +332,39 @@ class GemalayaInterface(QObject):
         self.cfg_path = cfg_path
 
         self.localt_path = self.cfg_dir_path.joinpath('themes')
+        self.mimes = self.loadExtraMimes()
+
+    def loadExtraMimes(self):
+        mp = Path(pkg_resources.resource_filename(
+            'gemalaya', 'extra_mimes.json')
+        )
+
+        try:
+            assert mp.is_file()
+
+            with open(mp, 'r') as f:
+                return json.loads(f.read())
+        except Exception:
+            return {}
 
     def __save_config(self):
         OmegaConf.save(config=self.config, f=str(self.cfg_path))
+
+    @Slot(str, result=str)
+    def mimeTypeGuess(self, filename: str):
+        """
+        Guess the MIME type of a file from its filename
+        """
+
+        mtype = None
+
+        if filename.find('.') != -1:
+            mtype = self.mimes.get(filename.rsplit('.', 1)[-1])
+
+            if mtype is None:
+                mtype, _ = mimetypes.guess_type(filename, strict=False)
+
+        return mtype or 'application/octet-stream'
 
     @Slot(result=dict)
     def getConfig(self):

@@ -33,3 +33,6 @@
 
 - url: gemini://shaggypeak.com/library/books/
   title: The Library
+
+- url: gemini://hidden.nexus
+  title: Hidden nexus

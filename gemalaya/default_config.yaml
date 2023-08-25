@@ -43,6 +43,12 @@ ui:
     # Scroll to the item that gets the focus in the page when you press Tab
     scrollToItemOnFocus: true
 
+  # per-mimetype configuration (uses regexps)
+  mimeConfig:
+    # automatically preview images with these mimetypes
+    image/(jpg|jpeg|pcx|png|tiff|webp|svg):
+      autoPreview: true
+
   # Font sizes
   fonts:
     defaultPointSize: 12
