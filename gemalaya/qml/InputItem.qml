@@ -21,7 +21,7 @@ ColumnLayout {
 
   spacing: 30
   Layout.fillWidth: true
-  Layout.preferredWidth: parent.width
+  Layout.preferredWidth: width
 
   Text {
     text: qsTr('Input request: ') + promptText

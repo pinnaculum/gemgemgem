@@ -61,7 +61,8 @@ Flickable {
         var item = component.createObject(flickable.page, {
           pageLayout: page,
           sendUrl: urlString,
-          promptText: resp.prompt
+          promptText: resp.prompt,
+          width: flickable.width
         })
         item.sendRequest.connect(geminiSendInput)
         item.focusInput()
@@ -180,7 +181,6 @@ Flickable {
     x: flickable.width - width
     height: flickable.contentHeight
     policy: ScrollBar.AlwaysOn
-    //stepSize: Conf.ui.page.stepSmall
   }
 
   function geminiLinkClicked(clickedUrlString, baseUrl) {

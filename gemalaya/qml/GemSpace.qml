@@ -106,6 +106,22 @@ Rectangle {
     }
   }
 
+  Action {
+    id: appConfigureAction
+    shortcut: Conf.shortcuts.openConfigDialog
+    enabled: gemspace.visible
+    onTriggered: {
+      var component = Qt.createComponent('AppConfigurePopup.qml')
+      var cpopup = component.createObject(gemspace, {
+        width: gemspace.width * 0.9,
+        height: gemspace.height * 0.9
+      })
+
+      cpopup.open()
+      cpopup.forceActiveFocus()
+    }
+  }
+
   ColumnLayout {
     anchors.fill: parent
 
@@ -184,6 +200,13 @@ Rectangle {
           font.pointSize: 18
           color: openType.ocolor
         }
+      }
+
+      ToolButton {
+        icon.source: Conf.themeRsc('settings.png')
+        icon.width: 32
+        icon.height: 32
+        onClicked: appConfigureAction.trigger()
       }
 
       QuitButton {

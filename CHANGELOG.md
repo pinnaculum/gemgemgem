@@ -6,6 +6,16 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.8] - 2023-08-23
+
+### Added
+
+- Basic configuration dialog
+
+## [0.3.7] - 2023-08-23
+
+Minor changes in gemalaya
+
 ## [0.3.6] - 2023-08-23
 
 Major changes in gemalaya

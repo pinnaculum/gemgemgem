@@ -68,4 +68,8 @@ QtObject {
   function set(dotattr, value) {
     gemalaya.set(dotattr, value)
   }
+
+  function get(dotattr) {
+    return gemalaya.get(dotattr)
+  }
 }

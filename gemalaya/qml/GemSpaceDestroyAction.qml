@@ -3,7 +3,7 @@ import QtQuick.Controls 2.14
 
 Action {
   property Item stackLayout
-  shortcut: Conf.shortcuts.stack.close
+  shortcut: Conf.shortcuts.stackCloseSpace
 
   onTriggered: {
     stackLayout.spaceCloseRequested(stackLayout.currentIndex)

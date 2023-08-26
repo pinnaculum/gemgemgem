@@ -32,8 +32,8 @@ ui:
 
     # In pixels per second, determines how much we flick the page
     # up and down when the "up" or "down" keys are pressed
-    downFlickPPS: -500
-    upFlickPPS: 500
+    downFlickPPS: -350
+    upFlickPPS: 350
 
     # In pixels per second, determines how much we flick the page
     # up and down when the "page up" or "page down" keys are pressed
@@ -65,6 +65,7 @@ ui:
 
   # Shortcuts
   shortcuts:
+    openConfigDialog: 'F12'
     bookmark: 'Ctrl+d'
     quit: 'Ctrl+q'
     themesCycle: 'Ctrl+y'
@@ -79,13 +80,13 @@ ui:
 
     pageReload: 'Ctrl+r'
 
+    # Font size
     fontSizeIncrease: 'Ctrl++'
     fontSizeDecrease: 'Ctrl+-'
 
-    stack:
-      cycle: 'Ctrl+Tab'
-      create: 'Ctrl+t'
-      close: 'Ctrl+w'
-
-      previous: 'Ctrl+b'
-      next: 'Ctrl+n'
+    # Stack
+    stackCycle: 'Ctrl+Tab'
+    stackCreateSpace: 'Ctrl+t'
+    stackCloseSpace: 'Ctrl+w'
+    stackPrevious: 'Ctrl+b'
+    stackNext: 'Ctrl+n'

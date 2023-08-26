@@ -8,6 +8,7 @@ TextInput {
   color: Conf.theme.url.textColor
   selectionColor: Conf.theme.url.selectionColor
   selectedTextColor: Conf.theme.url.selectedTextColor
+  wrapMode: Text.WrapAnywhere
   cursorDelegate: Rectangle {
     id: cursor
     visible: false

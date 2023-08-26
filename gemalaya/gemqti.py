@@ -448,6 +448,23 @@ class GemalayaInterface(QObject):
         # Use sinister as a backup for now
         return f'qrc:/gemalaya/themes/sinister/{path}'
 
+    @Slot(str, result="QVariant")
+    def get(self, attr: str):
+        cur = self.config
+        try:
+            sections = attr.split('.')
+            for s in sections[0:-1]:
+                cur = cur.get(s)
+                assert cur is not None
+
+            return getattr(cur, sections[-1])
+        except AttributeError:
+            traceback.print_exc()
+            return False
+        except Exception:
+            traceback.print_exc()
+            return False
+
     @Slot(str, QJsonValue, result=bool)
     def set(self, attr: str, value: QJsonValue):
         """
