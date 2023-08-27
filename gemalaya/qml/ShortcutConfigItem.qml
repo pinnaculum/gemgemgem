@@ -16,6 +16,7 @@ RowLayout {
     text: name
     font.pointSize: 18
     Layout.fillWidth: true
+    Layout.leftMargin: 32
   }
 
   KeySeqCaptureField {

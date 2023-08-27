@@ -70,9 +70,7 @@ ColumnLayout {
       Layout.fillHeight: true
 
       AppConfigSettings {
-        id: se
-        Layout.fillWidth: true
-        Layout.fillHeight: true
+        anchors.fill: parent
       }
     }
   }

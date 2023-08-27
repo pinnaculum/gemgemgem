@@ -180,6 +180,7 @@ Flickable {
     parent: flickable
     x: flickable.width - width
     height: flickable.contentHeight
+    width: 15
     policy: ScrollBar.AlwaysOn
   }
 
@@ -232,6 +233,7 @@ Flickable {
   }
 
   Keys.onPressed: {
+    let flickMultiplier = 1
     let numk = [
       Qt.Key_0,
       Qt.Key_1,
@@ -244,6 +246,22 @@ Flickable {
       Qt.Key_8,
       Qt.Key_9
     ]
+
+    if (event.modifiers & Qt.ShiftModifier)
+      flickMultiplier *= 2
+
+    if (event.modifiers & Qt.ControlModifier) {
+      flickMultiplier *= 2
+      linkSeqInput = ''
+
+      if (event.key === Qt.Key_Right) {
+        page.focusNextElement()
+      }
+
+      if (event.key === Qt.Key_Left) {
+        page.focusPreviousElement()
+      }
+    }
 
     /* Should convert those to Actions */
     if (event.key === Qt.Key_Home) {
@@ -259,28 +277,16 @@ Flickable {
       flickable.flick(0, Conf.ui.page.downFlickPPS)
     }
     if (event.key === Qt.Key_Down) {
-     flickable.flick(0, Conf.ui.page.downFlickPPS)
+     flickable.flick(0, Conf.ui.page.downFlickPPS * flickMultiplier)
     }
     if (event.key === Qt.Key_Up) {
-     flickable.flick(0, Conf.ui.page.upFlickPPS)
+     flickable.flick(0, Conf.ui.page.upFlickPPS * flickMultiplier)
     }
     if (event.key === Qt.Key_PageDown) {
-     flickable.flick(0, Conf.ui.page.pageDownFlickPPS)
+     flickable.flick(0, Conf.ui.page.pageDownFlickPPS * flickMultiplier)
     }
     if (event.key === Qt.Key_PageUp) {
-      flickable.flick(0, Conf.ui.page.pageUpFlickPPS)
-    }
-
-    if (event.modifiers & Qt.ControlModifier) {
-      linkSeqInput = ''
-    }
-
-    if (event.modifiers & Qt.ControlModifier && event.key === Qt.Key_Right) {
-      page.focusNextElement()
-    }
-
-    if (event.modifiers & Qt.ControlModifier && event.key === Qt.Key_Left) {
-      page.focusPreviousElement()
+      flickable.flick(0, Conf.ui.page.pageUpFlickPPS * flickMultiplier)
     }
 
     if (numk.includes(event.key) && linkSeqInput.length < 8) {
@@ -294,6 +300,8 @@ Flickable {
         linkSeqInput = ''
       }
     }, Conf.ui.keybSeqTimeout)
+
+    event.accepted = true
   }
 
   OpacityAnimator {

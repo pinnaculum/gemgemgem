@@ -6,7 +6,6 @@ import pkg_resources
 import tempfile
 import traceback
 import signal
-import string
 import webbrowser
 
 from collections import deque
@@ -231,28 +230,23 @@ class GeminiInterface(QObject):
                             host='localhost',
                             path=f'/{url.host}{upath}'
                         )
+                    elif url.scheme in ['ipfs', 'ipns'] and \
+                            self.app.levior_proc:
+                        # IPFS urls, rewrite to go through the proxy
+                        # Use dweb.link as the default gateway for now
 
-                    lsec, rem = divmod(linkno, len(string.ascii_letters))
-
-                    if lsec == 0:
-                        letter = string.ascii_letters[linkno]
-
-                        if letter.islower():
-                            keyseq = letter
-                        else:
-                            keyseq = f'Shift+{letter}'
-
-                    elif lsec in range(1, 3):
-                        letter = string.ascii_letters[rem]
-                        mod = 'Ctrl' if lsec == 1 else 'Alt'
-
-                        keyseq = f'{mod}+{letter}'
+                        host = f'{url.host}.{url.scheme}.dweb.link'
+                        upath = url.path if url.path else '/'
+                        url = URL.build(
+                            scheme='gemini',
+                            host='localhost',
+                            path=f'/{host}/{upath}'
+                        )
 
                     model.append({
                         'type': 'link',
                         'href': str(url),
                         'hrefPrev': hrefPrev,
-                        'keyseq': keyseq,
                         'title': line.text if line.text else line.extra
                     })
                     hrefPrev = str(url)

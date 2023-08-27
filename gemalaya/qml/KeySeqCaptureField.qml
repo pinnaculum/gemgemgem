@@ -8,17 +8,25 @@ import QtQuick.Layouts 1.4
  */
 
 TextField {
+  id: control
+
   Layout.fillWidth: true
   Layout.preferredWidth: 250
 
   property string currentShortcut
 
   font.family: "DejaVu sans"
-  font.pointSize: 22
+  font.pointSize: activeFocus ? 26 : 22
+
+  background: Rectangle {
+    color: parent.activeFocus ? 'cornsilk' : 'white'
+    border.width: parent.activeFocus ? 1 : 0
+    border.color: parent.activeFocus ? 'black' : 'gray'
+  }
 
   placeholderText: qsTr("Shortcut")
   text: currentShortcut
-  color: activeFocus ? 'blue' : 'black'
+  color: activeFocus ? 'red' : 'black'
 
   signal modified(string shortcutText)
 

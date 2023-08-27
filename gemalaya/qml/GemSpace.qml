@@ -148,9 +148,16 @@ Rectangle {
       GemAddressCtrl {
         id: addrc
 
+        onUnfocusRequest: {
+          /* Escape pressed on the address bar */
+
+          if (sview.page.empty == false) {
+            /* Focus the page if there's something loaded */
+            sview.page.forceActiveFocus()
+          }
+        }
+
         Layout.fillWidth: true
-        Layout.minimumHeight: 60
-        Layout.maximumHeight: 120
 
         KeyNavigation.backtab: sview
         KeyNavigation.tab: sview

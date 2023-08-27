@@ -6,11 +6,16 @@ and this project adheres to
 
 ## [Unreleased]
 
-## [0.3.8] - 2023-08-23
+## [0.3.8] - 2023-08-27
 
 ### Added
 
-- Basic configuration dialog
+- Basic configuration dialog (F12 key)
+
+### Changed
+
+- The page flicking speed can now be amplified by holding "Control" or "Shift"
+  (Control+Shift+PageDown for example is the fastest down flick)
 
 ## [0.3.7] - 2023-08-23
 

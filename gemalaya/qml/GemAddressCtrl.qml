@@ -20,6 +20,7 @@ Item {
   signal edited(string text)
   signal requested(string text)
   signal hidden()
+  signal unfocusRequest()
   signal historySizeChanged(int hsize)
 
   function histAdd(url) {
@@ -40,6 +41,10 @@ Item {
     input.forceActiveFocus()
   }
 
+  function unfocus() {
+    focus = false
+  }
+
   function animate() {
     bmAnim.running = true
   }
@@ -48,6 +53,9 @@ Item {
     id: sched
   }
 
+  implicitHeight: urlField.height
+  Layout.minimumHeight: urlField.contentHeight + 32
+
   onUrlChanged: {
     //ElementAnimator.animate(Conf.theme.url.animations.urlChanged, control)
   }
@@ -55,7 +63,7 @@ Item {
   Keys.onEscapePressed: {
     hovered = false
     sched.cancel()
-    hidden()
+    unfocusRequest()
   }
 
   SequentialAnimation {
@@ -227,7 +235,6 @@ Item {
 
   GemUrlInput {
     id: urlField
-    padding: 20
     anchors.fill: parent
     anchors.topMargin: 16
     anchors.leftMargin: 16

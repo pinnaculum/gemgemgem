@@ -164,7 +164,7 @@ ColumnLayout {
     TextMetrics {
       id: textm
       font.family: Conf.links.text.fontFamily
-      font.pointSize: pointSizeNormal
+      font.pointSize: activeFocus ? pointSizeNormal * 1.5 : pointSizeNormal
       text: title
 
       /* Elide to the right and set the elide width */
