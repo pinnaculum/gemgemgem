@@ -3,9 +3,11 @@ import mimetypes
 import os
 import os.path
 import pkg_resources
+import platform
 import tempfile
 import traceback
 import signal
+import subprocess
 import webbrowser
 
 from collections import deque
@@ -100,6 +102,24 @@ class GeminiInterface(QObject):
             traceback.print_exc()
             return None
 
+    def writeRspDataToFile(self, response, dstPath: Path):
+        try:
+            if dstPath.is_file():
+                for x in range(0, 64):
+                    p = Path(f'{dstPath}.{x}')
+                    if not p.exists():
+                        dstPath = p
+                        break
+
+            assert not dstPath.exists()
+
+            with open(dstPath, 'wb') as fd:
+                fd.write(response.raw_body)
+
+            return True
+        except Exception:
+            return False
+
     @tSlot(str, QJsonValue, sigSuccess="fileDownloaded")
     def downloadToFile(self,
                        href: str,
@@ -152,6 +172,8 @@ class GeminiInterface(QObject):
         linkno = 0
         model = []
         doc = GmiDocument()
+        opts = options.toVariant()
+        dlRootPath = opts.get('downloadsPath')
 
         try:
             requ = URL(href)
@@ -163,36 +185,38 @@ class GeminiInterface(QObject):
             )
             assert response
 
-            gemText = response.data()
+            rspData = response.data()
 
-            if response.is_a(ignition.ErrorResponse):
+            ctype = response.meta.split(';')[0] if \
+                response.meta else None
+
+            if response.is_a(ignition.ErrorResponse) or \
+                response.is_a(ignition.TempFailureResponse) or \
+                    response.is_a(ignition.PermFailureResponse):
                 return {
                     'url': href,
                     'rsptype': 'error',
-                    'message': gemText
+                    'message': rspData
                 }
 
-            if response.is_a(ignition.InputResponse):
+            elif response.is_a(ignition.InputResponse):
                 rsptype = 'input'
             elif response.is_a(ignition.ClientCertRequiredResponse):
                 rsptype = 'certrequired'
-            elif response.is_a(ignition.TempFailureResponse) or \
-                    response.is_a(ignition.PermFailureResponse):
-                rsptype = 'failure'
             elif response.is_a(ignition.RedirectResponse):
                 rsptype = 'redirect'
 
-                redirUrl = URL(gemText)
+                redirUrl = URL(rspData)
 
                 if not redirUrl.is_absolute():
                     if redirUrl.path.startswith('/'):
                         redirUrl = URL.build(
                             scheme='gemini',
                             host=requ.host,
-                            path=gemText
+                            path=rspData
                         )
                     else:
-                        redirUrl = URL(f'{requ}/{gemText}')
+                        redirUrl = URL(f'{requ}/{rspData}')
 
                 return {
                     'url': href,
@@ -206,17 +230,43 @@ class GeminiInterface(QObject):
                 return {
                     'url': href,
                     'rsptype': rsptype,
-                    'prompt': gemText,
+                    'prompt': rspData,
                     'model': model,
                 }
 
-            for line in gemText.split('\n'):
+            if ctype != 'text/gemini':
+                dstPath = Path(dlRootPath).joinpath(
+                    requ.host).joinpath(requ.path.lstrip('/'))
+                dstPath.parent.mkdir(parents=True, exist_ok=True)
+
+                if self.writeRspDataToFile(response, dstPath):
+                    return {
+                        'url': href,
+                        'rsptype': 'raw',
+                        'data': rspData,
+                        'downloadPath': str(dstPath),
+                        'meta': response.meta,
+                        'contentType': ctype
+                    }
+                else:
+                    raise Exception(f'Could not download to path {dstPath}')
+
+            for line in rspData.split('\n'):
                 doc.append(line)
 
             hrefPrev = None
             pf = []
+            quoteb = []
 
             for line in doc.emit_line_objects(auto_tidy=True):
+                if line.type != GmiLineType.QUOTE and quoteb:
+                    # Flush the quote buffer and reset it
+                    model.append({
+                        'type': 'quote',
+                        'text': '\n'.join(quoteb)
+                    })
+                    quoteb = []
+
                 if line.type == GmiLineType.LINK:
                     # Compute keyboard sequence shortcut
 
@@ -261,12 +311,8 @@ class GeminiInterface(QObject):
                     model.append({
                         'type': 'blank'
                     })
-                elif line.type == GmiLineType.QUOTE:
-                    model.append({
-                        'type': 'quote',
-                        'text': line.text,
-                        'title': line.text if line.text else line.extra
-                    })
+                elif line.type == GmiLineType.QUOTE and line.text:
+                    quoteb.append(line.text)
                 elif line.type == GmiLineType.LIST_ITEM:
                     model.append({
                         'type': 'listitem',
@@ -498,6 +544,22 @@ class GemalayaInterface(QObject):
     @Slot(result=bool)
     def httpGatewayActive(self):
         return self.app.levior_proc is not None
+
+    @Slot(str)
+    def fileExec(self, filepath: str):
+        try:
+            assert 'downloadsPath' in self.config
+            fp = Path(filepath)
+            parents = [str(p) for p in fp.parents]
+
+            assert self.config.downloadsPath in parents
+
+            if platform.system() == 'Linux':
+                subprocess.Popen(['xdg-open', filepath])
+        except AssertionError:
+            traceback.print_exc()
+        except Exception:
+            traceback.print_exc()
 
     @Slot()
     def quit(self):

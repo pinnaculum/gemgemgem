@@ -36,3 +36,9 @@
 
 - url: gemini://hidden.nexus
   title: Hidden nexus
+
+- url: gemini://gemini.osnews.com
+  title: OSNews
+
+- url: gemini://flounder.online
+  title: flounder.online

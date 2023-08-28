@@ -24,7 +24,7 @@ Label {
   KeyNavigation.tab: nextLinkItem
 
   Layout.margins: 10
-  Layout.leftMargin: textType == 'listitem' ? 30 : 10
+  Layout.leftMargin: textType == 'listitem' || quote ? 30 : 10
   Layout.bottomMargin: textType == 'listitem' ? 15 : 10
   Layout.maximumWidth: width
   Layout.fillWidth: true
@@ -114,37 +114,39 @@ Label {
       target: control
       property: 'font.pointSize'
       from: control.font.pointSize
-      to: textmn.font.pointSize * 1.2
-      duration: 10
+      to: textmn.font.pointSize * 1.1
+      duration: 0
     }
     PropertyAnimation {
       target: control
       property: 'font.wordSpacing'
       from: control.font.wordSpacing
       to: Conf.text.focusZoom.fontWordSpacing ? Conf.text.focusZoom.fontWordSpacing : 4
-      duration: 10
+      duration: 0
     }
     PropertyAnimation {
       target: control
       property: 'color'
       from: control.color
       to: colorHovered
-      duration: 10
+      duration: 0
     }
+    /*
     PropertyAnimation {
       target: control
       property: 'lineHeight'
       from: control.lineHeight
       to: Conf.text.focusZoom.lineHeight ? Conf.text.focusZoom.lineHeight : control.lineHeight + 0.1
-      duration: 10
+      duration: 0
     }
+    */
 
     PropertyAnimation {
       target: control
       property: 'Layout.margins'
       from: 10
-      to: 20
-      duration: 10
+      to: 15
+      duration: 0
     }
   }
 
@@ -173,6 +175,7 @@ Label {
       to: colorDefault
       duration: 10
     }
+    /*
     PropertyAnimation {
       target: control
       property: 'lineHeight'
@@ -180,6 +183,7 @@ Label {
       to: 1.1
       duration: 10
     }
+    */
     PropertyAnimation {
       target: control
       property: 'Layout.margins'

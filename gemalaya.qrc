@@ -2,6 +2,7 @@
   <qresource>
     <file>gemalaya/themes/sinister/arrow-back.png</file>
     <file>gemalaya/themes/sinister/arrow-next.png</file>
+    <file>gemalaya/themes/sinister/download.png</file>
     <file>gemalaya/themes/sinister/input-send.png</file>
     <file>gemalaya/themes/sinister/settings.png</file>
     <file>gemalaya/themes/sinister/loading.gif</file>

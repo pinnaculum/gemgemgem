@@ -32,6 +32,7 @@ Flickable {
 
   signal urlChanged(url currentUrl)
   signal linkActivated(url linkUrl, url baseUrl)
+  signal fileDownloaded(url fileUrl, string filePath)
 
   Scheduler {
     id: sched
@@ -55,6 +56,7 @@ Flickable {
       page.clear()
 
       urlChanged(urlObject)
+      flickable.forceActiveFocus()
 
       if (resp.rsptype === 'input') {
         var component = Qt.createComponent('InputItem.qml')
@@ -77,6 +79,10 @@ Flickable {
         return
       } else if (resp.rsptype === 'error' || resp.rsptype === 'failure') {
         flickable.pageError('Error: ' + resp.message)
+        pageOaRestore.running = true
+        return
+      } else if (resp.rsptype === 'raw') {
+        displayRawFile(resp)
         pageOaRestore.running = true
         return
       }
@@ -133,6 +139,9 @@ Flickable {
           case 'quote':
           case 'preformatted':
           case 'listitem':
+            if (gemItem.text.length == 0)
+              break
+
             var component = Qt.createComponent('TextItem.qml')
             props = {
               content: gemItem.text,
@@ -163,8 +172,6 @@ Flickable {
       })
 
       addrController.histAdd(urlString)
-
-      flickable.forceActiveFocus()
 
       if (firstLink) {
         firstLink.focus = true
@@ -207,6 +214,45 @@ Flickable {
            str !== str.toUpperCase();
   }
 
+  function displayRawFile(resp) {
+    switch(true) {
+      case /^text\/plain/i.test(resp.contentType):
+        Qt.createComponent('TextItem.qml').createObject(
+          flickable.page, {
+            content: resp.data,
+            width: flickable.width,
+            textType: 'regular'
+          }
+        )
+        break
+
+      case /^video\/.*/i.test(resp.contentType):
+        Qt.createComponent('MPlayer.qml').createObject(
+          flickable.page, {
+            source: resp.downloadPath,
+            height: flickable.height,
+            width: flickable.width
+          }
+        )
+        break
+
+      default:
+        pageError('Unsupported content type: ' + resp.contentType)
+
+        let item = Qt.createComponent('FileDownloadItem.qml').createObject(
+          flickable.page, {
+            width: flickable.width,
+            contentType: resp.contentType,
+            fileUrl: resp.url,
+            filePath: resp.downloadPath
+        })
+        item.openButton.forceActiveFocus()
+
+        fileDownloaded(resp.url, resp.downloadPath)
+        break
+    }
+  }
+
   function browse(href, baseUrlUnused) {
     var urlObject
 
@@ -216,14 +262,15 @@ Flickable {
       return
     }
 
-    agent.geminiModelize(urlObject.toString(), null, {})
+    agent.geminiModelize(urlObject.toString(), null, {
+      downloadsPath: Conf.c.downloadsPath
+    })
   }
 
   function pageError(err) {
     page.clear()
 
-    let component = Qt.createComponent('ErrorItem.qml')
-    component.createObject(flickable.page, {
+    Qt.createComponent('ErrorItem.qml').createObject(flickable.page, {
       message: err
     })
   }

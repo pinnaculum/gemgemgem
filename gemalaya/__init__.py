@@ -18,7 +18,9 @@ from PySide6.QtGui import QFontDatabase
 from gemalaya import gemqti
 from gemalaya import sqldb
 from gemalaya import rc_gemalaya  # noqa
+from gemalaya.identities import IdentitiesManager
 from gemgemgem.x509 import x509SelfSignedGenerate
+
 
 app_name = 'gemalaya'
 here = Path(os.path.dirname(__file__))
@@ -75,6 +77,10 @@ def run_gemalaya():
     cfg_dir_path.joinpath('themes').mkdir(parents=True, exist_ok=True)
     cfg_path = cfg_dir_path.joinpath('config.yaml')
 
+    # identities path
+    identities_path = cfg_dir_path.joinpath('identities')
+    identities_path.mkdir(parents=True, exist_ok=True)
+
     # Data path
     data_path = Path(QStandardPaths.writableLocation(
         QStandardPaths.StandardLocation.AppDataLocation
@@ -104,6 +110,9 @@ def run_gemalaya():
             OmegaConf.load(cfd)
         )
 
+    if 'downloadsPath' not in config:
+        config.downloadsPath = str(downloads_path)
+
     OmegaConf.save(config, f=str(cfg_path))
 
     # certs
@@ -118,6 +127,7 @@ def run_gemalaya():
     app = QApplication([])
     app.threadpool = concurrent.futures.ThreadPoolExecutor()
     app.levior_proc = None
+    app.identities = IdentitiesManager(identities_path)
 
     # Run levior if requested
     if (config.levior.enable is True or args.levior is True) and \

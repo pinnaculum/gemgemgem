@@ -5,6 +5,7 @@ variables:
   TAGNAME: "continuous-${CI_COMMIT_BRANCH}"
 
   WHEEL_FILENAME: "${CI_PROJECT_NAME}-${VERSION}-py3-none-any.whl"
+  WHEEL_LATEST_FILENAME: "${CI_PROJECT_NAME}-latest-py3-none-any.whl"
   WHEEL_ARTIFACT_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/continuous-${CI_COMMIT_BRANCH}/${CI_PROJECT_NAME}-${VERSION}-py3-none-any.whl"
 
   GEMV_APPIMAGE_FILENAME: "GemV-${VERSION}-x86_64.AppImage"
@@ -89,7 +90,7 @@ release:
       --tag-name $TAGNAME
       --ref $CI_COMMIT_SHA
       --assets-link
-      "{\"name\": \"${WHEEL_FILENAME}\", \"filepath\": \"/${WHEEL_FILENAME}\", \"url\": \"${WHEEL_ARTIFACT_URL}\"}"
+      "{\"name\": \"${WHEEL_FILENAME}\", \"filepath\": \"/${WHEEL_LATEST_FILENAME}\", \"url\": \"${WHEEL_ARTIFACT_URL}\"}"
       --assets-link
       "{\"name\": \"${GEMV_APPIMAGE_FILENAME}\", \"filepath\": \"/${GEMV_APPIMAGE_LATEST_FILENAME}\", \"url\": \"${GEMV_APPIMAGE_ARTIFACT_URL}\"}"
       --assets-link

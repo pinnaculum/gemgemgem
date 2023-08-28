@@ -10,7 +10,7 @@ Text {
 
   Layout.margins: 10
 
-  color: 'red'
+  color: '#FFD700'
   text: message
   font.pointSize: 24
   font.family: 'Courier'

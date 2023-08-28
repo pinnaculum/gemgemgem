@@ -216,6 +216,14 @@ Rectangle {
         onClicked: appConfigureAction.trigger()
       }
 
+      ToolButton {
+        id: dlQueueButton
+        icon.source: Conf.themeRsc('download.png')
+        icon.width: 32
+        icon.height: 32
+        visible: false
+      }
+
       QuitButton {
         onClicked: gemalaya.quit()
         enabled: true
