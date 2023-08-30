@@ -172,6 +172,7 @@ class GeminiInterface(QObject):
         linkno = 0
         model = []
         doc = GmiDocument()
+        title = None
         opts = options.toVariant()
         dlRootPath = opts.get('downloadsPath')
 
@@ -328,6 +329,9 @@ class GeminiInterface(QObject):
                     elif line.type == GmiLineType.HEADING3:
                         hsize = 'h3'
 
+                    if title is None:
+                        title = line.text
+
                     model.append({
                         'type': 'heading',
                         'hsize': hsize,
@@ -348,7 +352,7 @@ class GeminiInterface(QObject):
                 'url': href,
                 'rsptype': rsptype,
                 'model': model,
-                'title': None
+                'title': title
             }
 
             return resp

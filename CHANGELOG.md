@@ -11,11 +11,16 @@ and this project adheres to
 ### Added
 
 - Basic configuration dialog (F12 key)
+- Themable scrollbar
+- Animate the keyboard sequence item on success
 
 ### Changed
 
 - The page flicking speed can now be amplified by holding "Control" or "Shift"
   (Control+Shift+PageDown for example is the fastest down flick)
+- If the page is really large, render it in multiple sections (reaching the end
+  of the page will render the next section)
+- Set a custom persistent path for ignition's "known hosts" file
 
 ## [0.3.7] - 2023-08-23
 

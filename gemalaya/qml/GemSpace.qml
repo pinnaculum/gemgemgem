@@ -90,7 +90,7 @@ Rectangle {
     onTriggered: {
       if (addrc.url) {
         // todo: set title
-        bookmarksModel.addBookmark(addrc.url, addrc.url)
+        bookmarksModel.addBookmark(addrc.url, sview.pageTitle)
         addrc.animate()
       }
     }
@@ -211,9 +211,12 @@ Rectangle {
 
       ToolButton {
         icon.source: Conf.themeRsc('settings.png')
+        icon.cache: true
         icon.width: 32
         icon.height: 32
+        Layout.minimumWidth: 48
         onClicked: appConfigureAction.trigger()
+        display: AbstractButton.IconOnly
       }
 
       ToolButton {
@@ -234,6 +237,8 @@ Rectangle {
       id: sview
       addrController: addrc
 
+      onKeybSequenceMatch: kSeqAnim.running = true
+
       onLinkActivated: {
         if (openIn === 0) {
           /* Open in this gemspace */
@@ -253,21 +258,41 @@ Rectangle {
       id: seqRect
       anchors.margins: 8
       Layout.alignment: Qt.AlignRight
-      color: 'transparent'
+      color: '#F0F8FF'
       width: sview.width * 0.2
       height: 32
-      visible: sview.linkSeqInput.length > 0
+      visible: sview.linkSeqInput.length > 0 || kSeqAnim.running
       border.width: 1
       border.color: 'lightgray'
       radius: 2
 
+      SequentialAnimation {
+        id: kSeqAnim
+
+        PropertyAnimation {
+          target: seqRect
+          property: "color"
+          from: seqRect.color
+          to: "#008080"
+          duration: 500
+        }
+        PropertyAnimation {
+          target: seqRect
+          property: "color"
+          from: seqRect.color
+          to: "#F0F8FF"
+          duration: 200
+        }
+      }
+
       Text {
         id: seqt
         anchors.centerIn: parent
-        color: 'darkorange'
-        font.pointSize: 22
+        color: '#B22222'
+        font.pointSize: kSeqAnim.running ? 28 : 22
         font.family: 'Courier'
-        text: sview.linkSeqInput
+        font.bold: true
+        text: kSeqAnim.running ? 'Alright!' : sview.linkSeqInput
       }
     }
   }

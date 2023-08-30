@@ -6,6 +6,7 @@ import concurrent.futures
 import subprocess
 from pathlib import Path
 
+import ignition
 from omegaconf import OmegaConf
 
 from PySide6.QtQml import QQmlApplicationEngine
@@ -114,6 +115,11 @@ def run_gemalaya():
         config.downloadsPath = str(downloads_path)
 
     OmegaConf.save(config, f=str(cfg_path))
+
+    # Set ignition's known hosts file path
+    ignition.set_default_hosts_file(
+        str(data_path.joinpath('ignition_known_hosts'))
+    )
 
     # certs
     certp = cfg_dir_path.joinpath('client.crt')

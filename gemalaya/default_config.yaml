@@ -43,11 +43,14 @@ ui:
     # Scroll to the item that gets the focus in the page when you press Tab
     scrollToItemOnFocus: true
 
+    # Maximum number of gemtext "items" to process in a row
+    maxItemsPerPageSection: 1024
+
   # per-mimetype configuration (uses regexps)
   mimeConfig:
-    # automatically preview images with these mimetypes
+    # Config for common image formats
     image/(jpg|jpeg|pcx|png|tiff|webp|svg):
-      autoPreview: true
+      autoPreview: false
 
   # Font sizes
   fonts:

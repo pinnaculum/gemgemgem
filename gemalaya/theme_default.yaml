@@ -1,3 +1,15 @@
+# Page scrollbar style
+scrollBar:
+  width: 15
+  barColor: '#1E90FF'
+  bgBorderColor: 'transparent'
+  bgColor: 'transparent'
+
+  moving:
+    barColor: '#00FFFF'
+    bgBorderColor: 'black'
+    bgColor: 'lightgray'
+
 # The popup showing the bookmark completions
 urlCompletionPopup:
   bg:

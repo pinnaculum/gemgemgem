@@ -15,7 +15,13 @@ Flickable {
   property alias page: page
   property Item addrController
 
+  property string pageTitle
   property string linkSeqInput
+
+  property var currentResponse
+  property int lastLinkNum: 0
+  property int lastProcItemIdx: 0
+  property var lastSectionItem: null
 
   Layout.fillWidth: true
   Layout.fillHeight: true
@@ -33,9 +39,21 @@ Flickable {
   signal urlChanged(url currentUrl)
   signal linkActivated(url linkUrl, url baseUrl)
   signal fileDownloaded(url fileUrl, string filePath)
+  signal keybSequenceMatch()
 
   Scheduler {
+    /* main scheduler */
     id: sched
+  }
+
+  Scheduler {
+    /* scrollbar's scheduler */
+    id: sbsched
+  }
+
+  Scheduler {
+    /* page section scheduler */
+    id: pssched
   }
 
   GeminiAgent {
@@ -44,13 +62,13 @@ Flickable {
     onSrvError: pageError(message)
 
     onSrvResponse: {
-      let urlString = resp.url
+      var urlString = resp.url
       var urlObject = new URL(resp.url)
 
       var linkNum = 0
-      var firstLink
-      var prevLink
-      var nextLink
+      var itemNum = 0
+
+      lastLinkNum = 0
 
       /* Clear the page */
       page.clear()
@@ -87,95 +105,11 @@ Flickable {
         return
       }
 
-      resp.model.forEach(function(gemItem) {
-        var props
-        var component
-        var item
+      renderGemTextResponse(resp, 0)
 
-        switch(gemItem.type) {
-          case 'link':
-            var keysym
-            var linkUrl
-
-            if (gemItem.href.startsWith('http://') ||
-                gemItem.href.startsWith('https://'))
-              linkUrl = new URL(gemItem.href)
-            else
-              linkUrl = new URL(gem.buildUrl(gemItem.href, urlString))
-
-            component = Qt.createComponent('LinkItem.qml')
-
-            props = {
-              pageLayout: page,
-              title: gemItem.title,
-              linkUrl: linkUrl,
-              baseUrl: urlString,
-              href: gemItem.href,
-              width: flickable.width,
-              keybAccessSeq: linkNum,
-              nextLinkItem: prevLink ? prevLink : null
-            }
-
-            if (component.status == Component.Ready) {
-              item = component.createObject(flickable.page, props)
-              item.linkClicked.connect(geminiLinkClicked)
-              item.setup()
-
-              if (prevLink) {
-                prevLink.nextLinkItem = item
-              }
-
-              prevLink = item
-
-              if (firstLink === undefined)
-                firstLink = item
-
-              linkNum += 1
-            }
-
-            break
-
-          case 'regular':
-          case 'quote':
-          case 'preformatted':
-          case 'listitem':
-            if (gemItem.text.length == 0)
-              break
-
-            var component = Qt.createComponent('TextItem.qml')
-            props = {
-              content: gemItem.text,
-              width: flickable.width * 0.95,
-              nextLinkItem: prevLink ? prevLink : null,
-              textType: gemItem.type,
-              quote: gemItem.type === 'quote'
-            }
-            item = component.createObject(flickable.page, props)
-            if (prevLink) {
-              prevLink.nextLinkItem = item
-            }
-            prevLink = item
-            break
-
-          case 'heading':
-            var component = Qt.createComponent('HeadingItem.qml')
-            item = component.createObject(flickable.page, {
-              content: gemItem.text,
-              hsize: gemItem.hsize,
-              width: flickable.width * 0.95
-            })
-            break
-
-          default:
-            break
-        }
-      })
+      pageTitle = resp.title
 
       addrController.histAdd(urlString)
-
-      if (firstLink) {
-        firstLink.focus = true
-      }
 
       vsbar.position = 0
       pageOaRestore.running = true
@@ -187,8 +121,51 @@ Flickable {
     parent: flickable
     x: flickable.width - width
     height: flickable.contentHeight
-    width: 15
+    width: Conf.theme.scrollBar.width
     policy: ScrollBar.AlwaysOn
+
+    property bool moving: false
+
+    contentItem: Rectangle {
+      id: scrollBarContent
+      radius: 15
+      color: moving ? Conf.theme.scrollBar.moving.barColor :
+        Conf.theme.scrollBar.barColor
+    }
+    background: Rectangle {
+      id: scrollBarBg
+      color: moving ? Conf.theme.scrollBar.moving.bgColor :
+        Conf.theme.scrollBar.bgColor
+      border.color: moving ? Conf.theme.scrollBar.moving.bgBorderColor :
+          Conf.theme.scrollBar.bgBorderColor
+      border.width: moving ? 1 : 0
+      radius: moving ? 15 : 0
+    }
+
+    SequentialAnimation {
+      id: sbanim
+
+      PropertyAnimation {
+        target: scrollBarContent
+        property: "color"
+        from: scrollBarContent.color
+        to: "darkblue"
+        duration: 30
+      }
+
+      PropertyAnimation {
+        target: scrollBarContent
+        property: "color"
+        to: "lightsteelblue"
+        duration: 50
+      }
+    }
+
+    onPositionChanged: {
+      sbsched.cancel()
+      moving = true
+      sbsched.delay(function() { moving = false}, 10)
+    }
   }
 
   function geminiLinkClicked(clickedUrlString, baseUrl) {
@@ -253,12 +230,137 @@ Flickable {
     }
   }
 
+  function renderGemTextResponse(resp, startItemIdx) {
+    var urlString = resp.url
+    var urlObject = new URL(resp.url)
+
+    var linkNum = lastLinkNum > 0 ? lastLinkNum : 0
+    var itemNum = 0
+
+    var firstLink
+    var prevLink = lastSectionItem ? lastSectionItem : null
+    var nextLink
+
+    if (startItemIdx >= (resp.model.length - 1)) {
+      console.log('Already rendered it all')
+      return
+    }
+
+    for (var gemItem of resp.model.slice(startItemIdx, -1)) {
+      var props
+      var component
+      var item
+
+      switch(gemItem.type) {
+        case 'link':
+          var keysym
+          var linkUrl
+
+          if (gemItem.href.startsWith('http://') ||
+              gemItem.href.startsWith('https://'))
+            linkUrl = new URL(gemItem.href)
+          else
+            linkUrl = new URL(gem.buildUrl(gemItem.href, urlString))
+
+          component = Qt.createComponent('LinkItem.qml')
+
+          props = {
+            pageLayout: page,
+            title: gemItem.title,
+            linkUrl: linkUrl,
+            baseUrl: urlString,
+            href: gemItem.href,
+            width: flickable.width,
+            keybAccessSeq: linkNum,
+            nextLinkItem: prevLink ? prevLink : null
+          }
+
+          if (component.status == Component.Ready) {
+            item = component.createObject(flickable.page, props)
+            item.linkClicked.connect(geminiLinkClicked)
+            item.setup()
+
+            if (prevLink) {
+              prevLink.nextLinkItem = item
+            }
+
+            prevLink = item
+            lastSectionItem = item
+
+            if (firstLink === undefined)
+              firstLink = item
+
+            linkNum += 1
+          }
+
+          break
+
+        case 'regular':
+        case 'quote':
+        case 'preformatted':
+        case 'listitem':
+          if (gemItem.text.length == 0)
+            break
+
+          var component = Qt.createComponent('TextItem.qml')
+          props = {
+            content: gemItem.text,
+            width: flickable.width * 0.95,
+            nextLinkItem: prevLink ? prevLink : null,
+            textType: gemItem.type,
+            quote: gemItem.type === 'quote'
+          }
+          item = component.createObject(flickable.page, props)
+          if (prevLink) {
+            prevLink.nextLinkItem = item
+          }
+          prevLink = item
+          lastSectionItem = item
+          break
+
+        case 'heading':
+          var component = Qt.createComponent('HeadingItem.qml')
+          item = component.createObject(flickable.page, {
+            content: gemItem.text,
+            hsize: gemItem.hsize,
+            width: flickable.width * 0.95
+          })
+          break
+
+        default:
+          break
+      }
+
+      lastProcItemIdx = startItemIdx + itemNum
+      itemNum += 1
+
+      if (itemNum > Conf.ui.page.maxItemsPerPageSection) {
+        /* Maximum number of page items reached, store the response
+         * and get out of here */
+        currentResponse = resp
+        break
+      }
+    }
+
+    /* Remember the number/index of the last link */
+    lastLinkNum = linkNum
+
+    if (firstLink && startItemIdx == 0) {
+      firstLink.focus = true
+    }
+  }
+
   function browse(href, baseUrlUnused) {
     var urlObject
+
+    /* Reset */
+    lastLinkNum = 0
+    lastProcItemIdx = 0
 
     try {
       urlObject = new URL(href)
     } catch(err) {
+      pageError('Invalid URL')
       return
     }
 
@@ -275,8 +377,25 @@ Flickable {
     })
   }
 
+  function renderNextPageSection() {
+    renderGemTextResponse(currentResponse, lastProcItemIdx + 1)
+  }
+
   onUrlChanged: {
     addrController.url = currentUrl.toString()
+  }
+
+  onContentYChanged: {
+    pssched.cancel()
+
+    if ((contentY + height) >= contentHeight &&
+        currentResponse != undefined) {
+      /* Reached the end of the flickable: render the rest of the page if
+       * it hasn't been fully rendered yet */
+      pssched.delay(function() {
+        renderNextPageSection()
+      }, 200)
+    }
   }
 
   Keys.onPressed: {
@@ -374,8 +493,6 @@ Flickable {
     property bool empty: children.length == 0
 
     function clear() {
-      pageOaDim.running = true
-
       for(var i = children.length; i > 0 ; i--) {
         children[i-1].destroy()
       }
@@ -448,6 +565,9 @@ Flickable {
             flickable.contentY = item.y - (flickable.height / 8)
           } else {
             /* The link is visible, just open it */
+
+            keybSequenceMatch()
+
             item.linkAction.trigger()
           }
         }

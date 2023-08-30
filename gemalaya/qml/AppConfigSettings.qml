@@ -60,6 +60,13 @@ ColumnLayout {
     spin.to: 100000
     spin.stepSize: 50
   }
+  IntegerCfgSetting {
+    dotPath: 'ui.page.maxItemsPerPageSection'
+    description: qsTr('Maximum items rendered per page section')
+    spin.from: 32
+    spin.to: 8192
+    spin.stepSize: 16
+  }
 
   Text {
     text: qsTr('Fonts')
