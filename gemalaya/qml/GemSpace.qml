@@ -292,7 +292,7 @@ Rectangle {
         font.pointSize: kSeqAnim.running ? 28 : 22
         font.family: 'Courier'
         font.bold: true
-        text: kSeqAnim.running ? 'Alright!' : sview.linkSeqInput
+        text: kSeqAnim.running ? 'Gemalaya!' : sview.linkSeqInput
       }
     }
   }

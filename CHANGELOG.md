@@ -21,6 +21,8 @@ and this project adheres to
 - If the page is really large, render it in multiple sections (reaching the end
   of the page will render the next section)
 - Set a custom persistent path for ignition's "known hosts" file
+- Animate the scrollbar's background color depending on how
+  fast we scroll (right now only the color's red component is changed)
 
 ## [0.3.7] - 2023-08-23
 

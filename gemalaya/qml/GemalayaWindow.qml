@@ -97,11 +97,11 @@ Window {
     shortcut: Conf.shortcuts.fontSizeIncrease
     onTriggered: {
       Conf.set('ui.fonts.defaultPointSize',
-               Conf.fontPrefs.defaultPointSize + 2)
+               Conf.fontPrefs.defaultPointSize + 1)
       Conf.set('ui.fonts.text.pointSize',
-               Conf.fontPrefs.text.pointSize + 2)
+               Conf.fontPrefs.text.pointSize + 1)
       Conf.set('ui.fonts.links.pointSize',
-               Conf.fontPrefs.links.pointSize + 2)
+               Conf.fontPrefs.links.pointSize + 1)
       Conf.update()
     }
   }
@@ -109,11 +109,11 @@ Window {
     shortcut: Conf.shortcuts.fontSizeDecrease
     onTriggered: {
       Conf.set('ui.fonts.defaultPointSize',
-               Conf.fontPrefs.defaultPointSize - 2)
+               Conf.fontPrefs.defaultPointSize - 1)
       Conf.set('ui.fonts.text.pointSize',
-               Conf.fontPrefs.text.pointSize - 2)
+               Conf.fontPrefs.text.pointSize - 1)
       Conf.set('ui.fonts.links.pointSize',
-               Conf.fontPrefs.links.pointSize - 2)
+               Conf.fontPrefs.links.pointSize - 1)
       Conf.update()
     }
   }

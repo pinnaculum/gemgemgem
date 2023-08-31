@@ -98,6 +98,7 @@ Flickable {
       } else if (resp.rsptype === 'error' || resp.rsptype === 'failure') {
         flickable.pageError('Error: ' + resp.message)
         pageOaRestore.running = true
+        addrController.histAdd(urlString)
         return
       } else if (resp.rsptype === 'raw') {
         displayRawFile(resp)
@@ -125,17 +126,28 @@ Flickable {
     policy: ScrollBar.AlwaysOn
 
     property bool moving: false
+    property double prevPos: 0
+    property double scrollSpeed: 0
 
     contentItem: Rectangle {
       id: scrollBarContent
+      property color movingColor: Conf.theme.scrollBar.moving.barColor
       radius: 15
       color: moving ? Conf.theme.scrollBar.moving.barColor :
         Conf.theme.scrollBar.barColor
     }
     background: Rectangle {
       id: scrollBarBg
-      color: moving ? Conf.theme.scrollBar.moving.bgColor :
-        Conf.theme.scrollBar.bgColor
+      property color movingColor: Conf.theme.scrollBar.moving.bgColor
+
+      /* accentuate the red component a little when we're scrolling */
+      color: moving ? Qt.rgba(
+        movingColor.r + vsbar.scrollSpeed,
+        movingColor.g - vsbar.scrollSpeed,
+        movingColor.b - vsbar.scrollSpeed,
+        movingColor.a
+      ) : Conf.theme.scrollBar.bgColor
+
       border.color: moving ? Conf.theme.scrollBar.moving.bgBorderColor :
           Conf.theme.scrollBar.bgBorderColor
       border.width: moving ? 1 : 0
@@ -146,25 +158,31 @@ Flickable {
       id: sbanim
 
       PropertyAnimation {
-        target: scrollBarContent
+        target: scrollBarBg
         property: "color"
-        from: scrollBarContent.color
-        to: "darkblue"
-        duration: 30
-      }
-
-      PropertyAnimation {
-        target: scrollBarContent
-        property: "color"
-        to: "lightsteelblue"
-        duration: 50
+        from: scrollBarBg.color
+        to: Qt.rgba(
+          scrollBarBg.color.r + vsbar.scrollSpeed,
+          scrollBarBg.color.g - vsbar.scrollSpeed,
+          scrollBarBg.color.b - vsbar.scrollSpeed,
+          scrollBarBg.color.a
+        )
+        duration: 10
       }
     }
 
     onPositionChanged: {
+      let diff = position > prevPos ? position - prevPos : prevPos - position
+      scrollSpeed = diff * 75
+
+      prevPos = position
+
       sbsched.cancel()
       moving = true
-      sbsched.delay(function() { moving = false}, 10)
+
+      sbsched.delay(function() {
+        moving = false
+      }, 200)
     }
   }
 

@@ -56,14 +56,16 @@ Item {
   implicitHeight: urlField.height
   Layout.minimumHeight: urlField.contentHeight + 32
 
-  onUrlChanged: {
-    //ElementAnimator.animate(Conf.theme.url.animations.urlChanged, control)
-  }
-
   Keys.onEscapePressed: {
     hovered = false
     sched.cancel()
     unfocusRequest()
+  }
+
+  Keys.onDownPressed: {
+    /* Show all bookmarks when Down is pressed if the field is empty */
+    if (urlField.text.length == 0)
+      lookupBookmarks(null)
   }
 
   SequentialAnimation {
@@ -219,8 +221,8 @@ Item {
     }
   }
 
-  onEdited: {
-    bookmarksModel.findSome(text)
+  function lookupBookmarks(queryText) {
+    bookmarksModel.findSome(queryText != null ? queryText : "")
 
     if (bookmarksModel.rowCount() > 0) {
       tableview.selectionModel.setCurrentIndex(
@@ -228,9 +230,17 @@ Item {
         ItemSelectionModel.Select | ItemSelectionModel.Current
       )
 
+      /* Be sure to start at the top */
+      tableview.contentY = 0
+
       bmpopup.open()
       bmpopup.forceActiveFocus()
     }
+  }
+
+  onEdited: {
+    if (text.length > 0)
+      lookupBookmarks(text)
   }
 
   GemUrlInput {

@@ -89,7 +89,7 @@ ColumnLayout {
     id: button
 
     Layout.fillWidth: true
-    Layout.margins: 5
+    Layout.margins: 2
 
     MouseArea {
       anchors.fill: parent
@@ -184,7 +184,7 @@ ColumnLayout {
 
     contentItem: RowLayout {
       id: buttonLayout
-      spacing: 10
+      spacing: 5
 
       Rectangle {
         id: shortcutButton
