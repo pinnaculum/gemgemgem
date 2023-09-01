@@ -376,6 +376,7 @@ class GemalayaInterface(QObject):
         self.cfg_path = cfg_path
 
         self.localt_path = self.cfg_dir_path.joinpath('themes')
+        self.isnippets_path = self.cfg_dir_path.joinpath('isnippets')
         self.mimes = self.loadExtraMimes()
 
     def loadExtraMimes(self):
@@ -393,6 +394,45 @@ class GemalayaInterface(QObject):
 
     def __save_config(self):
         OmegaConf.save(config=self.config, f=str(self.cfg_path))
+
+    @Slot(result=list)
+    def inputSnippets(self):
+        """
+        Return snippets that can be used to reply for input responses
+        """
+
+        snipl = []
+        if not self.isnippets_path.is_dir():
+            return snipl
+
+        for file in self.isnippets_path.glob('*'):
+            try:
+                with open(file, 'rt') as f:
+                    basename, fext = os.path.splitext(file.name)
+                    snipl.append({
+                        'name': basename,
+                        'text': f.read()
+                    })
+            except Exception:
+                continue
+
+        return snipl
+
+    @Slot(str, str, bool, result=bool)
+    def inputSnippetSave(self, name: str, content: str, overwrite: bool):
+        """
+        Store a snippet for gemini input responses
+        """
+        self.isnippets_path.mkdir(exist_ok=True, parents=True)
+
+        dstf = self.isnippets_path.joinpath(name)
+        try:
+            with open(dstf, 'wt') as f:
+                f.write(content)
+        except Exception:
+            return False
+
+        return True
 
     @Slot(str, result=str)
     def mimeTypeGuess(self, filename: str):

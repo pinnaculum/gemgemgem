@@ -82,7 +82,7 @@ Flickable {
           pageLayout: page,
           sendUrl: urlString,
           promptText: resp.prompt,
-          width: flickable.width
+          width: flickable.width - vsbar.width
         })
         item.sendRequest.connect(geminiSendInput)
         item.focusInput()

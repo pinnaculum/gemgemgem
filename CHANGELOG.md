@@ -6,6 +6,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.9] - 2023-08-31
+
+### Added
+
+- Add support for "input snippets"
+
 ## [0.3.8] - 2023-08-27
 
 ### Added
