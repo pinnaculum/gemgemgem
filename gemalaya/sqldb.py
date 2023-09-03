@@ -11,7 +11,7 @@ QML_IMPORT_NAME = "Gemalaya"
 QML_IMPORT_MAJOR_VERSION = 1
 
 
-def add_bookmark(url: str, title: str):
+def add_bookmark(url: str, title: str) -> bool:
     query = QSqlQuery()
     query.exec("""
         INSERT INTO bookmarks(
@@ -23,7 +23,7 @@ def add_bookmark(url: str, title: str):
 
     query.addBindValue(url)
     query.addBindValue(title)
-    query.exec()
+    return query.exec()
 
 
 def create_db(path: str):
@@ -34,8 +34,8 @@ def create_db(path: str):
     createTableQuery = QSqlQuery()
     createTableQuery.exec("""
         CREATE TABLE bookmarks (
-            url VARCHAR(256) PRIMARY KEY NOT NULL,
-            title VARCHAR(256),
+            url VARCHAR(512) PRIMARY KEY NOT NULL,
+            title VARCHAR(512),
             shortcut VARCHAR(32),
             enabled BOOLEAN
         )
@@ -53,10 +53,14 @@ class BookmarksTableModel(QSqlTableModel):
         self.setFilter(f'title LIKE "%{query}%"')
         self.select()
 
-    @Slot(str, str)
+    @Slot(str, str, result=bool)
     def addBookmark(self, url: str, title: str):
-        add_bookmark(url, title)
-        self.select()
+        result = add_bookmark(url, title)
+
+        if result is True:
+            self.select()
+
+        return result
 
     @Slot(int, result=list)
     def getFromRow(self, row: int):

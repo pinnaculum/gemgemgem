@@ -82,6 +82,7 @@ ui:
     linkOpenTargetSwitch: 'Ctrl+o'
 
     pageReload: 'Ctrl+r'
+    pageTextSearch: 'Ctrl+f'
 
     # Font size
     fontSizeIncrease: 'Ctrl++'

@@ -10,7 +10,8 @@ and this project adheres to
 
 ### Added
 
-- Add support for "input snippets"
+- Add support for snippets (for input responses)
+- Text search mode
 
 ## [0.3.8] - 2023-08-27
 

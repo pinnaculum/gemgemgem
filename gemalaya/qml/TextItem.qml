@@ -46,6 +46,10 @@ Label {
       return Text.Normal
   }
 
+  function searchText(stext) {
+    return content.search(stext) != -1
+  }
+
   TextMetrics {
     id: textmn
     font.family: textType == "preformatted" ? "Courier" : Conf.text.fontFamily

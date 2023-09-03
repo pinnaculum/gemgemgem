@@ -89,9 +89,12 @@ Rectangle {
     enabled: gemspace.visible
     onTriggered: {
       if (addrc.url) {
-        // todo: set title
-        bookmarksModel.addBookmark(addrc.url, sview.pageTitle)
-        addrc.animate()
+        if (bookmarksModel.addBookmark(
+          addrc.url,
+          sview.pageTitle.length > 0 ? sview.pageTitle : "No title"
+        ) == true) {
+          addrc.animate()
+        }
       }
     }
   }
@@ -102,6 +105,19 @@ Rectangle {
     onTriggered: {
       if (addrc.url) {
         sview.browse(addrc.url, null)
+      }
+    }
+  }
+
+  Action {
+    shortcut: Conf.shortcuts.pageTextSearch
+    enabled: gemspace.visible
+    onTriggered: {
+      if (sview.actionMode == sview.modes.SEARCH) {
+        sview.page.searchText(sview.searchTextInput)
+      } else {
+        sview.actionMode = sview.modes.SEARCH
+        sview.searchTextInput = ""
       }
     }
   }
@@ -239,6 +255,8 @@ Rectangle {
 
       onKeybSequenceMatch: kSeqAnim.running = true
 
+      onTextFound: textFoundAnim.running = true
+
       onLinkActivated: {
         if (openIn === 0) {
           /* Open in this gemspace */
@@ -293,6 +311,61 @@ Rectangle {
         font.family: 'Courier'
         font.bold: true
         text: kSeqAnim.running ? 'Gemalaya!' : sview.linkSeqInput
+      }
+    }
+
+    Rectangle {
+      id: searchTextRect
+      anchors.margins: 8
+      Layout.alignment: Qt.AlignLeft
+      color: 'cornsilk'
+      width: sview.width * 0.3
+      height: 32
+      visible: sview.actionMode == sview.modes.SEARCH ||
+               sview.searchTextInput.length > 0
+      border.width: 1
+      border.color: 'lightgray'
+      radius: 2
+
+      SequentialAnimation {
+        id: textFoundAnim
+
+        PropertyAnimation {
+          target: searchTextRect
+          property: "color"
+          from: searchTextRect.color
+          to: "#20B2AA"
+          duration: 500
+        }
+        PropertyAnimation {
+          target: searchTextRect
+          property: "color"
+          from: searchTextRect.color
+          to: "cornsilk"
+          duration: 200
+        }
+        PropertyAnimation {
+          target: searchedText
+          property: "color"
+          to: "red"
+          duration: 200
+        }
+        PropertyAnimation {
+          target: searchedText
+          property: "color"
+          to: "blue"
+          duration: 50
+        }
+      }
+
+      Text {
+        id: searchedText
+        anchors.centerIn: parent
+        color: 'blue'
+        font.pointSize: 16
+        font.family: 'Courier'
+        font.bold: true
+        text: sview.searchTextInput
       }
     }
   }

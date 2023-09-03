@@ -18,6 +18,18 @@ Flickable {
   property string pageTitle
   property string linkSeqInput
 
+  /* String containing the text we want to search in the page */
+  property string searchTextInput
+  property int searchTextItemIdx: 0
+
+  /* Mode */
+  property int actionMode: 0
+
+  property var modes: Object.freeze({
+    DEFAULT: 0,
+    SEARCH: 1
+  })
+
   property var currentResponse
   property int lastLinkNum: 0
   property int lastProcItemIdx: 0
@@ -40,6 +52,7 @@ Flickable {
   signal linkActivated(url linkUrl, url baseUrl)
   signal fileDownloaded(url fileUrl, string filePath)
   signal keybSequenceMatch()
+  signal textFound()
 
   Scheduler {
     /* main scheduler */
@@ -372,6 +385,7 @@ Flickable {
     var urlObject
 
     /* Reset */
+    pageTitle = ""
     lastLinkNum = 0
     lastProcItemIdx = 0
 
@@ -447,6 +461,29 @@ Flickable {
       }
     }
 
+    /* Text search mode */
+    if (actionMode == modes.SEARCH) {
+      if (event.key === Qt.Key_Escape) {
+        /* Escape pressed: go back to the default mode */
+        actionMode = modes.DEFAULT
+        searchTextInput = ""
+      } else if (event.key == Qt.Key_Backspace) {
+        if (searchTextInput.length > 0)
+          searchTextInput = searchTextInput.slice(0, -1)
+      } else if (event.text.match(/[\w\s_\.]/)) {
+        /* Allowed search character: append and schedule a search */
+        sched.cancel()
+        searchTextInput += event.text
+
+        sched.delay(function() {
+          page.searchText(searchTextInput)
+        }, 700)
+      }
+
+      event.accepted = true
+      return
+    }
+
     /* Should convert those to Actions */
     if (event.key === Qt.Key_Home) {
       /* Go to the top and flick it, this will trigger a rebound */
@@ -516,6 +553,7 @@ Flickable {
       }
 
       page.children = []
+      pageTitle = ""
     }
 
     function delayScrollTo(pos){
@@ -591,6 +629,30 @@ Flickable {
         }
       }
       linkSeqInput = ''
+    }
+
+    function searchText(text) {
+      let start = searchTextItemIdx > 0 ? searchTextItemIdx + 1 : 0
+
+      for (var i=start; i < children.length; i++) {
+        let item = children[i]
+
+        try {
+          if (item.searchText(text)) {
+            item.focus = true
+            flickable.contentY = item.y - (flickable.height / 8)
+            searchTextItemIdx = i
+
+            textFound()
+            return
+          }
+        } catch(e) {
+          continue
+        }
+      }
+
+      /* reset idx */
+      searchTextItemIdx = 0
     }
   }
 }
