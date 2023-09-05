@@ -30,7 +30,6 @@ Please visit [gemalaya's website](https://gemalaya.gitlab.io) for more!
 ### Install
 
 Download the AppImage or install it with:
-b
 
 ```sh
 pip install '.[gemalaya]'

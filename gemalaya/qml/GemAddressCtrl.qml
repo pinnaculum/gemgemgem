@@ -170,6 +170,13 @@ Item {
       focus: true
       clip: true
       model: bookmarksModel
+
+      ScrollBar.vertical: ScrollBar {
+        parent: tableview
+        width: 20
+        policy: ScrollBar.AlwaysOn
+      }
+
       Keys.onReturnPressed: {
         var data = bookmarksModel.getFromRow(tableview.currentRow)
 

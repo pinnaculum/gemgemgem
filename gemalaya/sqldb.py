@@ -50,7 +50,7 @@ def create_db(path: str):
 class BookmarksTableModel(QSqlTableModel):
     @Slot(str)
     def findSome(self, query: str):
-        self.setFilter(f'title LIKE "%{query}%"')
+        self.setFilter(f'(title LIKE "%{query}%") OR (url LIKE "%{query}%")')
         self.select()
 
     @Slot(str, str, result=bool)
