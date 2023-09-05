@@ -33,7 +33,7 @@ spine:
       * "Home": Go to the beginning of the current page
       * "End": Go to the end of the current page
 
-      => https://gitlab.com/galacteek/gemgemgem   Gemgemgem GitLab repository
+      => https://gitlab.com/cipres/gemgemgem   Gemgemgem GitLab repository
 
   - url: 'gemini://shaggypeak.com/library/books/'
     title: 'Gempub Books (shaggypeak)'

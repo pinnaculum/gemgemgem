@@ -6,6 +6,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.4.0] - 2023-09-05
+
+### Added
+
+- gemalaya AppImage: automatic wheel updates
+
 ## [0.3.9] - 2023-08-31
 
 ### Added

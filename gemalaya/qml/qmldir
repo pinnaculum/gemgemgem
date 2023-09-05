@@ -14,6 +14,7 @@ InputItem 1.0 InputItem.qml
 GeminiPageView 1.0 GeminiPageView.qml
 singleton Conf 1.0 Conf.qml
 GemalayaWindow 1.0 GemalayaWindow.qml
+GemalayaUpdatePopup 1.0 GemalayaUpdatePopup.qml
 ImagePreview 1.0 ImagePreview.qml
 TextItem 1.0 TextItem.qml
 NavNextButton 1.0 NavNextButton.qml

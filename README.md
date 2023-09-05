@@ -4,15 +4,15 @@
 *"I love i love i love"* in French) is a collection of Gemini apps and tools
 written in Python. It includes:
 
-- [gemalaya](https://gemalaya.gitlab.io): a keyboard-driven Gemini browser written in QML ([AppImage](https://gitlab.com/galacteek/gemgemgem/-/releases/continuous-master/downloads/Gemalaya-latest-x86_64.AppImage))
+- [gemalaya](https://gemalaya.gitlab.io): a keyboard-driven Gemini browser written in QML ([AppImage](https://gitlab.com/cipres/gemgemgem/-/releases/continuous-master/downloads/Gemalaya-latest-x86_64.AppImage))
 - [gemv](#gemv): a small [Gempub](https://codeberg.org/oppenlab/gempub) viewer
 - gempubify: a command to convert *epub* ebooks to gempub archives
 
 ## Gemalaya
 
-![bbs](https://gitlab.com/galacteek/gemgemgem/-/raw/master/media/screenshots/gemalaya-bbs-vim-small.png))
+![bbs](https://gitlab.com/cipres/gemgemgem/-/raw/master/media/screenshots/gemalaya-bbs-vim-small.png))
 
-[Download Gemalaya's latest AppImage (x86_64)](https://gitlab.com/galacteek/gemgemgem/-/releases/continuous-master/downloads/Gemalaya-latest-x86_64.AppImage) **Be sure to have all the xcb libraries installed before running the AppImage** (run with *QT_DEBUG_PLUGINS=1* if you get an error the xcb plugin failing to
+[Download Gemalaya's latest AppImage (x86_64)](https://gitlab.com/cipres/gemgemgem/-/releases/continuous-master/downloads/Gemalaya-latest-x86_64.AppImage) **Be sure to have all the xcb libraries installed before running the AppImage** (run with *QT_DEBUG_PLUGINS=1* if you get an error the xcb plugin failing to
 load)
 
 *Gemalaya* is a keyboard-driven Gemini browser written in QML (PySide6).
@@ -57,7 +57,7 @@ a project file, formatted in YAML.
 gempubify -o manual.gpub docs/gemv/manual/manual.yaml
 ```
 
-See [the manual's project file](https://gitlab.com/galacteek/gemgemgem/-/blob/master/docs/gemv/manual/manual.yaml) for an example.
+See [the manual's project file](https://gitlab.com/cipres/gemgemgem/-/blob/master/docs/gemv/manual/manual.yaml) for an example.
 
 If you have access to an IPFS (kubo) daemon and want to import the
 gempub file to IPFS, use *--ipfs-import*. The CID of the directory
@@ -69,7 +69,7 @@ gempubify --ipfs-import book.epub
 
 ## Gemv
 
-[Download GemV's latest AppImage (x86_64)](https://gitlab.com/galacteek/gemgemgem/-/releases/continuous-master/downloads/GemV-latest-x86_64.AppImage)
+[Download GemV's latest AppImage (x86_64)](https://gitlab.com/cipres/gemgemgem/-/releases/continuous-master/downloads/GemV-latest-x86_64.AppImage)
 
 *gemv* is a basic gempub viewer written with the Kivy UI library.
 It can also open ebooks in the *epub* format by converting them
@@ -83,4 +83,4 @@ pip install '.[gemv]'
 gemv
 ```
 
-[Download GemV's latest AppImage (x86_64)](https://gitlab.com/galacteek/gemgemgem/-/releases/continuous-master/downloads/GemV-latest-x86_64.AppImage)
+[Download GemV's latest AppImage (x86_64)](https://gitlab.com/cipres/gemgemgem/-/releases/continuous-master/downloads/GemV-latest-x86_64.AppImage)

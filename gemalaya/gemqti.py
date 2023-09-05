@@ -363,6 +363,10 @@ class GeminiInterface(QObject):
 
 
 class GemalayaInterface(QObject):
+    updateAvailable = Signal(str, str, arguments=['version', 'wheelUrl'])
+    updateInstalled = Signal()
+    updateError = Signal(str, arguments=['errmessage'])
+
     def __init__(self,
                  cfg_dir_path: Path,
                  cfg_path: Path,
@@ -379,6 +383,9 @@ class GemalayaInterface(QObject):
         self.isnippets_path = self.cfg_dir_path.joinpath('isnippets')
         self.mimes = self.loadExtraMimes()
 
+        # URL of the remote wheel for updates
+        self.wheelUpdateUrl: URL = None
+
     def loadExtraMimes(self):
         mp = Path(pkg_resources.resource_filename(
             'gemalaya', 'extra_mimes.json')
@@ -394,6 +401,12 @@ class GemalayaInterface(QObject):
 
     def __save_config(self):
         OmegaConf.save(config=self.config, f=str(self.cfg_path))
+
+    @Slot(str, result=bool)
+    def installWheelUpdate(self, wheelUrl: str):
+        self.app.wheelWorker.wheelUrl = wheelUrl
+        self.app.qtp.start(self.app.wheelWorker)
+        return True
 
     @Slot(result=list)
     def inputSnippets(self):

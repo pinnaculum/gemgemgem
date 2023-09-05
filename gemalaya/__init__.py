@@ -1,3 +1,4 @@
+import sys
 import os
 import os.path
 import argparse
@@ -14,10 +15,12 @@ from PySide6.QtQml import qmlRegisterType
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QStandardPaths
 from PySide6.QtCore import Qt
+from PySide6.QtCore import QThreadPool
 from PySide6.QtGui import QFontDatabase
 
 from gemalaya import gemqti
 from gemalaya import sqldb
+from gemalaya import updates
 from gemalaya import rc_gemalaya  # noqa
 from gemalaya.identities import IdentitiesManager
 from gemgemgem.x509 import x509SelfSignedGenerate
@@ -28,6 +31,7 @@ here = Path(os.path.dirname(__file__))
 qmlp = here.joinpath('qml')
 default_cfg_path = here.joinpath('default_config.yaml')
 def_bm_path = here.joinpath('bookmarks.yaml')
+pyv = f'{sys.version_info.major}.{sys.version_info.minor}'
 
 
 def run_levior(cfg_dir_path: Path,
@@ -42,12 +46,17 @@ def run_levior(cfg_dir_path: Path,
 
     if lev_path:
         return subprocess.Popen([
-            'python3.9',
+            f'python{pyv}',
             lev_path,
             '--cache-path',
             str(levior_cache_dir),
             '--cache-enable'
         ])
+
+
+def venvsitepackages(venvp: Path):
+    return str(venvp.joinpath('lib').joinpath(
+        f'python{pyv}').joinpath('site-packages'))
 
 
 def run_gemalaya():
@@ -69,6 +78,12 @@ def run_gemalaya():
         default=False,
         help='Do not run the http-to-gemini proxy service (levior)'
     )
+    parser.add_argument(
+        '--git-branch',
+        dest='git_branch',
+        default='master'
+    )
+
     args = parser.parse_args()
 
     # Config paths
@@ -171,6 +186,14 @@ def run_gemalaya():
 
     app.default_certp = certp
     app.default_keyp = keyp
+    app.qtp = QThreadPool()
+
+    main_iface = gemqti.GemalayaInterface(
+        cfg_dir_path,
+        cfg_path,
+        config, app)
+
+    app.wheelWorker = updates.WheelInstallWorker(main_iface)
 
     # QML engine setup
     ctx = engine.rootContext()
@@ -180,15 +203,17 @@ def run_gemalaya():
     )
     ctx.setContextProperty(
         app_name,
-        gemqti.GemalayaInterface(cfg_dir_path,
-                                 cfg_path,
-                                 config, app)
+        main_iface
     )
 
     ctx.setContextProperty(
         'bookmarksModel',
         bmodel
     )
+
+    # Wheel update worker
+    if os.getenv('APPIMAGE'):
+        app.qtp.start(updates.CheckUpdatesWorker(main_iface, args.git_branch))
 
     # Load main.qml and run the app
     engine.load(str(qmlp.joinpath("main.qml")))

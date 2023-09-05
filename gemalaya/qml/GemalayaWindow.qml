@@ -2,6 +2,7 @@ import QtQuick 2.2
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.4
 import QtQuick.Window 2.2
+import QtQuick.Dialogs
 
 import "."
 
@@ -12,6 +13,36 @@ Window {
   visibility: Window.Maximized
 
   property url initUrl
+
+  MessageDialog {
+    id: updatedMessage
+    text: qsTr("Gemala was updated successfully")
+    informativeText: qsTr("Restart the application to use the latest version")
+    buttons: MessageDialog.Ok
+  }
+
+  Connections {
+    target: gemalaya
+
+    function onUpdateInstalled() {
+      updatedMessage.open()
+    }
+
+    function onUpdateAvailable(version, wheelUrl) {
+      /* There's an update available */
+      console.log('New gemalaya version available: ' + version)
+
+      var component = Qt.createComponent('GemalayaUpdatePopup.qml')
+      var item = component.createObject(window, {
+        version: version,
+        wheelUrl: wheelUrl,
+        width: window.width * 0.7,
+        height: window.width * 0.25,
+      })
+      item.open()
+      item.forceActiveFocus()
+    }
+  }
 
   Component.onCompleted: {
     if (initUrl != '') {
