@@ -176,7 +176,7 @@ ColumnLayout {
 
     background: Rectangle {
       id: buttonBg
-      border.width: parent.hovered ? 2 : 1
+      border.width: parent.hovered ? Conf.links.bg.borderWidthHovered : Conf.links.bg.borderWidth
       border.color: parent.hovered ? Conf.links.bg.borderColorHovered : Conf.links.bg.borderColor
       radius: 4
       color: itemLayout.focus || parent.hovered ? Conf.links.bg.colorActive : "transparent"
@@ -192,7 +192,9 @@ ColumnLayout {
         implicitHeight: keybSeqText.height + 4
         border.width: Conf.links.shortcutButton.borderWidth
         border.color: Conf.links.shortcutButton.borderColor
-        color: Conf.links.shortcutButton.color
+        radius: Conf.links.shortcutButton.radius
+        color: itemLayout.focus ? Conf.links.shortcutButton.colorFocused : Conf.links.shortcutButton.color
+
         Text {
           id: keybSeqText
           text: keybAccessSeq
@@ -213,8 +215,10 @@ ColumnLayout {
         wrapMode: Text.WrapAnywhere
         elide: Text.ElideRight
         maximumLineCount: 2
-        horizontalAlignment: Text.AlignHCenter
+        horizontalAlignment: Text.AlignLeft
         color: itemLayout.focus || button.hovered ? Conf.links.text.colorHovered : Conf.links.text.color
+        Layout.fillWidth: true
+        Layout.leftMargin: 15
       }
 
       AnimatedImage {

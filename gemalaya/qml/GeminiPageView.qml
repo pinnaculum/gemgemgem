@@ -549,7 +549,12 @@ Flickable {
 
     function clear() {
       for(var i = children.length; i > 0 ; i--) {
-        children[i-1].destroy()
+        try {
+          children[i-1].destroy()
+        } catch(error) {
+          console.log('Failed to destroy: ' + children[i-1])
+          continue
+        }
       }
 
       page.children = []

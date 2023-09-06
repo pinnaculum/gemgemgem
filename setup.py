@@ -1,8 +1,16 @@
+import os
 import subprocess
+
 from setuptools import setup
 from setuptools import find_packages
 from setuptools import Command
+
 from distutils.command.build import build
+from distutils.version import StrictVersion
+
+from datetime import date
+
+from _version import __version__
 
 
 def run_rcc(*args):
@@ -10,6 +18,45 @@ def run_rcc(*args):
     stdout, err = p.communicate()
 
     [print(f'RCC => {line}') for line in stdout.decode().split('\n') if line]
+
+
+class vbump(Command):
+    user_options = [
+        ("version=", None, 'Version')
+    ]
+
+    def initialize_options(self):
+        self.version = None
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        today = date.today()
+
+        if not self.version:
+            raise ValueError('No version specified')
+
+        v = StrictVersion(self.version)
+        assert v.version[0] is not None
+        assert v.version[1] is not None
+        assert v.version[2] is not None
+
+        with open('_version.py', 'wt') as f:
+            f.write(f"__version__ = '{self.version}'\n")
+
+        with open('CHANGELOG.md', 'rt') as f:
+            cl = f.read()
+
+        with open('CHANGELOG.md', 'wt') as cf:
+            cf.write(
+                f'## [{self.version}] - {today}\n')
+            cf.write('\n### Added\n')
+            cf.write('\n### Changed\n\n')
+            cf.write(cl)
+
+        os.system('git add _version.py')
+        os.system('git add CHANGELOG.md')
 
 
 class build_gemalaya(Command):
@@ -36,14 +83,15 @@ class _build(build):
 
 setup(
     name='gemgemgem',
-    version='0.4.0',
+    version=__version__,
     description='Collection of Gemini apps and tools',
     url='https://gitlab.com/cipres/gemgemgem',
     author='cipres',
     keywords=['gemini', 'gempub'],
     packages=find_packages(),
     cmdclass={
-        'build_gemalaya': build_gemalaya
+        'build_gemalaya': build_gemalaya,
+        'vbump': vbump
     },
     install_requires=[
         'attrs',

@@ -88,6 +88,14 @@ ColumnLayout {
   }
 
   IntegerCfgSetting {
+    dotPath: 'ui.fonts.links.shortcutFontSize'
+    description: qsTr('Font size for the links shortcut indicators')
+    spin.from: 8
+    spin.to: 42
+    spin.stepSize: 1
+  }
+
+  IntegerCfgSetting {
     dotPath: 'ui.fonts.text.pointSize'
     description: qsTr('Font size for normal text')
     spin.from: 8

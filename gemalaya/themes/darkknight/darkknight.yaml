@@ -23,12 +23,16 @@ gemspace:
 links:
   shortcutButton:
     color: 'transparent'
-    borderColor: 'darkblue'
+    borderColor: '#FFEBCD'
+    colorFocused: '#008B8B'
     textColor: 'yellow'
 
   bg:
     colorActive: '#2F4F4F'
     borderColor: '#F5FFFA'
+
+    borderWidth: 0
+    borderWidthHovered: 1
 
   text:
     color: '#1e90ff'
@@ -43,6 +47,4 @@ text:
   style: 'sunken'
 
   focusZoom:
-    color: 'white'
-    style: 'outline'
-    styleColor: 'darkorange'
+    colorizationColor: '#6495ED'

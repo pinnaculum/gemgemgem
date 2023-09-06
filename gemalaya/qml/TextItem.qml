@@ -1,6 +1,8 @@
 import QtQuick 2.2
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.4
+import Qt5Compat.GraphicalEffects
+import QtQuick.Effects
 
 Label {
   id: control
@@ -48,6 +50,18 @@ Label {
 
   function searchText(stext) {
     return content.search(stext) != -1
+  }
+
+  layer.enabled: activeFocus
+  layer.effect: MultiEffect {
+    id: multiEffect
+    shadowEnabled: false
+    shadowHorizontalOffset: 10
+    shadowVerticalOffset: 10
+    colorizationColor: Conf.text.focusZoom.colorizationColor
+    colorization: Conf.text.focusZoom.colorization
+    brightness: Conf.text.focusZoom.brightness
+    contrast: Conf.text.focusZoom.contrast
   }
 
   TextMetrics {
