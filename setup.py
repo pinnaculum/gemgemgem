@@ -10,7 +10,9 @@ from distutils.version import StrictVersion
 
 from datetime import date
 
-from _version import __version__
+
+with open('VERSION', 'rt') as vf:
+    __version__ = vf.read().split('\n')[0]
 
 
 def run_rcc(*args):
@@ -22,11 +24,13 @@ def run_rcc(*args):
 
 class vbump(Command):
     user_options = [
-        ("version=", None, 'Version')
+        ("version=", None, 'Version'),
+        ("cl=", None, 'Add changelog entry')
     ]
 
     def initialize_options(self):
         self.version = None
+        self.cl = None
 
     def finalize_options(self):
         pass
@@ -42,21 +46,23 @@ class vbump(Command):
         assert v.version[1] is not None
         assert v.version[2] is not None
 
-        with open('_version.py', 'wt') as f:
-            f.write(f"__version__ = '{self.version}'\n")
+        with open('VERSION', 'wt') as f:
+            f.write(f"{self.version}\n")
 
-        with open('CHANGELOG.md', 'rt') as f:
-            cl = f.read()
+        os.system('git add VERSION')
 
-        with open('CHANGELOG.md', 'wt') as cf:
-            cf.write(
-                f'## [{self.version}] - {today}\n')
-            cf.write('\n### Added\n')
-            cf.write('\n### Changed\n\n')
-            cf.write(cl)
+        if self.cl:
+            with open('CHANGELOG.md', 'rt') as f:
+                cl = f.read()
 
-        os.system('git add _version.py')
-        os.system('git add CHANGELOG.md')
+            with open('CHANGELOG.md', 'wt') as cf:
+                cf.write(
+                    f'## [{self.version}] - {today}\n')
+                cf.write('\n### Added\n')
+                cf.write('\n### Changed\n\n')
+                cf.write(cl)
+
+            os.system('git add CHANGELOG.md')
 
 
 class build_gemalaya(Command):

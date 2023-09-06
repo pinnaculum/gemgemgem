@@ -1,24 +1,57 @@
 image: python:3.9
 
 variables:
-  VERSION: $(python -c 'import _version; print(_version.__version__)')
   TAGNAME: "continuous-${CI_COMMIT_BRANCH}"
 
-  WHEEL_FILENAME: "${CI_PROJECT_NAME}-${VERSION}-py3-none-any.whl"
-  WHEEL_LATEST_FILENAME: "${CI_PROJECT_NAME}-latest-py3-none-any.whl"
-  WHEEL_ARTIFACT_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/continuous-${CI_COMMIT_BRANCH}/${CI_PROJECT_NAME}-${VERSION}-py3-none-any.whl"
-
-  GEMV_APPIMAGE_FILENAME: "GemV-${VERSION}-x86_64.AppImage"
-  GEMV_APPIMAGE_LATEST_FILENAME: "GemV-latest-x86_64.AppImage"
-  GEMV_APPIMAGE_ARTIFACT_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/continuous-${CI_COMMIT_BRANCH}/GemV-${VERSION}-x86_64.AppImage"
-
-  GEMALAYA_APPIMAGE_FILENAME: "Gemalaya-${VERSION}-x86_64.AppImage"
-  GEMALAYA_APPIMAGE_LATEST_FILENAME: "Gemalaya-latest-x86_64.AppImage"
-  GEMALAYA_APPIMAGE_ARTIFACT_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/continuous-${CI_COMMIT_BRANCH}/Gemalaya-${VERSION}-x86_64.AppImage"
-
 stages:
+  - vars
   - build
   - release
+
+vars:
+  image: python:3.9
+  stage: vars
+  script:
+    - VERSION=$(cat VERSION)
+
+    - echo "VERSION=$VERSION" > vars.env
+
+    # Wheel
+    - >
+      echo "WHEEL_FILENAME=${CI_PROJECT_NAME}-${VERSION}-py3-none-any.whl"
+      >> vars.env
+    - >
+      echo "WHEEL_LATEST_FILENAME=${CI_PROJECT_NAME}-latest-py3-none-any.whl"
+      >> vars.env
+    - >
+      echo "WHEEL_ARTIFACT_URL=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/continuous-${CI_COMMIT_BRANCH}/${CI_PROJECT_NAME}-${VERSION}-py3-none-any.whl"
+      >> vars.env
+
+    # GemV
+    - >
+      echo "GEMV_APPIMAGE_FILENAME=GemV-${VERSION}-x86_64.AppImage"
+      >> vars.env
+    - >
+      echo "GEMV_APPIMAGE_LATEST_FILENAME=GemV-latest-x86_64.AppImage"
+      >> vars.env
+    - >
+      echo "GEMV_APPIMAGE_ARTIFACT_URL=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/continuous-${CI_COMMIT_BRANCH}/GemV-${VERSION}-x86_64.AppImage"
+      >> vars.env
+
+    # Gemalaya
+    - >
+      echo "GEMALAYA_APPIMAGE_FILENAME=Gemalaya-${VERSION}-x86_64.AppImage"
+      >> vars.env
+    - >
+      echo "GEMALAYA_APPIMAGE_LATEST_FILENAME=Gemalaya-latest-x86_64.AppImage"
+      >> vars.env
+    - >
+      echo "GEMALAYA_APPIMAGE_ARTIFACT_URL=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/continuous-${CI_COMMIT_BRANCH}/Gemalaya-${VERSION}-x86_64.AppImage"
+      >> vars.env
+
+  artifacts:
+    reports:
+      dotenv: vars.env
 
 build:
   stage: build
