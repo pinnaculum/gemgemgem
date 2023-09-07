@@ -94,3 +94,20 @@ ui:
     stackCloseSpace: 'Ctrl+w'
     stackPrevious: 'Ctrl+b'
     stackNext: 'Ctrl+n'
+
+# Rules to expand URLs
+urlCommander:
+  # Run a search on geminispace.info
+  gsInfoSearch0:
+    match: '^gs\s+(.+)\s*$'
+    to: 'gemini://geminispace.info/search?\1'
+
+  # hidden.nexus post
+  hiddenNexusPost0:
+    match: '^hnp\s+(.+)\s*$'
+    to: 'gemini://hidden.nexus/post/write?\1'
+
+  # User Post on BBS
+  bbsUserPost0:
+    match: '^bbsup\s+([\w\s_]+)\s+(.+)$'
+    to: 'gemini://bbs.geminispace.org/u/\1/post?\2'

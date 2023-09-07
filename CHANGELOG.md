@@ -1,3 +1,9 @@
+## [0.4.2] - 2023-09-07
+
+### Added
+
+- URL expansion rules
+
 ## [0.4.1] - 2023-09-06
 
 ### Changed

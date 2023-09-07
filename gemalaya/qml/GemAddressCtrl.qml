@@ -264,12 +264,21 @@ Item {
       }
     }
     onAccepted: {
+      var rw
+
+      sched.cancel()
+
+      rw = gemalaya.urlExpand(text)
+
+      if (rw.length > 0) {
+        return requested(rw)
+      }
+
       if (!text.startsWith('gemini://')) {
         requested('gemini://' + text)
       } else {
         requested(text)
       }
-      sched.cancel()
     }
   }
 }

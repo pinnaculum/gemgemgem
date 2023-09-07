@@ -4,6 +4,7 @@ import os
 import os.path
 import pkg_resources
 import platform
+import re
 import tempfile
 import traceback
 import signal
@@ -584,6 +585,29 @@ class GemalayaInterface(QObject):
         else:
             self.__save_config()
             return True
+
+    @Slot(str, result=str)
+    def urlExpand(self, input: str):
+        for n, rule in self.config.get('urlCommander', {}).items():
+            try:
+                m = rf"{rule.match}"
+                rewrite = rf"{rule.to}"
+
+                if rule.get('enabled') is False or rule.get('obsolete'):
+                    continue
+
+                if not isinstance(m, str) or not isinstance(rewrite, str):
+                    continue
+
+                if re.match(m, input):
+                    result = re.sub(m, rewrite, input)
+                    if result:
+                        return result
+            except Exception:
+                traceback.print_exc()
+                continue
+
+        return ''
 
     @Slot(str)
     def browserOpenUrl(self, urlString: str):
