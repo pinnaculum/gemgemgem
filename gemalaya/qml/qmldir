@@ -25,3 +25,5 @@ MPlayer 1.0 MPlayer.qml
 GemStackLayout 1.0 GemStackLayout.qml
 GemUrlInput 1.0 GemUrlInput.qml
 singleton ElementAnimator 1.0 ElementAnimator.qml
+StackLoadFromCfgAction 1.0 StackLoadFromCfgAction.qml
+StackSaveAction 1.0 StackSaveAction.qml

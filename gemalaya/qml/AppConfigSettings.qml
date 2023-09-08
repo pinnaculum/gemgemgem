@@ -1,7 +1,28 @@
 import QtQuick 2.14
+import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.4
 
 ColumnLayout {
+  RowLayout {
+    Text {
+      text: qsTr('Theme')
+      font.pointSize: 16
+      font.bold: true
+      Layout.fillWidth: true
+    }
+
+    ComboBox {
+      model: Conf.themesNames
+      displayText: Conf.c.ui.theme
+      Layout.minimumWidth: 200
+      Layout.minimumHeight: 64
+      font.pointSize: 14
+      onActivated: {
+        Conf.changeTheme(currentText)
+      }
+    }
+  }
+
   Text {
     text: qsTr('Timers')
     font.bold: true

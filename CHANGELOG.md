@@ -2,7 +2,9 @@
 
 ### Added
 
-- URL expansion rules
+- Keywords to URL expansion rules
+- Actions to save and load the pages in the stack layouts
+- Add a combo box to set the theme in the settings
 
 ## [0.4.1] - 2023-09-06
 

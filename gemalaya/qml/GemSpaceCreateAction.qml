@@ -3,10 +3,10 @@ import QtQuick.Controls 2.14
 
 Action {
   property Item stackLayout
-  shortcut: Conf.shortcuts.stackCreateSpace
+  shortcut: Conf.stackShortcuts.stackCreateSpace
 
   onTriggered: {
-    let obj = stackLayout.spawn(null)
+    let obj = stackLayout.spawn(null, true)
   }
 }
 

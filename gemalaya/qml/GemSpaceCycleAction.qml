@@ -4,7 +4,7 @@ import QtQuick.Controls 2.14
 Action {
   property Item stackLayout
 
-  shortcut: Conf.shortcuts.stackCycle
+  shortcut: Conf.stackShortcuts.stackCycle
 
   onTriggered: {
     if (stackLayout.currentIndex < (stackLayout.count - 1))

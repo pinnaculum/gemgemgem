@@ -29,14 +29,16 @@ StackLayout {
     }
   }
 
-  function spawn(linkUrl) {
+  function spawn(linkUrl, setAsCurrent) {
     let comp = Qt.createComponent('GemSpace.qml')
     let obj = comp.createObject(stackl, {
       stackLayout: stackl,
       startUrl: linkUrl
     })
 
-    currentIndex = count - 1
+    if (setAsCurrent)
+      currentIndex = count - 1
+
     return obj
   }
 

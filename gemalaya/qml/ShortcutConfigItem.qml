@@ -6,6 +6,7 @@ import ".."
 
 RowLayout {
   property string name
+  property string dotName
   property string shortcut
 
   property alias keyseq: keyseq
@@ -24,7 +25,7 @@ RowLayout {
     currentShortcut: shortcut
     focus: true
     onModified: {
-      Conf.set(`ui.shortcuts.${name}`, shortcutText)
+      Conf.set(dotName, shortcutText)
       Conf.update()
     }
   }

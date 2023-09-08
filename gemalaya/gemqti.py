@@ -15,6 +15,7 @@ from collections import deque
 from pathlib import Path
 from yarl import URL
 from omegaconf import OmegaConf
+from omegaconf import errors as omega_errors
 
 import ignition
 
@@ -76,7 +77,7 @@ class GeminiInterface(QObject):
         super().__init__(parent)
 
         self.app = QApplication.instance()
-        self._dcache = TTLCache(16, 60)
+        self._dcache = TTLCache(16, 30)
         self._dlq = deque([])
 
         self.certp = self.app.default_certp
@@ -179,6 +180,9 @@ class GeminiInterface(QObject):
 
         try:
             requ = URL(href)
+
+            if href in self._dcache:
+                return self._dcache[href]
 
             response = ignition.request(
                 str(requ),
@@ -355,6 +359,8 @@ class GeminiInterface(QObject):
                 'model': model,
                 'title': title
             }
+
+            self._dcache[href] = resp
 
             return resp
         except Exception:
@@ -555,13 +561,19 @@ class GemalayaInterface(QObject):
                 cur = cur.get(s)
                 assert cur is not None
 
-            return getattr(cur, sections[-1])
+            val = getattr(cur, sections[-1])
+            if type(val) in [int, float, str]:
+                return val
+            else:
+                return OmegaConf.to_container(val)
+        except omega_errors.ConfigAttributeError:
+            return None
         except AttributeError:
             traceback.print_exc()
-            return False
+            return None
         except Exception:
             traceback.print_exc()
-            return False
+            return None
 
     @Slot(str, QJsonValue, result=bool)
     def set(self, attr: str, value: QJsonValue):

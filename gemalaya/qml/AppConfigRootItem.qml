@@ -58,6 +58,16 @@ ColumnLayout {
             var component = Qt.createComponent('./ShortcutConfigItem.qml')
             var item = component.createObject(slayout, {
               name: sname,
+              dotName: 'ui.shortcuts.' + sname,
+              shortcut: shortcut
+            })
+          }
+
+          for (let [sname, shortcut] of Object.entries(Conf.stackShortcuts)) {
+            var component = Qt.createComponent('./ShortcutConfigItem.qml')
+            var item = component.createObject(slayout, {
+              name: sname,
+              dotName: 'ui.stackShortcuts.' + sname,
               shortcut: shortcut
             })
           }

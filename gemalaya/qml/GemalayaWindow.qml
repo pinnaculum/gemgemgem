@@ -66,6 +66,31 @@ Window {
     stackLayout: stackl
   }
 
+  /* Stack save/load actions (1) */
+  StackSaveAction {
+    stackLayout: stackl
+    shortcut: Conf.stackShortcuts.stackSave1
+    index: 1
+  }
+  StackLoadFromCfgAction {
+    stackLayout: stackl
+    shortcut: Conf.stackShortcuts.stackLoad1
+    index: 1
+  }
+
+  /* Stack save/load actions (2) */
+  StackSaveAction {
+    stackLayout: stackl
+    shortcut: Conf.stackShortcuts.stackSave2
+    index: 2
+  }
+  StackLoadFromCfgAction {
+    stackLayout: stackl
+    shortcut: Conf.stackShortcuts.stackLoad2
+    index: 2
+  }
+
+  /* Action to set where links in this page will be opened */
   Action {
     id: openTargetAction
     shortcut: Conf.shortcuts.linkOpenTargetSwitch
@@ -75,6 +100,7 @@ Window {
     }
   }
 
+  /* Theme change popup */
   Popup {
     id: themeChangedPopup
     x: window.width * 0.25
@@ -102,6 +128,7 @@ Window {
     id: sched
   }
 
+  /* Action to cycle between themes */
   Action {
     id: themesCycleAction
     shortcut: Conf.shortcuts.themesCycle

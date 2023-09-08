@@ -88,12 +88,19 @@ ui:
     fontSizeIncrease: 'Ctrl++'
     fontSizeDecrease: 'Ctrl+-'
 
-    # Stack
+  # Stack Layout Shortcuts
+  stackShortcuts:
     stackCycle: 'Ctrl+Tab'
     stackCreateSpace: 'Ctrl+t'
     stackCloseSpace: 'Ctrl+w'
     stackPrevious: 'Ctrl+b'
     stackNext: 'Ctrl+n'
+
+    stackSave1: 'Shift+F1'
+    stackLoad1: 'Ctrl+F1'
+
+    stackSave2: 'Shift+F2'
+    stackLoad2: 'Ctrl+F2'
 
 # Rules to expand URLs
 urlCommander:
@@ -111,3 +118,5 @@ urlCommander:
   bbsUserPost0:
     match: '^bbsup\s+([\w\s_]+)\s+(.+)$'
     to: 'gemini://bbs.geminispace.org/u/\1/post?\2'
+
+savedStacks: {}

@@ -44,6 +44,10 @@ QtObject {
     return c.ui.shortcuts
   }
 
+  property var stackShortcuts: {
+    return c.ui.stackShortcuts
+  }
+
   property var ui: c.ui
 
   function cfgForMimeType(mtype) {

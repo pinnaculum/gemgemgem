@@ -14,6 +14,7 @@ Rectangle {
   property int openIn: 0
 
   property alias currentUrl: addrc.url
+  property alias addrc: addrc
 
   color: Conf.gemspace.bgColor
 
@@ -263,7 +264,7 @@ Rectangle {
           sview.browse(linkUrl.toString(), baseUrl)
         } else if (openIn === 1) {
           /* Open in new gemspace */
-          let space = stackLayout.spawn(linkUrl)
+          let space = stackLayout.spawn(linkUrl, true)
         } else if (openIn === 2) {
           /* Open in new window */
           var component = Qt.createComponent('GemalayaWindow.qml')
