@@ -33,6 +33,8 @@ from PySide6.QtWidgets import QApplication
 from trimgmi import Document as GmiDocument
 from trimgmi import LineType as GmiLineType
 
+from gemgemgem import feed2gem
+
 from cachetools import TTLCache
 import functools
 import concurrent.futures
@@ -240,7 +242,16 @@ class GeminiInterface(QObject):
                     'model': model,
                 }
 
-            if ctype != 'text/gemini':
+            if ctype in ['application/xml',
+                         'application/x-rss+xml',
+                         'application/rss+xml',
+                         'text/xml',
+                         'application/atom+xml']:
+                # Atom or RSS feed: try to convert to tinylog
+                gemt = feed2gem.feed2tinylog(rspData)
+                if gemt:
+                    rspData = gemt
+            elif ctype != 'text/gemini':
                 dstPath = Path(dlRootPath).joinpath(
                     requ.host).joinpath(requ.path.lstrip('/'))
                 dstPath.parent.mkdir(parents=True, exist_ok=True)
@@ -284,7 +295,9 @@ class GeminiInterface(QObject):
                         url = URL.build(
                             scheme='gemini',
                             host='localhost',
-                            path=f'/{url.host}{upath}'
+                            path=f'/{url.host}{upath}',
+                            query=url.query,
+                            fragment=url.fragment
                         )
                     elif url.scheme in ['ipfs', 'ipns'] and \
                             self.app.levior_proc:
@@ -296,7 +309,9 @@ class GeminiInterface(QObject):
                         url = URL.build(
                             scheme='gemini',
                             host='localhost',
-                            path=f'/{host}/{upath}'
+                            path=f'/{host}/{upath}',
+                            query=url.query,
+                            fragment=url.fragment
                         )
 
                     model.append({

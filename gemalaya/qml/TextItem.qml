@@ -87,7 +87,7 @@ Label {
   lineHeight: textType == "preformatted" ? 1 : Conf.text.lineHeight
   renderType: Text.NativeRendering
   antialiasing: true
-  wrapMode: textType == "preformatted" ? Text.NoWrap : Text.WordWrap
+  wrapMode: textType == "preformatted" ? Text.WrapAnywhere : Text.WordWrap
 
   /*
   Setting style to anything else than Text.Normal randomly crashes

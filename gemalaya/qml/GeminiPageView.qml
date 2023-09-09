@@ -543,6 +543,7 @@ Flickable {
   ColumnLayout {
     id: page
     Layout.maximumWidth: flickable.width
+    width: flickable.width
 
     property alias scrollView: flickable
     property bool empty: children.length == 0

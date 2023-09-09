@@ -104,9 +104,11 @@ setup(
         'cachetools',
         'DoubleLinkedList',
         'ebooklib',
+        'feedparser>=6.0.10',
         'ignition-gemini',
         'ipfshttpclient',
-        'md2gemini @ git+https://github.com/pinnaculum/md2gemini#egg=md2gemini',
+        'md2gemini @ '
+        'git+https://github.com/pinnaculum/md2gemini#egg=md2gemini',
         'markdownify',
         'omegaconf>=2.3.0',
         'python-dateutil',

@@ -1,3 +1,11 @@
+## [0.4.3] - 2023-09-09
+
+### Added
+
+- Transparently render Atom & RSS feeds as gemini tinylogs
+
+### Changed
+
 ## [0.4.2] - 2023-09-07
 
 ### Added
