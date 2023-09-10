@@ -1,4 +1,5 @@
-image: python:3.9
+#image: python:3.9
+image: python:3.9-bullseye
 
 variables:
   TAGNAME: "continuous-${CI_COMMIT_BRANCH}"
@@ -63,6 +64,8 @@ build:
   script:
     - apt-get -y update
     - apt-get install -y zip fuse
+    - apt-get install -y libxcb-xkb1 libxkbcommon-x11-0 libxcb-cursor0
+    - apt-get install -y libxcb-util1 libxcb-image0 libxcb-randr0 libxcb-keysyms1 libxcb-icccm4 libxcb-render0 libxcb-xfixes0 libxcb-keysyms1 libxcb-shape0 libxcb-render-util0 libxcb-image0
 
     - python3 -m pip install --upgrade pip
     - python3 -m venv venv

@@ -60,6 +60,12 @@ popd
 GPLP="$PWD"/squashfs-root/GemPubLibrary
 mkdir -p $GPLP
 
+# xcb libs
+ls -la /usr/lib/x86_64-linux-gnu/libxcb*
+ls -la /usr/lib/x86_64-linux-gnu/libxkb*
+cp -av /usr/lib/x86_64-linux-gnu/libxcb* $APPDIR/usr/lib
+cp -av /usr/lib/x86_64-linux-gnu/libxkbcommon* $APPDIR/usr/lib
+
 rm squashfs-root/usr/share/applications/python3.9.*.desktop
 rm squashfs-root/usr/share/metainfo/*.appdata.xml
 mkdir -p squashfs-root/usr/share/metainfo
