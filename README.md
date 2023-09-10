@@ -1,10 +1,11 @@
 # gemgemgem
 
 *gemgemgem* (can be heard as *"J'aime j'aime j'aime"*, meaning
-*"I love i love i love"* in French) is a collection of Gemini apps and tools
+*"I love i love i love"* in French) is a collection of
+[Gemini](https://geminiprotocol.net) apps and tools
 written in Python. It includes:
 
-- [gemalaya](https://gemalaya.gitlab.io): a keyboard-driven Gemini browser written in QML ([AppImage](https://gitlab.com/cipres/gemgemgem/-/releases/continuous-master/downloads/Gemalaya-latest-x86_64.AppImage))
+- [gemalaya](https://gemalaya.gitlab.io): a keyboard-driven Gemini browser written in QML ([Download AppImage](https://gitlab.com/cipres/gemgemgem/-/releases/continuous-master/downloads/Gemalaya-latest-x86_64.AppImage))
 - [gemv](#gemv): a small [Gempub](https://codeberg.org/oppenlab/gempub) viewer
 - gempubify: a command to convert *epub* ebooks to gempub archives
 
@@ -81,5 +82,3 @@ pip install '.[gemv]'
 
 gemv
 ```
-
-[Download GemV's latest AppImage (x86_64)](https://gitlab.com/cipres/gemgemgem/-/releases/continuous-master/downloads/GemV-latest-x86_64.AppImage)
