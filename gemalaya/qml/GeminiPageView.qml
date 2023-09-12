@@ -25,6 +25,9 @@ Flickable {
   /* Mode */
   property int actionMode: 0
 
+  /* Page's alphanumerical link words */
+  property var alphaLinksWords: []
+
   property var modes: Object.freeze({
     DEFAULT: 0,
     SEARCH: 1
@@ -72,7 +75,10 @@ Flickable {
   GeminiAgent {
     id: agent
 
-    onSrvError: pageError(message)
+    onSrvError: {
+      addrController.loading = false
+      pageError(message)
+    }
 
     onSrvResponse: {
       var urlString = resp.url
@@ -85,6 +91,7 @@ Flickable {
 
       /* Clear the page */
       page.clear()
+      addrController.loading = false
 
       urlChanged(urlObject)
       flickable.forceActiveFocus()
@@ -95,6 +102,7 @@ Flickable {
           pageLayout: page,
           sendUrl: urlString,
           promptText: resp.prompt,
+          words: alphaLinksWords,
           width: flickable.width - vsbar.width
         })
         item.sendRequest.connect(geminiSendInput)
@@ -102,6 +110,7 @@ Flickable {
 
         pageOaRestore.running = true
         addrController.histAdd(urlString)
+        alphaLinksWords = []
         return
       } else if (resp.rsptype === 'redirect') {
         let rurl = new URL(resp.redirectUrl)
@@ -234,11 +243,11 @@ Flickable {
         )
         break
 
-      case /^video\/.*/i.test(resp.contentType):
+      case /^(video|audio)\/.*/i.test(resp.contentType):
         Qt.createComponent('MPlayer.qml').createObject(
           flickable.page, {
             source: resp.downloadPath,
-            height: flickable.height,
+            desiredVideoHeight: flickable.height,
             width: flickable.width
           }
         )
@@ -295,6 +304,10 @@ Flickable {
 
           component = Qt.createComponent('LinkItem.qml')
 
+          /* Store words from links to be reused in input responses */
+          if (gemItem.alphan != null && !alphaLinksWords.includes(gemItem.alphan))
+            alphaLinksWords.push(gemItem.alphan)
+
           props = {
             pageLayout: page,
             title: gemItem.title,
@@ -302,6 +315,7 @@ Flickable {
             baseUrl: urlString,
             href: gemItem.href,
             width: flickable.width,
+            flickable: flickable,
             keybAccessSeq: linkNum,
             nextLinkItem: prevLink ? prevLink : null
           }
@@ -389,6 +403,7 @@ Flickable {
     lastLinkNum = 0
     lastProcItemIdx = 0
 
+
     try {
       urlObject = new URL(href)
     } catch(err) {
@@ -399,6 +414,8 @@ Flickable {
     agent.geminiModelize(urlObject.toString(), null, {
       downloadsPath: Conf.c.downloadsPath
     })
+
+    addrController.loading = true
   }
 
   function pageError(err) {
@@ -543,7 +560,7 @@ Flickable {
   ColumnLayout {
     id: page
     Layout.maximumWidth: flickable.width
-    width: flickable.width
+    width: flickable.width - (vsbar.width * 2)
 
     property alias scrollView: flickable
     property bool empty: children.length == 0
@@ -604,8 +621,25 @@ Flickable {
     }
 
     function itemVisible(item) {
-      return (item.y < (flickable.contentY + flickable.height) ||
+      /* Returns true if this item is in the visible part of the flickable */
+      return (item.y < (flickable.contentY + flickable.height) &&
               item.y > flickable.contentY)
+    }
+
+    function focusFirstVisibleItem() {
+      /* Focus the first visible item in the page. Only focus text or link
+       * items, because these are linked in the "Tab" navigation system */
+
+      for (var i=0; i < children.length; i++) {
+        let item = children[i]
+
+        if (itemVisible(item) &&
+           (item.objectName.startsWith('linkItem') ||
+            item.objectName.startsWith('textItem'))) {
+          item.focus = true
+          break
+        }
+      }
     }
 
     function focusLinkForSequence(seq) {

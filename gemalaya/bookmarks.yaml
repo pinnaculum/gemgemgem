@@ -48,3 +48,9 @@
 
 - url: gemini://geminiprotocol.net
   title: 'Project Gemini'
+
+- url: gemini://auragem.letz.dev
+  title: 'Auragem'
+
+- url: gemini://auragem.letz.dev/search
+  title: 'Auragem search'

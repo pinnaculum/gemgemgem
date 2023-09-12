@@ -7,6 +7,8 @@ import QtQuick.Effects
 Label {
   id: control
 
+  objectName: 'textItem'
+
   property string content
   property string textType: 'regular'
   property bool hovered

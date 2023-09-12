@@ -36,10 +36,12 @@ Rectangle {
 
   function onSpaceChanged(index) {
     if (StackLayout.index == stackLayout.currentIndex) {
-      if (sview.page.empty)
+      if (sview.page.empty) {
         addrc.focusInput()
-      else
-        sview.page.forceActiveFocus()
+      } else {
+        /* Focus the first visible item in the page */
+        sview.page.focusFirstVisibleItem()
+      }
 
       gsIndexAnim.running = true
     }

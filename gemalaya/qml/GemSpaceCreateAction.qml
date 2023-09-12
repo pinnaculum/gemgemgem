@@ -9,4 +9,3 @@ Action {
     let obj = stackLayout.spawn(null, true)
   }
 }
-

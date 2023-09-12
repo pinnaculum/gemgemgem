@@ -48,6 +48,10 @@ QtObject {
     return c.ui.stackShortcuts
   }
 
+  property var linksShortcuts: {
+    return c.ui.linksShortcuts
+  }
+
   property var ui: c.ui
 
   function cfgForMimeType(mtype) {

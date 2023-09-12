@@ -8,6 +8,7 @@ Item {
   id: control
   property int editDelay: Conf.ui.urlCompletionTimeout
   property bool hovered: false
+  property bool loading: false
 
   property alias url: urlField.text
   property alias input: urlField
@@ -280,5 +281,18 @@ Item {
         requested(text)
       }
     }
+  }
+
+  /* Page loading clip */
+  AnimatedImage {
+    anchors.top: urlField.top
+    anchors.left: urlField.right
+    anchors.leftMargin: -48
+    visible: loading
+    playing: loading
+    source: Conf.themeRsc('loading.gif')
+    fillMode: Image.PreserveAspectFit
+    width: 32
+    height: 32
   }
 }

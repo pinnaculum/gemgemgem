@@ -81,9 +81,18 @@ class GeminiInterface(QObject):
         self.app = QApplication.instance()
         self._dcache = TTLCache(16, 30)
         self._dlq = deque([])
+        self._temp_files = []
 
         self.certp = self.app.default_certp
         self.keyp = self.app.default_keyp
+        self.destroyed.connect(functools.partial(self.onDestroyed))
+
+    def onDestroyed(self):
+        for tmpf in self._temp_files:
+            try:
+                os.unlink(tmpf)
+            except Exception:
+                continue
 
     @Property(int, notify=dlqSizeChanged)
     def dlqsize(self):
@@ -124,10 +133,25 @@ class GeminiInterface(QObject):
         except Exception:
             return False
 
+    def downloadPathForUrl(self, dlRootPath: str, requ: URL) -> Path:
+        """
+        Return the download path for a gemini URL
+        """
+        try:
+            dstPath = Path(dlRootPath).joinpath(
+                requ.host).joinpath(requ.path.lstrip('/'))
+            dstPath.parent.mkdir(parents=True, exist_ok=True)
+            return dstPath
+        except Exception:
+            traceback.print_exc()
+
     @tSlot(str, QJsonValue, sigSuccess="fileDownloaded")
     def downloadToFile(self,
                        href: str,
                        options: QJsonValue):
+        opts = options.toVariant()
+        dlRootPath = opts.get('downloadsPath')
+
         try:
             requ = URL(href)
             assert requ.scheme == 'gemini'
@@ -137,18 +161,27 @@ class GeminiInterface(QObject):
 
             response = ignition.request(
                 str(requ),
-                ca_cert=(self.certp, self.keyp)
+                ca_cert=(self.certp, self.keyp),
+                timeout=opts.get('timeout', 60)
             )
 
             data = response.raw_body
 
-            if response.is_a(ignition.SuccessResponse):
+            if not response.is_a(ignition.SuccessResponse):
+                raise Exception(f'Download error for: {href}')
+
+            if dlRootPath:
+                dstPath = self.downloadPathForUrl(dlRootPath, requ)
+                assert dstPath
+                assert self.writeRspDataToFile(response, dstPath)
+            else:
                 with tempfile.NamedTemporaryFile(mode='wb',
                                                  delete=False) as file:
                     file.write(
                         data if isinstance(data, bytes) else data.encode())
-            else:
-                raise Exception(f'Download error for: {href}')
+
+                self._temp_files.append(file.name)
+                dstPath = Path(file.name)
 
             self._dlq.remove(str(requ))
             self.dlqSizeChanged.emit(len(self._dlq))
@@ -156,7 +189,7 @@ class GeminiInterface(QObject):
             return {
                 'url': href,
                 'meta': response.meta,
-                'path': file.name
+                'path': str(dstPath)
             }
         except Exception:
             traceback.print_exc()
@@ -189,7 +222,7 @@ class GeminiInterface(QObject):
             response = ignition.request(
                 str(requ),
                 ca_cert=(self.certp, self.keyp),
-                timeout=10
+                timeout=opts.get('timeout', 60)
             )
             assert response
 
@@ -252,9 +285,8 @@ class GeminiInterface(QObject):
                 if gemt:
                     rspData = gemt
             elif ctype != 'text/gemini':
-                dstPath = Path(dlRootPath).joinpath(
-                    requ.host).joinpath(requ.path.lstrip('/'))
-                dstPath.parent.mkdir(parents=True, exist_ok=True)
+                dstPath = self.downloadPathForUrl(dlRootPath, requ)
+                assert dstPath
 
                 if self.writeRspDataToFile(response, dstPath):
                     return {
@@ -314,11 +346,14 @@ class GeminiInterface(QObject):
                             fragment=url.fragment
                         )
 
+                    alpham = re.match(r'^.*?([\w0-9]+)', line.text)
+
                     model.append({
                         'type': 'link',
                         'href': str(url),
                         'hrefPrev': hrefPrev,
-                        'title': line.text if line.text else line.extra
+                        'title': line.text if line.text else line.extra,
+                        'alphan': alpham.group(1) if alpham else None
                     })
                     hrefPrev = str(url)
                     linkno += 1
@@ -469,8 +504,9 @@ class GemalayaInterface(QObject):
 
         return True
 
-    @Slot(str, result=str)
-    def mimeTypeGuess(self, filename: str):
+    @Slot(str, str, result=str)
+    def mimeTypeGuess(self, filename: str,
+                      default: str):
         """
         Guess the MIME type of a file from its filename
         """
@@ -483,7 +519,7 @@ class GemalayaInterface(QObject):
             if mtype is None:
                 mtype, _ = mimetypes.guess_type(filename, strict=False)
 
-        return mtype or 'application/octet-stream'
+        return mtype or default
 
     @Slot(result=dict)
     def getConfig(self):

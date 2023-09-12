@@ -1,3 +1,22 @@
+## [0.4.4] - 2023-09-11
+
+### Added
+
+- Add a download object button for certain mime types when a link is focused
+- GeminiAgent: remove temporary files on destruction
+- Page loading animation
+- Media playback control actions for the video player
+
+### Changed
+
+- Set better size boundaries for image preview items
+
+### Fixed
+
+- When we're switching from one gemspace to another, focus the first visible
+  item in the flickable, so that navigating betweens items with "Tab" will work
+  without any user intervention
+
 ## [0.4.3] - 2023-09-09
 
 ### Added

@@ -5,12 +5,21 @@ import QtQuick.Layouts 1.4
 ColumnLayout {
   id: itemLayout
 
+  objectName: 'linkItem'
+
+  property Item flickable
+
   property string title
   property string href
   property string baseUrl
 
   /* full URL */
   property url linkUrl
+
+  /* MIME type discovered for the link */
+  property string mimeType
+  property string mimeCategory
+  property string mimeSubType
 
   property bool autoPreview: false
 
@@ -20,6 +29,8 @@ ColumnLayout {
 
   property Item nextLinkItem
   property Item prevLinkItem
+
+  property Item videoPlayerItem: null
 
   /* The key sequence to access this link */
   property string keybAccessSeq
@@ -46,13 +57,28 @@ ColumnLayout {
 
       pageLayout.delayScrollTo(itemLayout.y)
     }
+
+    /* If there's a video player opened, toggle its visibility based
+     * on the focus */
+    if (videoPlayerItem !== null) {
+      videoPlayerItem.visible = focus
+    }
   }
 
   function setup() {
     var objUrl = new URL(linkUrl)
-    var mtype = gemalaya.mimeTypeGuess(objUrl.pathname)
 
-    var mcfg = Conf.cfgForMimeType(mtype)
+    mimeType = gemalaya.mimeTypeGuess(
+      objUrl.pathname,
+      'text/gemini'
+    )
+
+    var [mcat, mclass] = mimeType.split('/')
+
+    mimeCategory = mcat
+    mimeSubType = mclass
+
+    var mcfg = Conf.cfgForMimeType(mimeType)
 
     if (mcfg != null) {
       /* See if we want to automatically preview this object */
@@ -63,18 +89,29 @@ ColumnLayout {
     }
   }
 
+  function searchText(stext) {
+    return (title.search(stext) != -1 || href.search(stext) != -1)
+  }
+
+  Action {
+    id: openInNewAction
+    shortcut: Conf.linksShortcuts.openInNewSpace
+    enabled: itemLayout.focus
+  }
+
   GeminiAgent {
     id: agent
     onFileDownloaded: {
       console.log(`${resp.url}: meta is ${resp.meta}`)
 
-      if (resp.meta.startsWith('video') || resp.meta.startsWith('audio')) {
+      if ((resp.meta.startsWith('video') || resp.meta.startsWith('audio')) &&
+          videoPlayerItem === null) {
         var component = Qt.createComponent('MPlayer.qml')
 
         if (component.status == Component.Ready) {
-          var item = component.createObject(itemLayout, {
+          videoPlayerItem = component.createObject(itemLayout, {
             width: itemLayout.width,
-            height: 420,
+            desiredVideoHeight: flickable.height * 0.6,
             source: resp.path
           })
         }
@@ -136,14 +173,11 @@ ColumnLayout {
         id: openScript
         script: {
           var urlObject = new URL(linkUrl)
-
-          var mtype = gemalaya.mimeTypeGuess(urlObject.pathname)
-          var [mcat, mclass] = mtype.split('/')
           var mediacats = ['image', 'audio', 'video']
 
           if (urlObject.protocol == 'gemini:' &&
-              (mediacats.includes(mcat) || autoPreview)) {
-            agent.downloadToFile(urlObject.toString(), {})
+              (mediacats.includes(mimeCategory) || autoPreview)) {
+            agent.downloadToFile(urlObject.toString(), {timeout: 300})
           } else {
             linkClicked(urlObject.toString(), baseUrl)
           }
@@ -238,9 +272,36 @@ ColumnLayout {
     }
   }
 
-  ImagePreview {
-    id: imgPreview
-    visible: false
-    Layout.maximumWidth: pageLayout.width * 0.75
+  RowLayout {
+    ImagePreview {
+      id: imgPreview
+      visible: false
+      Layout.maximumWidth: pageLayout.width * 0.65
+      Layout.preferredHeight: flickable.height * 0.4
+    }
+
+    GemToolButton {
+      id: saveImageButton
+      property var downloadMimes: ["application", "font", "image", "audio", "video"]
+      text: qsTr('Download object (' + saveImageAction.shortcut + ')')
+      icon.source: Conf.themeRsc('download.png')
+      display: AbstractButton.TextBesidesIcon
+      visible: (itemLayout.focus || saveImageButton.focus) &&
+                downloadMimes.includes(mimeCategory)
+      Layout.leftMargin: 32
+      action: Action {
+        id: saveImageAction
+        shortcut: Conf.linksShortcuts.downloadObject
+        enabled: saveImageButton.focus || itemLayout.focus
+        onTriggered: {
+          agent.downloadToFile(linkUrl, {
+            downloadsPath: Conf.c.downloadsPath,
+            timeout: 300
+          })
+
+          saveImageButton.anim.running = true
+        }
+      }
+    }
   }
 }

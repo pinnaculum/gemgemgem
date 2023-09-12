@@ -1,5 +1,6 @@
 NavBackButton 1.0 NavBackButton.qml
 SendButton 1.0 SendButton.qml
+GemToolButton 1.0 GemToolButton.qml
 GemSpaceCreateAction 1.0 GemSpaceCreateAction.qml
 GemAddressCtrl 1.0 GemAddressCtrl.qml
 QuitButton 1.0 QuitButton.qml

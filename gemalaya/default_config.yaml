@@ -102,12 +102,26 @@ ui:
     stackSave2: 'Shift+F2'
     stackLoad2: 'Ctrl+F2'
 
+  linksShortcuts:
+    downloadObject: 'Ctrl+s'
+    openInNewSpace: 'n'
+
 # Rules to expand URLs
 urlCommander:
   # Run a search on geminispace.info
   gsInfoSearch0:
     match: '^gs\s+(.+)\s*$'
     to: 'gemini://geminispace.info/search?\1'
+
+  # General search with auragem
+  auraGemSearch0:
+    match: '^a\s+(.+)\s*$'
+    to: 'gemini://auragem.letz.dev/search/s?\1'
+
+  # MIME-type search with auragem
+  auraGemMimeSearch0:
+    match: '^am\s+([\w0-9\/]+)\s*$'
+    to: 'gemini://auragem.letz.dev/search/mimetype?\1'
 
   # hidden.nexus post
   hiddenNexusPost0:

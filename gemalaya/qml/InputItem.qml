@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.4
+import Qt.labs.platform
 
 ColumnLayout {
   id: root
@@ -13,6 +14,9 @@ ColumnLayout {
   property string colorDefault: 'cornsilk'
   property string colorHovered: 'white'
 
+  /* List of words learned from the previous page */
+  property var words: []
+
   signal sendRequest(url sendUrl, string inputValue)
 
   function focusInput() {
@@ -22,6 +26,30 @@ ColumnLayout {
   spacing: 30
   Layout.fillWidth: true
   Layout.preferredWidth: width
+
+  Menu {
+    id: wordsMenu
+    Component.onCompleted: {
+      words.forEach(function(word) {
+        const item = Qt.createQmlObject(`
+          import Qt.labs.platform
+
+          MenuItem {
+            text: "${word}"
+            onTriggered: menu.wordSelected(text)
+          }
+        `, wordsMenu, "wordMenuItem")
+
+        wordsMenu.addItem(item)
+      })
+    }
+
+    signal wordSelected(string word)
+
+    onWordSelected: {
+      input.insert(input.cursorPosition, word)
+    }
+  }
 
   Text {
     text: qsTr('Input request: ') + promptText
@@ -77,12 +105,21 @@ ColumnLayout {
     }
   }
 
+  /* Action to load a snipper in the text area */
   Action {
     id: snippetLoadAction
     shortcut: 'Ctrl+s'
     onTriggered: {
       snippetsCombo.popup.open()
       snippetsCombo.forceActiveFocus()
+    }
+  }
+
+  /* Action to insert a word found in the previous page */
+  Action {
+    shortcut: 'Ctrl+i'
+    onTriggered: {
+      wordsMenu.open(input, null)
     }
   }
 
