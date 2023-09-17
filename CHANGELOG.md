@@ -1,3 +1,13 @@
+## [0.4.5] - 2023-09-17
+
+### Added
+
+- Convert markdown documents to gemtext
+
+### Changed
+
+- Lower default cache TTL
+
 ## [0.4.4] - 2023-09-11
 
 ### Added

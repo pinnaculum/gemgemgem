@@ -16,6 +16,7 @@ from pathlib import Path
 from yarl import URL
 from omegaconf import OmegaConf
 from omegaconf import errors as omega_errors
+from md2gemini import md2gemini
 
 import ignition
 
@@ -79,7 +80,7 @@ class GeminiInterface(QObject):
         super().__init__(parent)
 
         self.app = QApplication.instance()
-        self._dcache = TTLCache(16, 30)
+        self._dcache = TTLCache(16, 20)
         self._dlq = deque([])
         self._temp_files = []
 
@@ -284,6 +285,17 @@ class GeminiInterface(QObject):
                 gemt = feed2gem.feed2tinylog(rspData)
                 if gemt:
                     rspData = gemt
+            elif ctype == 'text/markdown':
+                # Markdown content. Convert to gemtext with md2gemini
+
+                rspData = md2gemini(
+                    rspData,
+                    links='paragraph',
+                    indent="  ",
+                    checklist=False,
+                    strip_html=True,
+                    plain=True
+                )
             elif ctype != 'text/gemini':
                 dstPath = self.downloadPathForUrl(dlRootPath, requ)
                 assert dstPath
