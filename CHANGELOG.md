@@ -1,3 +1,14 @@
+## [0.4.6] - 2023-09-21
+
+### Added
+
+- Convert rst (restructured text) documents to gemtext
+- Add a UI option to show link URLs when links are focused
+
+### Fixed
+
+- Reset the action mode and text search buffer when a page is loaded
+
 ## [0.4.5] - 2023-09-17
 
 ### Added

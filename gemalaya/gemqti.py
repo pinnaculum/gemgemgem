@@ -19,6 +19,7 @@ from omegaconf import errors as omega_errors
 from md2gemini import md2gemini
 
 import ignition
+import rst2gemtext
 
 from PySide6.QtCore import QDir
 from PySide6.QtCore import QFile
@@ -296,6 +297,16 @@ class GeminiInterface(QObject):
                     strip_html=True,
                     plain=True
                 )
+            elif ctype in ['text/plain',
+                           'text/x-rst'] and \
+                    requ.name.lower().endswith('.rst'):
+                # Proably restructured text, convert it to gemtext
+                try:
+                    gemt = rst2gemtext.convert(rspData)
+                except Exception:
+                    pass
+                else:
+                    rspData = gemt
             elif ctype != 'text/gemini':
                 dstPath = self.downloadPathForUrl(dlRootPath, requ)
                 assert dstPath
@@ -625,7 +636,7 @@ class GemalayaInterface(QObject):
                 assert cur is not None
 
             val = getattr(cur, sections[-1])
-            if type(val) in [int, float, str]:
+            if type(val) in [int, float, str, bool]:
                 return val
             else:
                 return OmegaConf.to_container(val)

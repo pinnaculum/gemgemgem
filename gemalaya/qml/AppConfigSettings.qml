@@ -24,6 +24,20 @@ ColumnLayout {
   }
 
   Text {
+    text: qsTr('Links')
+    font.pointSize: 20
+    font.bold: true
+    Layout.fillWidth: true
+  }
+
+  RowLayout {
+    BooleanCfgSetting {
+      dotPath: 'ui.showLinkUrl'
+      description: qsTr("Show the link's URL (when a link is focused)")
+    }
+  }
+
+  Text {
     text: qsTr('Timers')
     font.bold: true
     font.pointSize: 20

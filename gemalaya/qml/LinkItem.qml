@@ -273,6 +273,18 @@ ColumnLayout {
   }
 
   RowLayout {
+    /* This row appears below the link button and shows
+     * the link's URL when it is focused */
+    visible: itemLayout.focus && Conf.ui.showLinkUrl
+    Text {
+      text: linkUrl
+      font.pointSize: Conf.fontPrefs.links.pointSizeUrl
+      color: Conf.links.text.colorUrl
+      horizontalAlignment: Text.AlignLeft
+    }
+  }
+
+  RowLayout {
     ImagePreview {
       id: imgPreview
       visible: false
@@ -283,7 +295,7 @@ ColumnLayout {
     GemToolButton {
       id: saveImageButton
       property var downloadMimes: ["application", "font", "image", "audio", "video"]
-      text: qsTr('Download object (' + saveImageAction.shortcut + ')')
+      text: qsTr('Download file (' + saveImageAction.shortcut + ')')
       icon.source: Conf.themeRsc('download.png')
       display: AbstractButton.TextBesidesIcon
       visible: (itemLayout.focus || saveImageButton.focus) &&

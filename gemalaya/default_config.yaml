@@ -19,6 +19,9 @@ ui:
   # open web URLs with the webbrowser module
   openUnsupportedUrls: false
 
+  # Show the link's URL when a link is focused
+  showLinkUrl: false
+
   # Settings for the QML flickable item that contains the gemini page
   page:
     # The rate at which a flick will decelerate
@@ -64,6 +67,7 @@ ui:
 
     links:
       pointSize: 14
+      pointSizeUrl: 10
       shortcutFontSize: 16
 
   # Shortcuts

@@ -112,6 +112,7 @@ setup(
         'markdownify',
         'omegaconf>=2.3.0',
         'python-dateutil',
+        'rst2gemtext==0.3.1',
         'trimgmi',
         'yarl'
     ],

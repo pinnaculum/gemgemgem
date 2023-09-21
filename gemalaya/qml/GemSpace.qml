@@ -324,7 +324,7 @@ Rectangle {
       color: 'cornsilk'
       width: sview.width * 0.3
       height: 32
-      visible: sview.actionMode == sview.modes.SEARCH ||
+      visible: sview.actionMode == sview.modes.SEARCH &&
                sview.searchTextInput.length > 0
       border.width: 1
       border.color: 'lightgray'

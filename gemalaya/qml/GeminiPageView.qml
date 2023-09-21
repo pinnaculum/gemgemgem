@@ -400,9 +400,10 @@ Flickable {
 
     /* Reset */
     pageTitle = ""
+    searchTextInput = ""
+    actionMode = modes.DEFAULT
     lastLinkNum = 0
     lastProcItemIdx = 0
-
 
     try {
       urlObject = new URL(href)

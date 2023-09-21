@@ -95,6 +95,7 @@ links:
 
     color: '#1e90ff'
     colorHovered: '#00bfff'
+    colorUrl: '#8FBC8F'
 
   # Animation when the link is activated
   openAnim:
