@@ -216,7 +216,18 @@ class GeminiInterface(QObject):
         dlRootPath = opts.get('downloadsPath')
 
         try:
+            extra = {}
             requ = URL(href)
+
+            if requ.scheme == 'titan':
+                filePath = opts.get('titanUploadPath')
+                assert filePath is not None
+
+                fp = Path(filePath)
+                assert fp.is_file()
+
+                extra['titan_data'] = fp
+                extra['titan_token'] = opts.get('titanToken', fp.name)
 
             if href in self._dcache:
                 return self._dcache[href]
@@ -224,7 +235,8 @@ class GeminiInterface(QObject):
             response = ignition.request(
                 str(requ),
                 ca_cert=(self.certp, self.keyp),
-                timeout=opts.get('timeout', 60)
+                timeout=opts.get('timeout', 60),
+                **extra
             )
             assert response
 
@@ -308,6 +320,9 @@ class GeminiInterface(QObject):
                 else:
                     rspData = gemt
             elif ctype != 'text/gemini':
+                if not dlRootPath:
+                    dlRootPath = tempfile.mkdtemp()
+
                 dstPath = self.downloadPathForUrl(dlRootPath, requ)
                 assert dstPath
 

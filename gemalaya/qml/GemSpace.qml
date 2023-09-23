@@ -261,6 +261,20 @@ Rectangle {
       onTextFound: textFoundAnim.running = true
 
       onLinkActivated: {
+        if (linkUrl.protocol === 'titan:') {
+          /* Titan URL. Open a dialog to choose a file */
+
+          var component = Qt.createComponent('TitanUploadDialog.qml')
+          var win = component.createObject(gemspace, {titanUrl: linkUrl})
+
+          win.selected.connect(function(fpath) {
+            sview.titanUpload(linkUrl, fpath)
+          })
+
+          win.show()
+          return
+        }
+
         if (openIn === 0) {
           /* Open in this gemspace */
           sview.browse(linkUrl.toString(), baseUrl)

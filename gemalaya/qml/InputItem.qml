@@ -58,6 +58,7 @@ ColumnLayout {
     font.bold: true
     Layout.fillWidth: true
     horizontalAlignment: Text.AlignHCenter
+    wrapMode: TextEdit.WordWrap
   }
 
   RowLayout {

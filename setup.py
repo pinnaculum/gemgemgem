@@ -105,7 +105,9 @@ setup(
         'DoubleLinkedList',
         'ebooklib',
         'feedparser>=6.0.10',
-        'ignition-gemini',
+        'ignition-gemini @ '
+        'git+https://gitlab.com/cipres/ignition#'
+        '1b01b54031d8dcb1bfd46bdab13f52c7cf3d5ef6',
         'ipfshttpclient',
         'md2gemini @ '
         'git+https://github.com/pinnaculum/md2gemini#egg=md2gemini',

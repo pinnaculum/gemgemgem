@@ -1,3 +1,9 @@
+## [0.4.7] - 2023-09-23
+
+### Added
+
+- Support file uploads with the titan protocol
+
 ## [0.4.6] - 2023-09-21
 
 ### Added

@@ -395,15 +395,29 @@ Flickable {
     }
   }
 
-  function browse(href, baseUrlUnused) {
-    var urlObject
-
+  function reset() {
     /* Reset */
     pageTitle = ""
     searchTextInput = ""
     actionMode = modes.DEFAULT
     lastLinkNum = 0
     lastProcItemIdx = 0
+  }
+
+  function titanUpload(titanUrl, filePath) {
+    /* Upload a file with the titan protocol */
+
+    reset()
+
+    addrController.loading = true
+
+    var result = agent.geminiModelize(titanUrl.toString(), null, {
+      titanUploadPath: filePath
+    })
+  }
+
+  function browse(href, baseUrlUnused) {
+    var urlObject
 
     try {
       urlObject = new URL(href)
@@ -411,6 +425,8 @@ Flickable {
       pageError('Invalid URL')
       return
     }
+
+    reset()
 
     agent.geminiModelize(urlObject.toString(), null, {
       downloadsPath: Conf.c.downloadsPath
