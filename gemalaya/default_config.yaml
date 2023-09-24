@@ -55,6 +55,12 @@ ui:
     image/(jpg|jpeg|pcx|png|tiff|webp|svg):
       autoPreview: false
 
+  # Text-to-speech configuration
+  tts:
+    enabled: true
+    readSlowly: false
+    autoPlay: true
+
   # Font sizes
   fonts:
     defaultPointSize: 12

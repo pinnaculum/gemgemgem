@@ -7,7 +7,7 @@ ToolButton {
   icon.height: 32
   font.pointSize: 16
   Keys.onReturnPressed: clicked()
-  display: AbstractButton.TextBesidesIcon
+  display: AbstractButton.TextBesideIcon
   property alias anim: anim
 
   SequentialAnimation {

@@ -1,3 +1,14 @@
+## [0.4.8] - 2023-09-24
+
+This release adds support for text-to-speech in gemalaya
+
+### Added
+
+- Support for text-to-speech (TTS) on text items, using gtts
+- TTS audio player with keyboard shortcuts to seek and play/pause the audio
+- Basic config settings for TTS: autoplay and "slow reading"
+- API for text language detection
+
 ## [0.4.7] - 2023-09-23
 
 ### Added

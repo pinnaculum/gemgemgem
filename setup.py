@@ -103,19 +103,19 @@ setup(
         'attrs',
         'cachetools',
         'DoubleLinkedList',
-        'ebooklib',
-        'feedparser>=6.0.10',
+        'ebooklib==0.18',
+        'feedparser==6.0.10',
         'ignition-gemini @ '
         'git+https://gitlab.com/cipres/ignition#'
         '1b01b54031d8dcb1bfd46bdab13f52c7cf3d5ef6',
-        'ipfshttpclient',
+        'ipfshttpclient==0.7.0',
         'md2gemini @ '
         'git+https://github.com/pinnaculum/md2gemini#egg=md2gemini',
-        'markdownify',
-        'omegaconf>=2.3.0',
-        'python-dateutil',
+        'markdownify==0.11.6',
+        'omegaconf==2.3.0',
+        'python-dateutil==2.8.2',
         'rst2gemtext==0.3.1',
-        'trimgmi',
+        'trimgmi==0.3.0',
         'yarl'
     ],
     extras_require={
@@ -126,7 +126,9 @@ setup(
             'kivy'
         ],
         'gemalaya': [
-            'PySide6-essentials>=6.5.2',
+            'gTTS==2.3.2',
+            'langdetect==1.0.9',
+            'PySide6-essentials==6.5.2',
             'cffi',
             'cryptography',
         ],

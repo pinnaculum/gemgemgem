@@ -18,6 +18,11 @@ from omegaconf import OmegaConf
 from omegaconf import errors as omega_errors
 from md2gemini import md2gemini
 
+from gtts import gTTS
+from gtts.tts import gTTSError
+from gtts.tokenizer import pre_processors
+import langdetect
+
 import ignition
 import rst2gemtext
 
@@ -542,6 +547,17 @@ class GemalayaInterface(QObject):
 
         return True
 
+    @Slot(str, result=str)
+    def langDetect(self, text: str):
+        """
+        Detect the language that this text is written in
+        """
+        try:
+            return langdetect.detect(text)
+        except Exception:
+            # Default
+            return 'en'
+
     @Slot(str, str, result=str)
     def mimeTypeGuess(self, filename: str,
                       default: str):
@@ -753,3 +769,66 @@ class GemalayaInterface(QObject):
             self.app.levior_proc.kill()
 
         self.app.quit()
+
+
+class TTSInterface(QObject):
+    converted = Signal(str, arguments=['filepath'])
+    convertError = Signal(str, arguments=['error'])
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self._audio_files = []
+        self.destroyed.connect(functools.partial(self.onDestroyed))
+
+    def onDestroyed(self):
+        for tmpf in self._audio_files:
+            try:
+                os.unlink(tmpf)
+            except Exception:
+                continue
+
+    def _preproc_clean(self, inputText: str):
+        # Remove anything inside square brackets
+        return re.sub(
+            r'\[.*?\]',
+            '',
+            inputText
+        )
+
+    @tSlot(str, dict, sigSuccess="converted", sigError="convertError")
+    def save(self, rtext: str, options: dict):
+        """
+        Convert some text to an audio (mp3) file with gTTS, and
+        return the path of the audio file.
+        """
+
+        preproc = [
+            pre_processors.tone_marks,
+            pre_processors.end_of_line,
+            pre_processors.abbreviations,
+            pre_processors.word_sub,
+            self._preproc_clean
+        ]
+
+        try:
+            language = options.get('lang',
+                                   langdetect.detect(rtext))
+
+            ttso = gTTS(text=rtext,
+                        lang=language,
+                        pre_processor_funcs=preproc,
+                        slow=options.get('slow', False))
+
+            with tempfile.NamedTemporaryFile(mode='wb',
+                                             suffix='.mp3',
+                                             delete=False) as file:
+                ttso.save(file.name)
+
+            self._audio_files.append(file.name)
+            return file.name
+        except gTTSError:
+            raise
+        except Exception:
+            traceback.print_exc()
+            return None

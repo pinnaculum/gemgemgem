@@ -38,6 +38,33 @@ ColumnLayout {
   }
 
   Text {
+    text: qsTr('Text to speech')
+    font.pointSize: 20
+    font.bold: true
+    Layout.fillWidth: true
+  }
+
+  RowLayout {
+    BooleanCfgSetting {
+      dotPath: 'ui.tts.enabled'
+      description: qsTr("Enable text-to-speech (TTS) conversion and audio playing")
+    }
+  }
+  RowLayout {
+    BooleanCfgSetting {
+      dotPath: 'ui.tts.autoPlay'
+      description: qsTr("Automatically play audio after conversion")
+    }
+  }
+
+  RowLayout {
+    BooleanCfgSetting {
+      dotPath: 'ui.tts.readSlowly'
+      description: qsTr("Read the text slowly")
+    }
+  }
+
+  Text {
     text: qsTr('Timers')
     font.bold: true
     font.pointSize: 20

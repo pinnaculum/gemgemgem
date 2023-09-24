@@ -278,6 +278,7 @@ Flickable {
     var itemNum = 0
 
     var firstLink
+    var firstItem
     var prevLink = lastSectionItem ? lastSectionItem : null
     var nextLink
 
@@ -335,6 +336,9 @@ Flickable {
             if (firstLink === undefined)
               firstLink = item
 
+            if (firstItem === undefined)
+              firstItem = item
+
             linkNum += 1
           }
 
@@ -359,6 +363,8 @@ Flickable {
           if (prevLink) {
             prevLink.nextLinkItem = item
           }
+          if (firstItem === undefined)
+            firstItem = item
           prevLink = item
           lastSectionItem = item
           break
@@ -390,8 +396,8 @@ Flickable {
     /* Remember the number/index of the last link */
     lastLinkNum = linkNum
 
-    if (firstLink && startItemIdx == 0) {
-      firstLink.focus = true
+    if (firstItem && startItemIdx == 0) {
+      firstItem.focus = true
     }
   }
 

@@ -180,6 +180,12 @@ def run_gemalaya():
         1, 0,
         'GeminiAgent'
     )
+    qmlRegisterType(
+        gemqti.TTSInterface,
+        'Gemalaya',
+        1, 0,
+        'TextToSpeech'
+    )
 
     engine = QQmlApplicationEngine()
     engine.addImportPath(str(qmlp))

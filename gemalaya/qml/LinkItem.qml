@@ -297,7 +297,6 @@ ColumnLayout {
       property var downloadMimes: ["application", "font", "image", "audio", "video"]
       text: qsTr('Download file (' + saveImageAction.shortcut + ')')
       icon.source: Conf.themeRsc('download.png')
-      display: AbstractButton.TextBesidesIcon
       visible: (itemLayout.focus || saveImageButton.focus) &&
                 downloadMimes.includes(mimeCategory)
       Layout.leftMargin: 32

@@ -134,6 +134,11 @@ text:
     brightness: 0.8
     contrast: 0.7
     colorizationColor: 'lightsteelblue'
+
+    colColorSpeechConverting: 'lightblue'
+    colColorSpeechReady: 'lightgreen'
+    colColorSpeechPlaying: 'yellow'
+
     colorization: 0.7
 
     # Unused
