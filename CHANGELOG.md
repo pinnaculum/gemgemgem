@@ -1,3 +1,20 @@
+## [0.4.9] - 2023-09-25
+
+### Added
+
+- gtts caching system: generated mp3 TTS files are cached for a certain time
+- Add config settings for the gtts TLD and the lifetime for cached TTS files
+
+### Changed
+
+- When going out of focus, pause the TTS audio instead of stopping it
+
+### Fixed
+
+- Make sure to stop and destroy the TTS player when a TextItem is destroyed
+
+### Changed
+
 ## [0.4.8] - 2023-09-24
 
 This release adds support for text-to-speech in gemalaya

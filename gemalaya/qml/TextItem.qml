@@ -87,6 +87,32 @@ ColumnLayout {
       }
     }
   }
+  Action {
+    enabled: itemLayout.focus && speechPlayer !== undefined
+    shortcut: Conf.ui.ttsPlayerShortcuts.playbackRateIncrease
+    onTriggered: {
+      if (speechPlayer.playing) {
+        speechPlayer.playbackRate += 0.1
+      }
+    }
+  }
+  Action {
+    enabled: itemLayout.focus && speechPlayer !== undefined
+    shortcut: Conf.ui.ttsPlayerShortcuts.playbackRateDecrease
+    onTriggered: {
+      if (speechPlayer.playbackRate > 0.2) {
+        speechPlayer.playbackRate -= 0.1
+      }
+    }
+  }
+
+  Component.onDestruction: {
+    /* Make sure we stop the TTS player and destroy it */
+    if (speechPlayer !== undefined) {
+      speechPlayer.stop()
+      speechPlayer.destroy()
+    }
+  }
 
   onFocusChanged: {
     /* Text-to-speech for regular text */
@@ -111,7 +137,8 @@ ColumnLayout {
         if (speechPlayer === undefined) {
           speechPlayer = Qt.createComponent('AudioFilePlayer.qml').createObject(
             this, {
-              audioFile: speechAudioFp
+              audioFile: speechAudioFp,
+              playbackRate: Conf.ui.tts.playbackRate
             })
           }
 
@@ -131,7 +158,7 @@ ColumnLayout {
     if (speechPlayer !== undefined) {
       if (!focus) {
         /* Unfocused now, stop the TTS */
-        speechPlayer.stop()
+        speechPlayer.pause()
       } else if (focus && !speechPlayer.playing) {
         speechPlayer.play()
       }

@@ -57,9 +57,19 @@ ui:
 
   # Text-to-speech configuration
   tts:
-    enabled: true
+    enabled: false
     readSlowly: false
     autoPlay: true
+
+    # Default gtts TLD
+    # https://gtts.readthedocs.io/en/latest/module.html#localized-accents
+    defaultTld: 'com'
+
+    # Default audio playback rate
+    playbackRate: 1.0
+
+    # Lifetime (in days) for cached TTS files
+    mp3CacheForDays: 5
 
   # Font sizes
   fonts:
@@ -115,6 +125,10 @@ ui:
   linksShortcuts:
     downloadObject: 'Ctrl+s'
     openInNewSpace: 'n'
+
+  ttsPlayerShortcuts:
+    playbackRateIncrease: 'x'
+    playbackRateDecrease: 'z'
 
 # Rules to expand URLs
 urlCommander:

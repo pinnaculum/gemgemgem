@@ -1,3 +1,4 @@
+import hashlib
 import json
 import mimetypes
 import os
@@ -11,6 +12,7 @@ import signal
 import subprocess
 import webbrowser
 
+from datetime import datetime
 from collections import deque
 from pathlib import Path
 from yarl import URL
@@ -21,6 +23,7 @@ from md2gemini import md2gemini
 from gtts import gTTS
 from gtts.tts import gTTSError
 from gtts.tokenizer import pre_processors
+from gtts.lang import tts_langs
 import langdetect
 
 import ignition
@@ -558,6 +561,10 @@ class GemalayaInterface(QObject):
             # Default
             return 'en'
 
+    @Slot(result=list)
+    def gttsLangsList(self):
+        return list(tts_langs().keys())
+
     @Slot(str, str, result=str)
     def mimeTypeGuess(self, filename: str,
                       default: str):
@@ -768,6 +775,20 @@ class GemalayaInterface(QObject):
             self.app.levior_proc.send_signal(signal.SIGTERM)
             self.app.levior_proc.kill()
 
+        # Cleanup old files in the gtts cache
+        now = datetime.now()
+        maxDays = self.config.ui.tts.get('mp3CacheForDays', 1)
+
+        for file in self.app.gtts_cache_path.glob('*.mp3'):
+            try:
+                diff = now - datetime.fromtimestamp(file.stat().st_ctime)
+
+                if diff.days > maxDays:
+                    file.unlink()
+            except Exception:
+                traceback.print_exc()
+                continue
+
         self.app.quit()
 
 
@@ -778,11 +799,12 @@ class TTSInterface(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._audio_files = []
+        self.app = QApplication.instance()
+        self._tmp_audio_files = []
         self.destroyed.connect(functools.partial(self.onDestroyed))
 
     def onDestroyed(self):
-        for tmpf in self._audio_files:
+        for tmpf in self._tmp_audio_files:
             try:
                 os.unlink(tmpf)
             except Exception:
@@ -812,22 +834,34 @@ class TTSInterface(QObject):
         ]
 
         try:
-            language = options.get('lang',
-                                   langdetect.detect(rtext))
+            hexdigest = hashlib.sha256(rtext.encode()).hexdigest()
+            langtag = options.get('lang',
+                                  langdetect.detect(rtext))
+            tld = options.get('tld', 'com')
+
+            if not langtag:
+                raise ValueError('No language tag!')
+
+            dstp = self.app.gtts_cache_path.joinpath(
+                f'{hexdigest}_{langtag}.mp3'
+            )
+
+            if dstp.is_file():
+                # We already did a TTS for this text
+                # TODO: do a real check on the validity of the mp3 file
+                return str(dstp)
 
             ttso = gTTS(text=rtext,
-                        lang=language,
+                        lang=langtag,
+                        tld=tld,
                         pre_processor_funcs=preproc,
                         slow=options.get('slow', False))
 
-            with tempfile.NamedTemporaryFile(mode='wb',
-                                             suffix='.mp3',
-                                             delete=False) as file:
-                ttso.save(file.name)
+            ttso.save(str(dstp))
+            assert dstp.is_file()
 
-            self._audio_files.append(file.name)
-            return file.name
-        except gTTSError:
+            return str(dstp)
+        except (gTTSError, AssertionError, ValueError):
             raise
         except Exception:
             traceback.print_exc()

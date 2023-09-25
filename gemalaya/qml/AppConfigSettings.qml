@@ -56,12 +56,34 @@ ColumnLayout {
       description: qsTr("Automatically play audio after conversion")
     }
   }
-
   RowLayout {
     BooleanCfgSetting {
       dotPath: 'ui.tts.readSlowly'
       description: qsTr("Read the text slowly")
     }
+  }
+  ChoiceCfgSetting {
+    dotPath: 'ui.tts.defaultTld'
+    description: qsTr("Default gtts TLD domain (localized accent)")
+    choices: [
+      'ca',
+      'com',
+      'co.uk',
+      'ie',
+      'co.za',
+      'com.mx',
+      'es',
+      'com.au',
+      'us',
+      'fr'
+    ]
+  }
+  IntegerCfgSetting {
+    dotPath: 'ui.tts.mp3CacheForDays'
+    description: qsTr('Maximum lifetime (in days) of cached TTS audio files')
+    spin.from: 0
+    spin.to: 365 * 3
+    spin.stepSize: 1
   }
 
   Text {

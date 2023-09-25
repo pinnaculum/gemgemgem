@@ -193,6 +193,8 @@ def run_gemalaya():
     app.default_certp = certp
     app.default_keyp = keyp
     app.qtp = QThreadPool()
+    app.gtts_cache_path = data_path.joinpath('gtts_cache')
+    app.gtts_cache_path.mkdir(parents=True, exist_ok=True)
 
     main_iface = gemqti.GemalayaInterface(
         cfg_dir_path,

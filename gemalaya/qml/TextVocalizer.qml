@@ -8,7 +8,8 @@ TextToSpeech {
   function get() {
     save(text, {
       lang: language,
-      slow: Conf.ui.tts.readSlowly
+      slow: Conf.ui.tts.readSlowly,
+      tld: Conf.ui.tts.defaultTld
     })
   }
 }
