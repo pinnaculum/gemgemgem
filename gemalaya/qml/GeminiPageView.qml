@@ -298,7 +298,8 @@ Flickable {
           var linkUrl
 
           if (gemItem.href.startsWith('http://') ||
-              gemItem.href.startsWith('https://'))
+              gemItem.href.startsWith('https://') ||
+              gemItem.href.startsWith('misfin://'))
             linkUrl = new URL(gemItem.href)
           else
             linkUrl = new URL(gem.buildUrl(gemItem.href, urlString))

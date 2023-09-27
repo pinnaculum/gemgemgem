@@ -150,6 +150,12 @@ def run_gemalaya():
     app.levior_proc = None
     app.identities = IdentitiesManager(identities_path)
 
+    app.misfin_identities_path = cfg_dir_path.joinpath('misfin_identities')
+    app.misfin_identities_path.mkdir(parents=True, exist_ok=True)
+    app.default_misfin_identity = app.misfin_identities_path.joinpath(
+        'default.pem'
+    )
+
     # Run levior if requested
     if (config.levior.enable is True or args.levior is True) and \
        args.nolevior is False:
@@ -185,6 +191,13 @@ def run_gemalaya():
         'Gemalaya',
         1, 0,
         'TextToSpeech'
+    )
+
+    qmlRegisterType(
+        gemqti.MisfinInterface,
+        'Gemalaya',
+        1, 0,
+        'Misfin'
     )
 
     engine = QQmlApplicationEngine()

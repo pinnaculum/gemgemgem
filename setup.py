@@ -108,6 +108,9 @@ setup(
         'ignition-gemini @ '
         'git+https://gitlab.com/cipres/ignition#'
         '1b01b54031d8dcb1bfd46bdab13f52c7cf3d5ef6',
+        'misfin @ '
+        'git+https://gitlab.com/cipres/misfin#'
+        'c19fb5d245825ba8d7769cb1189777d4a54193f0',
         'ipfshttpclient==0.7.0',
         'md2gemini @ '
         'git+https://github.com/pinnaculum/md2gemini#egg=md2gemini',

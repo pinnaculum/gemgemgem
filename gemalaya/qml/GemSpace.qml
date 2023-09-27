@@ -141,6 +141,36 @@ Rectangle {
     }
   }
 
+  Action {
+    id: misfinComposeAction
+    shortcut: Conf.shortcuts.misfinCompose
+    enabled: gemspace.visible
+
+    property string recipient
+
+    onTriggered: {
+      if (!misfinc.defaultIdentityExists()) {
+        /* Create the default identity */
+        var component = Qt.createComponent('MisfinIdentityCreator.qml')
+        var win = component.createObject(gemspace, {})
+        win.open()
+      } else {
+        /* Send a message */
+        var component = Qt.createComponent('MisfinMessageSender.qml')
+        var win = component.createObject(gemspace, {
+          recipientAddr: recipient
+        })
+
+        win.open()
+        win.message.forceActiveFocus()
+      }
+    }
+  }
+
+  Misfin {
+    id: misfinc
+  }
+
   ColumnLayout {
     anchors.fill: parent
 
@@ -272,6 +302,18 @@ Rectangle {
           })
 
           win.show()
+          return
+        } else if (linkUrl.protocol === 'misfin:') {
+          /* Look for a misfin mail address */
+          var urlm = linkUrl.toString().match(
+            /misfin:\/\/([\w\_\-]+\@[\w\.]+)/
+          )
+
+          if (urlm !== null) {
+            misfinComposeAction.recipient = urlm[1]
+            misfinComposeAction.trigger()
+          }
+
           return
         }
 

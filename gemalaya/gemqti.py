@@ -6,9 +6,11 @@ import os.path
 import pkg_resources
 import platform
 import re
+import sys
 import tempfile
 import traceback
 import signal
+import shutil
 import subprocess
 import webbrowser
 
@@ -866,3 +868,69 @@ class TTSInterface(QObject):
         except Exception:
             traceback.print_exc()
             return None
+
+
+class MisfinInterface(QObject):
+    sent = Signal(str, arguments=['destination'])
+    sendError = Signal(str, arguments=['errorMessage'])
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.app = QApplication.instance()
+
+    def _misfin_run(self, args):
+        if os.getenv('APPIMAGE'):
+            pyv = f'{sys.version_info.major}.{sys.version_info.minor}'
+            cmd = [f'python{pyv}', shutil.which('misfin')] + args
+        else:
+            cmd = ['misfin'] + args
+
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        p.wait()
+        return p
+
+    @Slot(result=str)
+    def defaultIdentityPath(self):
+        return str(self.app.default_misfin_identity)
+
+    @Slot(result=bool)
+    def defaultIdentityExists(self):
+        return self.app.default_misfin_identity.is_file()
+
+    @Slot(result=list)
+    def identitiesNames(self):
+        return list(self.app.misfin_identities_path.glob('*.pem'))
+
+    @Slot(str, result=str)
+    def identityPath(self, name: str):
+        return str(self.app.misfin_identities_path.joinpath(f'{name}.pem'))
+
+    @Slot(str, str, str, str, result=bool)
+    def makeCert(self,
+                 mailbox: str, blurb: str, hostname: str,
+                 output: str):
+        p = self._misfin_run([
+            'make-cert',
+            mailbox,
+            blurb,
+            hostname,
+            output
+        ])
+        return p.returncode == 0
+
+    @tSlot(str, str, str, sigSuccess="sent", sigError="sendError")
+    def send(self,
+             senderPem: str,
+             destination: str,
+             message: str):
+        p = self._misfin_run([
+            'send-as',
+            senderPem,
+            destination,
+            message
+        ])
+        if p.returncode == 0:
+            return destination
+        else:
+            raise Exception(f'Misfin send error (return code {p.returncode}')

@@ -108,6 +108,9 @@ ui:
     fontSizeIncrease: 'Ctrl++'
     fontSizeDecrease: 'Ctrl+-'
 
+    # Misfin
+    misfinCompose: 'Ctrl+m'
+
   # Stack Layout Shortcuts
   stackShortcuts:
     stackCycle: 'Ctrl+Tab'

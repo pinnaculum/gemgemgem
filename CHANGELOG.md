@@ -1,3 +1,10 @@
+## [0.5.0] - 2023-09-27
+
+### Added
+
+- Support for the misfin protocol
+- Add popup dialogs to create misfin identities and send messages
+
 ## [0.4.9] - 2023-09-25
 
 ### Added
