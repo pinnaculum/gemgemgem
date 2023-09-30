@@ -1,3 +1,9 @@
+## [0.5.1] - 2023-10-01
+
+### Changed
+
+- Make sure TTS actions are disabled when a gemspace is hidden
+
 ## [0.5.0] - 2023-09-27
 
 ### Added

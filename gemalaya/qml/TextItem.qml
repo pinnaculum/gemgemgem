@@ -45,7 +45,7 @@ ColumnLayout {
   }
 
   Action {
-    enabled: itemLayout.focus && speechPlayer !== undefined
+    enabled: (itemLayout.focus && itemLayout.visible) && speechPlayer !== undefined
     shortcut: 'r'
     onTriggered: {
       if (!speechPlayer.playing) {
@@ -57,7 +57,7 @@ ColumnLayout {
     }
   }
   Action {
-    enabled: itemLayout.focus && speechPlayer !== undefined
+    enabled: (itemLayout.focus && itemLayout.visible) && speechPlayer !== undefined
     shortcut: 'Left'
     onTriggered: {
       if (speechPlayer.playing) {
@@ -67,7 +67,7 @@ ColumnLayout {
   }
 
   Action {
-    enabled: itemLayout.focus && speechPlayer !== undefined
+    enabled: (itemLayout.focus && itemLayout.visible) && speechPlayer !== undefined
     shortcut: 'Right'
     onTriggered: {
       if (speechPlayer && speechPlayer.playing) {
@@ -77,7 +77,7 @@ ColumnLayout {
   }
 
   Action {
-    enabled: itemLayout.focus && speechPlayer !== undefined
+    enabled: (itemLayout.focus && itemLayout.visible) && speechPlayer !== undefined
     shortcut: 'Space'
     onTriggered: {
       if (speechPlayer.playing) {
@@ -88,7 +88,7 @@ ColumnLayout {
     }
   }
   Action {
-    enabled: itemLayout.focus && speechPlayer !== undefined
+    enabled: (itemLayout.focus && itemLayout.visible) && speechPlayer !== undefined
     shortcut: Conf.ui.ttsPlayerShortcuts.playbackRateIncrease
     onTriggered: {
       if (speechPlayer.playing) {
@@ -97,7 +97,7 @@ ColumnLayout {
     }
   }
   Action {
-    enabled: itemLayout.focus && speechPlayer !== undefined
+    enabled: (itemLayout.focus && itemLayout.visible) && speechPlayer !== undefined
     shortcut: Conf.ui.ttsPlayerShortcuts.playbackRateDecrease
     onTriggered: {
       if (speechPlayer.playbackRate > 0.2) {
@@ -157,10 +157,8 @@ ColumnLayout {
     /* Is the speech player already loaded ? */
     if (speechPlayer !== undefined) {
       if (!focus) {
-        /* Unfocused now, stop the TTS */
+        /* Unfocused now, pause the TTS */
         speechPlayer.pause()
-      } else if (focus && !speechPlayer.playing) {
-        speechPlayer.play()
       }
     }
 
