@@ -807,6 +807,10 @@ class TTSInterface(QObject):
         self._tmp_audio_files = []
         self.destroyed.connect(functools.partial(self.onDestroyed))
 
+    @property
+    def config(self):
+        return self.app.main_iface.config
+
     def onDestroyed(self):
         for tmpf in self._tmp_audio_files:
             try:
@@ -829,7 +833,7 @@ class TTSInterface(QObject):
         set in the config.
         """
 
-        engine = self.app.main_iface.config.ui.tts.get('engine', 'picotts')
+        engine = self.config.ui.tts.get('engine', 'picotts')
         langtag = options.get('lang',
                               langdetect.detect(rtext))
         hexdigest = hashlib.sha256(rtext.encode()).hexdigest()
@@ -838,8 +842,74 @@ class TTSInterface(QObject):
             return self._save_gtts(rtext, hexdigest, langtag, options)
         elif engine == 'picotts':
             return self._save_picotts(rtext, hexdigest, langtag, options)
+        elif engine == 'nanotts':
+            return self._save_nanotts(rtext, hexdigest, langtag, options)
         else:
             raise ValueError(f'Unsupported TTS engine: {engine}')
+
+    def lang_to_picovoice(self, langtag: str) -> str:
+        # lang tag to pico voice name dictionary mapping
+        voices = {
+            'de': 'de-DE',
+            'en': 'en-GB',
+            'es': 'es-ES',
+            'fr': 'fr-FR',
+            'it': 'it-IT'
+        }
+
+        return voices.get(langtag)
+
+    def _save_nanotts(self,
+                      rtext: str,
+                      digest: str,
+                      langtag: str,
+                      options: dict) -> str:
+        """
+        Convert some text to an audio (WAV) file with NanoTTS and
+        return the path of the audio file.
+        """
+
+        if not shutil.which('nanotts'):
+            raise Exception('nanotts was not found!')
+
+        voice = self.lang_to_picovoice(langtag)
+
+        if not voice:
+            raise ValueError(f'Voice not found for language: {langtag}')
+
+        nano_opts = self.config.ui.tts.nanotts_options
+
+        # LINGWARE_VOICES_PATH is set in the AppRun
+        lw_voices_path = os.environ.get('LINGWARE_VOICES_PATH',
+                                        '/usr/share/pico/lang')
+
+        pitch = nano_opts.get('pitch', 100) / 100
+        speed = nano_opts.get('speed', 100) / 100
+        volume = nano_opts.get('volume', 100) / 100
+
+        dstf = self.app.picotts_cache_path.joinpath(f'{digest}_{voice}.wav')
+
+        if dstf.is_file():
+            return str(dstf)
+
+        proc = subprocess.Popen([
+            'nanotts',
+            '--speed', str(speed),
+            '--pitch', str(pitch),
+            '--volume', str(volume),
+            '-l', lw_voices_path,
+            '-v', voice,
+            '-o', str(dstf),
+            '-i', rtext
+        ], stdout=subprocess.PIPE)
+
+        proc.wait()
+
+        if proc.returncode == 0:
+            return str(dstf)
+        else:
+            raise Exception(
+                f'nanotts exited with retcode {proc.returncode}')
 
     def _save_picotts(self,
                       rtext: str,
@@ -854,16 +924,7 @@ class TTSInterface(QObject):
         if not shutil.which('pico2wave'):
             raise Exception('picotts: pico2wave was not found!')
 
-        # lang tag to pico voice name dictionary mapping
-        voices = {
-            'de': 'de-DE',
-            'en': 'en-GB',
-            'es': 'es-ES',
-            'fr': 'fr-FR',
-            'it': 'it-IT'
-        }
-
-        voice = voices.get(langtag)
+        voice = self.lang_to_picovoice(langtag)
 
         if not voice:
             raise ValueError(f'Pico TTS voice not found for lang: {langtag}')

@@ -72,6 +72,9 @@ cp -av /usr/bin/pico2wave $APPDIR/usr/bin
 mkdir -p $APPDIR/usr/share/pico
 cp -av /usr/share/pico/lang $APPDIR/usr/share/pico
 
+# nanotts
+cp nanotts/nanotts $APPDIR/usr/bin
+
 rm squashfs-root/usr/share/applications/python3.9.*.desktop
 rm squashfs-root/usr/share/metainfo/*.appdata.xml
 mkdir -p squashfs-root/usr/share/metainfo

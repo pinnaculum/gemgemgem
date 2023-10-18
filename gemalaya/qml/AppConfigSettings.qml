@@ -61,6 +61,7 @@ ColumnLayout {
       description: qsTr("Text-to-speech engine")
       choices: [
         'picotts',
+        'nanotts',
         'gtts'
       ]
 
@@ -94,10 +95,14 @@ ColumnLayout {
   }
 
   ColumnLayout {
-    enabled: tts.checked && ttsEngine.text === 'gtts'
+    /*
+     * gtts settings
+     */
+
+    visible: tts.checked && ttsEngine.text === 'gtts'
+    Layout.leftMargin: 25
 
     Text {
-      Layout.leftMargin: 25
       text: qsTr('gtts options')
       font.pointSize: 18
       font.bold: true
@@ -106,13 +111,11 @@ ColumnLayout {
 
     RowLayout {
       BooleanCfgSetting {
-      Layout.leftMargin: 35
         dotPath: 'ui.tts.readSlowly'
         description: qsTr("Read the text slowly")
       }
     }
     ChoiceCfgSetting {
-      Layout.leftMargin: 35
       dotPath: 'ui.tts.defaultTld'
       description: qsTr("Default TLD domain (localized accent)")
       choices: [
@@ -127,6 +130,44 @@ ColumnLayout {
         'us',
         'fr'
       ]
+    }
+  }
+
+  ColumnLayout {
+    /*
+     * nanotts settings
+     */
+
+    visible: tts.checked && ttsEngine.text === 'nanotts'
+    Layout.leftMargin: 25
+
+    Text {
+      text: qsTr('nanotts options')
+      font.pointSize: 18
+      font.bold: true
+      Layout.fillWidth: true
+    }
+
+    IntegerCfgSetting {
+      dotPath: 'ui.tts.nanotts_options.pitch'
+      description: qsTr('Voice pitch (50-200)')
+      spin.from: 50
+      spin.to: 200
+      spin.stepSize: 5
+    }
+    IntegerCfgSetting {
+      dotPath: 'ui.tts.nanotts_options.speed'
+      description: qsTr('Voice speed (20-500)')
+      spin.from: 20
+      spin.to: 500
+      spin.stepSize: 5
+    }
+    IntegerCfgSetting {
+      dotPath: 'ui.tts.nanotts_options.volume'
+      description: qsTr('Voice volume (20-500)')
+      spin.from: 20
+      spin.to: 500
+      spin.stepSize: 5
     }
   }
 

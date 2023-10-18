@@ -58,7 +58,9 @@ ui:
   # Text-to-speech configuration
   tts:
     enabled: false
-    engine: 'picotts'
+
+    # TTS engine. Supported engines: picotts, nanotts, gtts
+    engine: 'nanotts'
 
     readSlowly: false
     autoPlay: true
@@ -72,6 +74,12 @@ ui:
 
     # Lifetime (in days) for cached TTS files
     mp3CacheForDays: 5
+
+    # Options specific to nanotts
+    nanotts_options:
+      pitch: 100
+      speed: 100
+      volume: 40
 
   # Font sizes
   fonts:

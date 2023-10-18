@@ -13,20 +13,20 @@ ColumnLayout {
     }
 
     TabButton {
-      text: qsTr("Shortcuts")
-      font.pointSize: 18
-      background: Rectangle {
-        color: parent.checked || parent.pressed ? '#87CEFA' : 'cornsilk'
-        border.color: 'black'
-        border.width: 1
-      }
-
-    }
-    TabButton {
       text: qsTr("UI settings")
       font.pointSize: 18
       background: Rectangle {
         color: parent.checked || parent.pressed ? '#FF7F50' : 'cornsilk'
+        border.color: 'black'
+        border.width: 1
+      }
+    }
+
+    TabButton {
+      text: qsTr("Shortcuts")
+      font.pointSize: 18
+      background: Rectangle {
+        color: parent.checked || parent.pressed ? '#87CEFA' : 'cornsilk'
         border.color: 'black'
         border.width: 1
       }
@@ -37,6 +37,15 @@ ColumnLayout {
     currentIndex: bar.currentIndex
     Layout.fillWidth: true
     Layout.fillHeight: true
+
+    ScrollView {
+      Layout.fillWidth: true
+      Layout.fillHeight: true
+
+      AppConfigSettings {
+        anchors.fill: parent
+      }
+    }
 
     ScrollView {
       id: scroll
@@ -72,15 +81,6 @@ ColumnLayout {
             })
           }
         }
-      }
-    }
-
-    ScrollView {
-      Layout.fillWidth: true
-      Layout.fillHeight: true
-
-      AppConfigSettings {
-        anchors.fill: parent
       }
     }
   }

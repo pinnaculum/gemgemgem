@@ -1,3 +1,9 @@
+## [0.5.3] - 2023-10-19
+
+### Added
+
+- Add support for nanotts
+
 ## [0.5.2] - 2023-10-18
 
 ### Added
