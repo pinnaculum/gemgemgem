@@ -126,17 +126,19 @@ ColumnLayout {
       })
 
       vocalizer.convertError.connect(function(error) {
-        console.log('TTS error:' + error)
+        ttsError.text = error
+        ttsBusy = false
+        ttsIconColor = 'red'
       })
 
       vocalizer.converted.connect(function(audioFp) {
         speechAudioFp = audioFp
         ttsBusy = false
-        ttsIconColor = 'red'
+        ttsIconColor = 'darkorange'
 
         if (speechPlayer === undefined) {
           speechPlayer = Qt.createComponent('AudioFilePlayer.qml').createObject(
-            this, {
+            itemLayout, {
               audioFile: speechAudioFp,
               playbackRate: Conf.ui.tts.playbackRate
             })
@@ -336,6 +338,12 @@ ColumnLayout {
       icon.width: 64
       icon.height: 64
       visible: Conf.ui.tts.enabled && (ttsBusy || itemLayout.focus)
+    }
+    Text {
+      id: ttsError
+      visible: Conf.ui.tts.enabled && itemLayout.focus && text.length > 0
+      color: 'red'
+      font.pointSize: 20
     }
     ProgressBar {
       from: 0

@@ -7,6 +7,10 @@ RowLayout {
   property string description
   property var choices
 
+  property alias text: box.displayText
+
+  signal changed(string chosen)
+
   Text {
     text: description
     font.pointSize: 14
@@ -14,6 +18,7 @@ RowLayout {
   }
 
   ComboBox {
+    id: box
     model: choices
     displayText: Conf.get(dotPath)
     Layout.minimumWidth: 200
@@ -21,6 +26,9 @@ RowLayout {
     font.pointSize: 16
     onActivated: {
       Conf.set(dotPath, currentText)
+      displayText = Conf.get(dotPath)
+
+      changed(displayText)
     }
   }
 }

@@ -26,6 +26,7 @@ from gtts import gTTS
 from gtts.tts import gTTSError
 from gtts.tokenizer import pre_processors
 from gtts.lang import tts_langs
+
 import langdetect
 
 import ignition
@@ -781,7 +782,8 @@ class GemalayaInterface(QObject):
         now = datetime.now()
         maxDays = self.config.ui.tts.get('mp3CacheForDays', 1)
 
-        for file in self.app.gtts_cache_path.glob('*.mp3'):
+        for file in list(self.app.gtts_cache_path.glob('*.mp3')) + \
+                list(self.app.picotts_cache_path.glob('*.wav')):
             try:
                 diff = now - datetime.fromtimestamp(file.stat().st_ctime)
 
@@ -823,10 +825,80 @@ class TTSInterface(QObject):
     @tSlot(str, dict, sigSuccess="converted", sigError="convertError")
     def save(self, rtext: str, options: dict):
         """
-        Convert some text to an audio (mp3) file with gTTS, and
+        Convert some text to an audio file with the TTS engine
+        set in the config.
+        """
+
+        engine = self.app.main_iface.config.ui.tts.get('engine', 'picotts')
+        langtag = options.get('lang',
+                              langdetect.detect(rtext))
+        hexdigest = hashlib.sha256(rtext.encode()).hexdigest()
+
+        if engine == 'gtts':
+            return self._save_gtts(rtext, hexdigest, langtag, options)
+        elif engine == 'picotts':
+            return self._save_picotts(rtext, hexdigest, langtag, options)
+        else:
+            raise ValueError(f'Unsupported TTS engine: {engine}')
+
+    def _save_picotts(self,
+                      rtext: str,
+                      digest: str,
+                      langtag: str,
+                      options: dict) -> str:
+        """
+        Convert some text to an audio (WAV) file with PicoTTS and
         return the path of the audio file.
         """
 
+        if not shutil.which('pico2wave'):
+            raise Exception('picotts: pico2wave was not found!')
+
+        # lang tag to pico voice name dictionary mapping
+        voices = {
+            'de': 'de-DE',
+            'en': 'en-GB',
+            'es': 'es-ES',
+            'fr': 'fr-FR',
+            'it': 'it-IT'
+        }
+
+        voice = voices.get(langtag)
+
+        if not voice:
+            raise ValueError(f'Pico TTS voice not found for lang: {langtag}')
+
+        dstf = self.app.picotts_cache_path.joinpath(f'{digest}_{voice}.wav')
+
+        if dstf.is_file():
+            return str(dstf)
+
+        proc = subprocess.Popen([
+            'pico2wave',
+            '-l',
+            voice,
+            '-w',
+            str(dstf),
+            rtext
+        ], stdout=subprocess.PIPE)
+
+        proc.wait()
+
+        if proc.returncode == 0:
+            return str(dstf)
+        else:
+            raise Exception(
+                f'pico2wave exited with retcode {proc.returncode}')
+
+    def _save_gtts(self,
+                   rtext: str,
+                   digest: str,
+                   langtag: str,
+                   options: dict) -> str:
+        """
+        Convert some text to an audio (mp3) file with gTTS, and
+        return the path of the audio file.
+        """
         preproc = [
             pre_processors.tone_marks,
             pre_processors.end_of_line,
@@ -836,17 +908,12 @@ class TTSInterface(QObject):
         ]
 
         try:
-            hexdigest = hashlib.sha256(rtext.encode()).hexdigest()
-            langtag = options.get('lang',
-                                  langdetect.detect(rtext))
             tld = options.get('tld', 'com')
 
             if not langtag:
                 raise ValueError('No language tag!')
 
-            dstp = self.app.gtts_cache_path.joinpath(
-                f'{hexdigest}_{langtag}.mp3'
-            )
+            dstp = self.app.gtts_cache_path.joinpath(f'{digest}_{langtag}.mp3')
 
             if dstp.is_file():
                 # We already did a TTS for this text

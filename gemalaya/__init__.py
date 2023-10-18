@@ -208,13 +208,15 @@ def run_gemalaya():
     app.qtp = QThreadPool()
     app.gtts_cache_path = data_path.joinpath('gtts_cache')
     app.gtts_cache_path.mkdir(parents=True, exist_ok=True)
+    app.picotts_cache_path = data_path.joinpath('picotts_cache')
+    app.picotts_cache_path.mkdir(parents=True, exist_ok=True)
 
-    main_iface = gemqti.GemalayaInterface(
+    app.main_iface = gemqti.GemalayaInterface(
         cfg_dir_path,
         cfg_path,
         config, app)
 
-    app.wheelWorker = updates.WheelInstallWorker(main_iface)
+    app.wheelWorker = updates.WheelInstallWorker(app.main_iface)
 
     # QML engine setup
     ctx = engine.rootContext()
@@ -224,7 +226,7 @@ def run_gemalaya():
     )
     ctx.setContextProperty(
         app_name,
-        main_iface
+        app.main_iface
     )
 
     ctx.setContextProperty(
@@ -234,7 +236,8 @@ def run_gemalaya():
 
     # Wheel update worker
     if os.getenv('APPIMAGE'):
-        app.qtp.start(updates.CheckUpdatesWorker(main_iface, args.git_branch))
+        app.qtp.start(updates.CheckUpdatesWorker(app.main_iface,
+                                                 args.git_branch))
 
     # Load main.qml and run the app
     engine.load(str(qmlp.joinpath("main.qml")))

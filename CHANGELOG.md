@@ -1,3 +1,11 @@
+## [0.5.2] - 2023-10-18
+
+### Added
+
+- Add support for the Pico text-to-speech engine
+- Add a combo box to select the TTS engine
+- Show a privacy warning when the user selects gtts
+
 ## [0.5.1] - 2023-10-01
 
 ### Changed

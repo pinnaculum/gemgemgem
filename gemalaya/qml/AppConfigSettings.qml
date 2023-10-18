@@ -46,44 +46,88 @@ ColumnLayout {
 
   RowLayout {
     BooleanCfgSetting {
+      id: tts
       dotPath: 'ui.tts.enabled'
       description: qsTr("Enable text-to-speech (TTS) conversion and audio playing")
     }
   }
-  RowLayout {
-    BooleanCfgSetting {
-      dotPath: 'ui.tts.autoPlay'
-      description: qsTr("Automatically play audio after conversion")
+
+  ColumnLayout {
+    enabled: tts.checked
+
+    ChoiceCfgSetting {
+      id: ttsEngine
+      dotPath: 'ui.tts.engine'
+      description: qsTr("Text-to-speech engine")
+      choices: [
+        'picotts',
+        'gtts'
+      ]
+
+      onChanged: {
+        if (chosen === 'gtts') {
+          /* Show a privacy warning if the user chooses gtts */
+
+          const wdialog = Qt.createComponent('PrivacyWarningDialog.qml').createObject(
+            this, {
+              warning: "gTTS uses Google Translate’s text-to-speech services.\n" +
+              "If you use this TTS engine, the text content of the gemini page will be sent to Google's servers to be converted to a speech audio file.\n" +
+              "If you are concerned about your privacy (as you should be), please use an offline TTS engine like Pico TTS !"
+          })
+          wdialog.open()
+        }
+      }
+    }
+    RowLayout {
+      BooleanCfgSetting {
+        dotPath: 'ui.tts.autoPlay'
+        description: qsTr("Automatically play audio after conversion")
+      }
+    }
+    IntegerCfgSetting {
+      dotPath: 'ui.tts.mp3CacheForDays'
+      description: qsTr('Maximum lifetime (in days) for cached TTS audio files')
+      spin.from: 0
+      spin.to: 365 * 3
+      spin.stepSize: 1
     }
   }
-  RowLayout {
-    BooleanCfgSetting {
-      dotPath: 'ui.tts.readSlowly'
-      description: qsTr("Read the text slowly")
+
+  ColumnLayout {
+    enabled: tts.checked && ttsEngine.text === 'gtts'
+
+    Text {
+      Layout.leftMargin: 25
+      text: qsTr('gtts options')
+      font.pointSize: 18
+      font.bold: true
+      Layout.fillWidth: true
     }
-  }
-  ChoiceCfgSetting {
-    dotPath: 'ui.tts.defaultTld'
-    description: qsTr("Default gtts TLD domain (localized accent)")
-    choices: [
-      'ca',
-      'com',
-      'co.uk',
-      'ie',
-      'co.za',
-      'com.mx',
-      'es',
-      'com.au',
-      'us',
-      'fr'
-    ]
-  }
-  IntegerCfgSetting {
-    dotPath: 'ui.tts.mp3CacheForDays'
-    description: qsTr('Maximum lifetime (in days) of cached TTS audio files')
-    spin.from: 0
-    spin.to: 365 * 3
-    spin.stepSize: 1
+
+    RowLayout {
+      BooleanCfgSetting {
+      Layout.leftMargin: 35
+        dotPath: 'ui.tts.readSlowly'
+        description: qsTr("Read the text slowly")
+      }
+    }
+    ChoiceCfgSetting {
+      Layout.leftMargin: 35
+      dotPath: 'ui.tts.defaultTld'
+      description: qsTr("Default TLD domain (localized accent)")
+      choices: [
+        'ca',
+        'com',
+        'co.uk',
+        'ie',
+        'co.za',
+        'com.mx',
+        'es',
+        'com.au',
+        'us',
+        'fr'
+      ]
+    }
   }
 
   Text {

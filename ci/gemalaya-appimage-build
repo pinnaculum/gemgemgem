@@ -66,6 +66,12 @@ ls -la /usr/lib/x86_64-linux-gnu/libxkb*
 cp -av /usr/lib/x86_64-linux-gnu/libxcb* $APPDIR/usr/lib
 cp -av /usr/lib/x86_64-linux-gnu/libxkbcommon* $APPDIR/usr/lib
 
+# picotts
+cp -av /usr/lib/x86_64-linux-gnu/libttspico* $APPDIR/usr/lib
+cp -av /usr/bin/pico2wave $APPDIR/usr/bin
+mkdir -p $APPDIR/usr/share/pico
+cp -av /usr/share/pico/lang $APPDIR/usr/share/pico
+
 rm squashfs-root/usr/share/applications/python3.9.*.desktop
 rm squashfs-root/usr/share/metainfo/*.appdata.xml
 mkdir -p squashfs-root/usr/share/metainfo

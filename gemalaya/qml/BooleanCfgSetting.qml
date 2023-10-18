@@ -6,6 +6,7 @@ RowLayout {
   property string dotPath
   property string description
   property alias checkbox: checkbox
+  property alias checked: checkbox.checked
 
   CheckBox {
     id: checkbox

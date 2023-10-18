@@ -58,6 +58,8 @@ ui:
   # Text-to-speech configuration
   tts:
     enabled: false
+    engine: 'picotts'
+
     readSlowly: false
     autoPlay: true
 
