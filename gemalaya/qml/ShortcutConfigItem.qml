@@ -15,9 +15,10 @@ RowLayout {
 
   Text {
     text: name
-    font.pointSize: 18
+    font.pointSize: 14
     Layout.fillWidth: true
     Layout.leftMargin: 32
+    font.bold: keyseq.activeFocus
   }
 
   KeySeqCaptureField {

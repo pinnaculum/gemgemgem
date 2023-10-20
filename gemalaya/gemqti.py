@@ -514,6 +514,12 @@ class GemalayaInterface(QObject):
         self.app.qtp.start(self.app.wheelWorker)
         return True
 
+    @Slot()
+    def checkUpdates(self):
+        from . import updates
+
+        self.app.qtp.start(updates.CheckUpdatesWorker(self))
+
     @Slot(result=list)
     def inputSnippets(self):
         """
@@ -811,6 +817,10 @@ class TTSInterface(QObject):
     def config(self):
         return self.app.main_iface.config
 
+    @property
+    def engine(self):
+        return self.config.ui.tts.get('engine', 'nanotts')
+
     def onDestroyed(self):
         for tmpf in self._tmp_audio_files:
             try:
@@ -818,7 +828,7 @@ class TTSInterface(QObject):
             except Exception:
                 continue
 
-    def _preproc_clean(self, inputText: str):
+    def _preproc_clean(self, inputText: str) -> str:
         # Remove anything inside square brackets
         return re.sub(
             r'\[.*?\]',
@@ -833,19 +843,18 @@ class TTSInterface(QObject):
         set in the config.
         """
 
-        engine = self.config.ui.tts.get('engine', 'picotts')
         langtag = options.get('lang',
                               langdetect.detect(rtext))
         hexdigest = hashlib.sha256(rtext.encode()).hexdigest()
 
-        if engine == 'gtts':
+        if self.engine == 'gtts':
             return self._save_gtts(rtext, hexdigest, langtag, options)
-        elif engine == 'picotts':
+        elif self.engine == 'picotts':
             return self._save_picotts(rtext, hexdigest, langtag, options)
-        elif engine == 'nanotts':
+        elif self.engine == 'nanotts':
             return self._save_nanotts(rtext, hexdigest, langtag, options)
         else:
-            raise ValueError(f'Unsupported TTS engine: {engine}')
+            raise ValueError(f'Unsupported TTS engine: {self.engine}')
 
     def lang_to_picovoice(self, langtag: str) -> str:
         # lang tag to pico voice name dictionary mapping
@@ -887,23 +896,31 @@ class TTSInterface(QObject):
         speed = nano_opts.get('speed', 100) / 100
         volume = nano_opts.get('volume', 100) / 100
 
-        dstf = self.app.picotts_cache_path.joinpath(f'{digest}_{voice}.wav')
+        if options.get('test', False) is True:
+            dstf = Path(tempfile.mkstemp(suffix='.wav')[1])
+        else:
+            dstf = self.app.picotts_cache_path.joinpath(
+                f'{digest}_{voice}.wav')
 
-        if dstf.is_file():
-            return str(dstf)
+            if dstf.is_file():
+                return str(dstf)
 
-        proc = subprocess.Popen([
-            'nanotts',
-            '--speed', str(speed),
-            '--pitch', str(pitch),
-            '--volume', str(volume),
-            '-l', lw_voices_path,
-            '-v', voice,
-            '-o', str(dstf),
-            '-i', rtext
-        ], stdout=subprocess.PIPE)
+        with tempfile.NamedTemporaryFile(mode='wt', suffix='.txt') as ifile:
+            ifile.write(self._preproc_clean(rtext))
+            ifile.flush()
 
-        proc.wait()
+            proc = subprocess.Popen([
+                'nanotts',
+                '--speed', str(speed),
+                '--pitch', str(pitch),
+                '--volume', str(volume),
+                '-l', lw_voices_path,
+                '-v', voice,
+                '-o', str(dstf),
+                '-f', ifile.name
+            ], stdout=subprocess.PIPE)
+
+            proc.wait()
 
         if proc.returncode == 0:
             return str(dstf)
@@ -929,10 +946,14 @@ class TTSInterface(QObject):
         if not voice:
             raise ValueError(f'Pico TTS voice not found for lang: {langtag}')
 
-        dstf = self.app.picotts_cache_path.joinpath(f'{digest}_{voice}.wav')
+        if options.get('test', False) is True:
+            dstf = Path(tempfile.mkstemp(suffix='.wav')[1])
+        else:
+            dstf = self.app.picotts_cache_path.joinpath(
+                f'{digest}_{voice}.wav')
 
-        if dstf.is_file():
-            return str(dstf)
+            if dstf.is_file():
+                return str(dstf)
 
         proc = subprocess.Popen([
             'pico2wave',

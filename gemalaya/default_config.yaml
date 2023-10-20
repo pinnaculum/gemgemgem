@@ -7,6 +7,10 @@ levior:
   enable: true
   cache_enable: true
 
+updates:
+  # AppImage check updates mode (manual, automatic, never)
+  check_updates_mode: 'manual'
+
 ui:
   # active theme name
   theme: 'sinister'

@@ -325,7 +325,7 @@ ColumnLayout {
 
   /* Layout that contains the text-to-speech controls */
   RowLayout {
-    visible: Conf.ui.tts.enabled &&
+    visible: Conf.ui.tts.enabled && itemLayout.focus &&
       (textType === 'regular' || textType === 'quote')
 
     LoadingClip {

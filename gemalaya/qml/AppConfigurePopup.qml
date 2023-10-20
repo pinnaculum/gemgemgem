@@ -13,6 +13,7 @@ Popup {
 
   contentItem: AppConfigRootItem {
     id: root
+    onCloseRequested: close()
   }
 
   onClosed: Conf.update()

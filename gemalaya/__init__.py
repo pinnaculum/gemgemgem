@@ -234,8 +234,10 @@ def run_gemalaya():
         bmodel
     )
 
+    c_updates_mode = config.updates.get('check_updates_mode', 'never')
+
     # Wheel update worker
-    if os.getenv('APPIMAGE'):
+    if os.getenv('APPIMAGE') and c_updates_mode == 'automatic':
         app.qtp.start(updates.CheckUpdatesWorker(app.main_iface,
                                                  args.git_branch))
 

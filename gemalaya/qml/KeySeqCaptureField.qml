@@ -16,7 +16,7 @@ TextField {
   property string currentShortcut
 
   font.family: "DejaVu sans"
-  font.pointSize: activeFocus ? 26 : 22
+  font.pointSize: activeFocus ? 18 : 16
 
   background: Rectangle {
     color: parent.activeFocus ? 'cornsilk' : 'white'

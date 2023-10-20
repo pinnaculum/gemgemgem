@@ -3,6 +3,8 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.4
 
 ColumnLayout {
+  signal closeSettings()
+
   RowLayout {
     Text {
       text: qsTr('Theme')
@@ -19,6 +21,32 @@ ColumnLayout {
       font.pointSize: 14
       onActivated: {
         Conf.changeTheme(currentText)
+      }
+    }
+  }
+
+  ChoiceCfgSetting {
+    id: updatesMode
+    dotPath: 'updates.check_updates_mode'
+    description: qsTr("Check for updates (AppImage only)")
+    choices: [
+      'automatic',
+      'manual',
+      'never'
+    ]
+  }
+
+  ColumnLayout {
+    visible: updatesMode.text === 'manual'
+    Button {
+      font.bold: true
+      font.pointSize: 16
+      text: qsTr("Check for updates")
+      onClicked: {
+        gemalaya.checkUpdates()
+        enabled = false
+
+        closeSettings()
       }
     }
   }
@@ -157,17 +185,55 @@ ColumnLayout {
     }
     IntegerCfgSetting {
       dotPath: 'ui.tts.nanotts_options.speed'
-      description: qsTr('Voice speed (20-500)')
+      description: qsTr('Voice speed (20-200)')
       spin.from: 20
-      spin.to: 500
-      spin.stepSize: 5
+      spin.to: 200
+      spin.stepSize: 2
     }
     IntegerCfgSetting {
       dotPath: 'ui.tts.nanotts_options.volume'
-      description: qsTr('Voice volume (20-500)')
+      description: qsTr('Voice volume (20-200)')
       spin.from: 20
-      spin.to: 500
-      spin.stepSize: 5
+      spin.to: 200
+      spin.stepSize: 2
+    }
+  }
+
+  ColumnLayout {
+    /* TTS test */
+
+    visible: tts.checked
+    Layout.leftMargin: 15
+
+    TextToSpeech {
+      id: ttsiface
+      onConverted: {
+        ttsaudiop.stop()
+        ttsaudiop.audioFile = filepath
+        ttsaudiop.play()
+        ttsTest.enabled = true
+      }
+    }
+
+    AudioFilePlayer {
+      id: ttsaudiop
+    }
+
+    Button {
+      id: ttsTest
+      text: qsTr(`Test TTS settings (${ttsEngine.text})`)
+      font.bold: true
+      font.pointSize: 16
+      onClicked: {
+        if (ttsaudiop.playing)
+          ttsaudiop.stop()
+
+        ttsiface.save(
+          "The Matrix is everywhere. It is all around us. Even now in this very room.", {
+          lang: 'en', test: true
+        })
+        ttsTest.enabled = false
+      }
     }
   }
 

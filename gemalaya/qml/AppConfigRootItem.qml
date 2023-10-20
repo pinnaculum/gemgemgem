@@ -3,6 +3,8 @@ import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.4
 
 ColumnLayout {
+  signal closeRequested()
+
   TabBar {
     Layout.fillWidth: true
     id: bar
@@ -44,6 +46,7 @@ ColumnLayout {
 
       AppConfigSettings {
         anchors.fill: parent
+        onCloseSettings: closeRequested()
       }
     }
 
@@ -85,11 +88,19 @@ ColumnLayout {
     }
   }
 
-  Text {
-    text: qsTr('Press Escape to close')
-    font.pointSize: 22
-    font.bold: true
-    Layout.fillWidth: true
-    horizontalAlignment: Text.AlignHCenter
+  RowLayout {
+    Text {
+      text: qsTr('Press Escape to close this dialog')
+      font.pointSize: 18
+      font.bold: true
+      Layout.fillWidth: true
+      horizontalAlignment: Text.AlignHCenter
+    }
+    Button {
+      text: qsTr('Close')
+      onClicked: closeRequested()
+      font.pointSize: 14
+      font.bold: true
+    }
   }
 }

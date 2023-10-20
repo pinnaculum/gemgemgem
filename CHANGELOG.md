@@ -1,3 +1,14 @@
+## [0.5.4] - 2023-10-20
+
+### Added
+
+- Add a "Test TTS" button in the settings to test the text-to-speech feature
+- Add a config setting to enable/disable automatic updates
+
+### Changed
+
+- nanotts: Use -f with an input file instead of passing the text with -i
+
 ## [0.5.3] - 2023-10-19
 
 ### Added

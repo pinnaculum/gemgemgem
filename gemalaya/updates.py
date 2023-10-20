@@ -1,10 +1,13 @@
 import tempfile
+import re
 import subprocess
 import shutil
 import sys
 import time
 import traceback
 from pathlib import Path
+
+from yarl import URL
 
 from urllib.request import urlopen
 from urllib.request import HTTPErrorProcessor
@@ -16,8 +19,6 @@ from importlib.metadata import version
 from PySide6.QtCore import QRunnable
 from PySide6.QtCore import Slot
 
-from yarl import URL
-import re
 
 from .gemqti import GemalayaInterface
 
@@ -97,11 +98,11 @@ def checkWheelUpdate(gem_iface: GemalayaInterface,
 
 class CheckUpdatesWorker(QRunnable):
     def __init__(self, iface: GemalayaInterface,
-                 git_branch: str):
+                 git_branch: str = 'master'):
         super().__init__()
 
         self.iface = iface
-        self.git_branch = git_branch
+        self.git_branch: str = git_branch
 
     @Slot()
     def run(self):
