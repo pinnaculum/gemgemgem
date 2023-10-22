@@ -1,3 +1,13 @@
+## [0.5.5] - 2023-10-22
+
+### Added
+
+- Support for text translations
+
+### Changed
+
+- gemqti: transform into a python package with a module per interface
+
 ## [0.5.4] - 2023-10-20
 
 ### Added

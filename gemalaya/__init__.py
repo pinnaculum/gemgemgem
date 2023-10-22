@@ -192,6 +192,12 @@ def run_gemalaya():
         1, 0,
         'TextToSpeech'
     )
+    qmlRegisterType(
+        gemqti.TextTranslateInterface,
+        'Gemalaya',
+        1, 0,
+        'TextTranslator'
+    )
 
     qmlRegisterType(
         gemqti.MisfinInterface,

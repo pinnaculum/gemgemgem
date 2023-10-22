@@ -66,6 +66,20 @@ ColumnLayout {
   }
 
   Text {
+    text: qsTr('Text translation')
+    font.pointSize: 20
+    font.bold: true
+    Layout.fillWidth: true
+  }
+
+  RowLayout {
+    BooleanCfgSetting {
+      dotPath: 'ui.translate.enabled'
+      description: qsTr("Enable text translation features")
+    }
+  }
+
+  Text {
     text: qsTr('Text to speech')
     font.pointSize: 20
     font.bold: true

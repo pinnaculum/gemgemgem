@@ -85,6 +85,21 @@ ui:
       speed: 100
       volume: 40
 
+  translate:
+    enabled: false
+
+    targetLangs:
+      es:
+        prio: 30
+      fr:
+        prio: 31
+      it:
+        prio: 32
+      de:
+        prio: 33
+      en:
+        prio: 34
+
   # Font sizes
   fonts:
     defaultPointSize: 12
@@ -142,6 +157,10 @@ ui:
   linksShortcuts:
     downloadObject: 'Ctrl+s'
     openInNewSpace: 'n'
+
+  textItemShortcuts:
+    translateText: 't'
+    translateChangeLanguage: 'l'
 
   ttsPlayerShortcuts:
     playbackRateIncrease: 'x'

@@ -102,6 +102,7 @@ setup(
     install_requires=[
         'attrs',
         'cachetools',
+        'deep-translator==1.11.4',
         'DoubleLinkedList',
         'ebooklib==0.18',
         'feedparser==6.0.10',

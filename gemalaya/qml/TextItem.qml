@@ -11,6 +11,7 @@ ColumnLayout {
   objectName: 'textItem'
 
   property string content
+
   property string textType: 'regular'
   property bool hovered
   property bool quote: false
@@ -24,6 +25,15 @@ ColumnLayout {
   property var speechPlayer
   property string speechAudioFp
   property string ttsIconColor: 'transparent'
+
+  /* TS */
+  property TranslatorBox tsBox
+  property bool wantTs: false
+  property string tsContent
+  property var translations: {'en': ''}
+  property var targetLangs: gemalaya.tsTargetLangCodes()
+  property string srcLangTag: gemalaya.langDetect(content)
+  property string targetLang: targetLangs.length > 0 ? targetLangs[0] : 'en'
 
   property int origWidth
   property int origHeight
@@ -106,6 +116,62 @@ ColumnLayout {
     }
   }
 
+  Action {
+    enabled: (itemLayout.focus && itemLayout.visible) &&
+             Conf.ui.translate.enabled
+    shortcut: Conf.ui.textItemShortcuts.translateText
+    onTriggered: {
+      wantTs = !wantTs
+
+      if (wantTs) {
+        /* Use the first language in the target list */
+        targetLang = targetLangs[0]
+      }
+
+      if (tsBox === null) {
+        /* Create the ts component */
+        tsBox = Qt.createComponent('TranslatorBox.qml').createObject(
+          tsLayout, {}
+        )
+        tsBox.tsSuccess.connect(function(text, langTag) {
+          tsContent = text
+          translations[langTag] = text
+          targetLang = langTag
+
+          if (vocalizer !== undefined) {
+            vocalizer.text = text
+            vocalizer.get()
+          }
+        })
+      }
+
+      tsBox.runTs(content, {dstlang: targetLang})
+    }
+  }
+
+  Action {
+    enabled: (itemLayout.focus && itemLayout.visible && wantTs) &&
+             Conf.ui.translate.enabled
+    shortcut: Conf.ui.textItemShortcuts.translateChangeLanguage
+    onTriggered: {
+      if (tsBox === null)
+        return
+
+      let clidx = targetLangs.indexOf(targetLang)
+
+      if (clidx === -1 || clidx >= targetLangs.length - 1)
+        targetLang = targetLangs[0]
+      else
+        targetLang = targetLangs[clidx+1]
+
+      if (translations[targetLang]) {
+        tsContent = translations[targetLang]
+      } else {
+        tsBox.runTs(content, {dstlang: targetLang})
+      }
+    }
+  }
+
   Component.onDestruction: {
     /* Make sure we stop the TTS player and destroy it */
     if (speechPlayer !== undefined) {
@@ -122,7 +188,7 @@ ColumnLayout {
 
       /* Instantiate the vocalizer */
       vocalizer = Qt.createComponent('TextVocalizer.qml').createObject(this, {
-        text: content
+        text: tsContent.length > 0 ? tsContent : content
       })
 
       vocalizer.convertError.connect(function(error) {
@@ -142,12 +208,20 @@ ColumnLayout {
               audioFile: speechAudioFp,
               playbackRate: Conf.ui.tts.playbackRate
             })
-          }
+        } else {
+          /* TTS player already loaded, change the audio file
+           * (this would happen when we translate the text to another language)
+           */
 
-          if (Conf.ui.tts.autoPlay && focus) {
-            /* Play it right away if autoplay is enabled and we're still focused */
-            speechPlayer.play()
-          }
+          speechPlayer.audioFile = speechAudioFp
+
+          console.log('Audio file changed, target lang is: ' + targetLang)
+        }
+
+        if (Conf.ui.tts.autoPlay && focus) {
+          /* Play it right away if autoplay is enabled and we're still focused */
+          speechPlayer.play()
+        }
       })
 
       ttsBusy = true
@@ -226,7 +300,11 @@ ColumnLayout {
         return Conf.fontPrefs.text.pointSize ? Conf.fontPrefs.text.pointSize : Conf.fontPrefs.defaultPointSize
       }
       font.italic: quote === true
-      text: textType == 'listitem' ? '- ' + content : content
+      text: tsContent ? tformat(tsContent) : tformat(content)
+
+      function tformat(itext) {
+        return textType == 'listitem' ? '- ' + itext : itext
+      }
     }
 
     background: Rectangle {
@@ -321,6 +399,11 @@ ColumnLayout {
       }
       onClicked: itemLayout.focus = !itemLayout.focus
     }
+  }
+
+  RowLayout {
+    id: tsLayout
+    visible: wantTs
   }
 
   /* Layout that contains the text-to-speech controls */
