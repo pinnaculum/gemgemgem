@@ -52,6 +52,10 @@ QtObject {
     return c.ui.linksShortcuts
   }
 
+  property var textItemShortcuts: {
+    return c.ui.textItemShortcuts
+  }
+
   property var ui: c.ui
 
   function cfgForMimeType(mtype) {

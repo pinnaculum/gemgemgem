@@ -74,8 +74,32 @@ ColumnLayout {
 
   RowLayout {
     BooleanCfgSetting {
+      id: translation
       dotPath: 'ui.translate.enabled'
       description: qsTr("Enable text translation features")
+    }
+  }
+
+  ColumnLayout {
+    id: tlLayout
+    visible: translation.checked
+    Layout.leftMargin: 25
+
+    Text {
+      text: qsTr('Languages (langs with lowest priority are selected first)')
+      font.pointSize: 16
+      font.bold: true
+    }
+
+    Component.onCompleted: {
+      for (let [langTag, cfg] of Object.entries(Conf.ui.translate.targetLangs)) {
+        Qt.createComponent('TsLangConfigurator.qml').createObject(
+          tlLayout, {
+            dotPath: `ui.translate.targetLangs.${langTag}`,
+            langTag: langTag
+          }
+        )
+      }
     }
   }
 

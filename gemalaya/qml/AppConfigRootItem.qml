@@ -44,6 +44,9 @@ ColumnLayout {
       Layout.fillWidth: true
       Layout.fillHeight: true
 
+      ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+      ScrollBar.vertical.width: 20
+
       AppConfigSettings {
         anchors.fill: parent
         onCloseSettings: closeRequested()
@@ -55,34 +58,62 @@ ColumnLayout {
       Layout.fillWidth: true
       Layout.fillHeight: true
 
-      ScrollBar.vertical: ScrollBar {
-        parent: scroll
-        x: scroll.width - width
-        height: scroll.height
-        width: 20
-        policy: ScrollBar.AlwaysOn
+      ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+      ScrollBar.vertical.width: 20
+
+      function listShortcuts(parent, shortcuts, dotPrefix) {
+        for (let [sname, shortcut] of Object.entries(shortcuts)) {
+          Qt.createComponent('./ShortcutConfigItem.qml').createObject(
+            parent, {
+              name: sname,
+              dotName: dotPrefix + '.' + sname,
+              shortcut: shortcut
+          })
+        }
       }
 
       ColumnLayout {
-        id: slayout
-        Component.onCompleted: {
-          for (let [sname, shortcut] of Object.entries(Conf.shortcuts)) {
-            var component = Qt.createComponent('./ShortcutConfigItem.qml')
-            var item = component.createObject(slayout, {
-              name: sname,
-              dotName: 'ui.shortcuts.' + sname,
-              shortcut: shortcut
-            })
-          }
+        Layout.fillHeight: true
+        Layout.fillWidth: true
 
-          for (let [sname, shortcut] of Object.entries(Conf.stackShortcuts)) {
-            var component = Qt.createComponent('./ShortcutConfigItem.qml')
-            var item = component.createObject(slayout, {
-              name: sname,
-              dotName: 'ui.stackShortcuts.' + sname,
-              shortcut: shortcut
-            })
-          }
+        Text {
+          text: qsTr('Main shortcuts')
+          font.pointSize: 20
+          font.bold: true
+        }
+
+        ColumnLayout {
+          Component.onCompleted: scroll.listShortcuts(this, Conf.shortcuts, 'ui.shortcuts')
+        }
+
+        Text {
+          text: qsTr('Stack shortcuts')
+          font.pointSize: 20
+          font.bold: true
+        }
+
+        ColumnLayout {
+          Component.onCompleted: scroll.listShortcuts(this, Conf.stackShortcuts, 'ui.stackShortcuts')
+        }
+
+        Text {
+          text: qsTr('Links shortcuts')
+          font.pointSize: 20
+          font.bold: true
+        }
+
+        ColumnLayout {
+          Component.onCompleted: scroll.listShortcuts(this, Conf.linksShortcuts, 'ui.linksShortcuts')
+        }
+
+        Text {
+          text: qsTr('Text items shortcuts')
+          font.pointSize: 20
+          font.bold: true
+        }
+
+        ColumnLayout {
+          Component.onCompleted: scroll.listShortcuts(this, Conf.textItemShortcuts, 'ui.textItemShortcuts')
         }
       }
     }

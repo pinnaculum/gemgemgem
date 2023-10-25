@@ -1,5 +1,5 @@
 url:
-  fontSize: 18
+  fontSize: 12
   selectionColor: '#323232'
   textColor: 'cornsilk'
 
@@ -8,7 +8,7 @@ url:
     colorFocused: '#2F4F4F'
     borderColor: '#F5FFFA'
 
-  cursorWidth: 20
+  cursorWidth: 16
   cursorColor1: '#FFFFE0'
   cursorColor2: 'lightsteelblue'
   cursorBlinkT1: 300

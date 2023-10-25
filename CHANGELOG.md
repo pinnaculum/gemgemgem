@@ -1,3 +1,9 @@
+## [0.5.6] - 2023-10-23
+
+### Added
+
+- Settings: translation languages configuration
+
 ## [0.5.5] - 2023-10-22
 
 ### Added

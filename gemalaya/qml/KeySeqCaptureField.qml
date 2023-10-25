@@ -11,7 +11,8 @@ TextField {
   id: control
 
   Layout.fillWidth: true
-  Layout.preferredWidth: 250
+  Layout.preferredWidth: 160
+  Layout.maximumWidth: 200
 
   property string currentShortcut
 

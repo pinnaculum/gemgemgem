@@ -91,14 +91,25 @@ ui:
     targetLangs:
       es:
         prio: 30
+        enabled: true
       fr:
         prio: 31
+        enabled: true
       it:
         prio: 32
+        enabled: true
       de:
         prio: 33
+        enabled: true
       en:
         prio: 34
+        enabled: false
+      ru:
+        prio: 35
+        enabled: false
+      ja:
+        prio: 36
+        enabled: false
 
   # Font sizes
   fonts:
