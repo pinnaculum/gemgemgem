@@ -270,6 +270,15 @@ Flickable {
     }
   }
 
+  function computeUrl(href, base) {
+    if (href.startsWith('http://') ||
+        href.startsWith('https://') ||
+        href.startsWith('misfin://'))
+      return new URL(href)
+    else
+      return new URL(gem.buildUrl(href, base))
+  }
+
   function renderGemTextResponse(resp, startItemIdx) {
     var urlString = resp.url
     var urlObject = new URL(resp.url)
@@ -293,16 +302,15 @@ Flickable {
       var item
 
       switch(gemItem.type) {
+        case 'blank':
+          Qt.createComponent('BlankItem.qml').createObject(
+            flickable.page, {}
+          )
+          break
+
         case 'link':
           var keysym
-          var linkUrl
-
-          if (gemItem.href.startsWith('http://') ||
-              gemItem.href.startsWith('https://') ||
-              gemItem.href.startsWith('misfin://'))
-            linkUrl = new URL(gemItem.href)
-          else
-            linkUrl = new URL(gem.buildUrl(gemItem.href, urlString))
+          var linkUrl = computeUrl(gemItem.href, urlString)
 
           component = Qt.createComponent('LinkItem.qml')
 
@@ -342,6 +350,41 @@ Flickable {
 
             linkNum += 1
           }
+
+          break
+
+        case 'linksgroup':
+          var lgLayout = Qt.createComponent('LinksGroupItem.qml').createObject(
+            flickable.page, {}
+          )
+
+          gemItem.links.forEach(function(link) {
+            var litem
+            var linkUrl = computeUrl(link.href, urlString)
+
+            litem = Qt.createComponent('LinkButton.qml').createObject(lgLayout, {
+              title: link.title,
+              linkUrl: linkUrl,
+              baseUrl:urlString,
+              href: link.href,
+              nextLinkItem: prevLink ? prevLink : null,
+              keybAccessSeq: linkNum
+            })
+            litem.linkClicked.connect(geminiLinkClicked)
+
+            if (prevLink)
+              prevLink.nextLinkItem = litem
+
+            prevLink = litem
+
+            linkNum += 1
+
+            if (firstLink === undefined)
+              firstLink = litem
+
+            if (firstItem === undefined)
+              firstItem = litem
+          })
 
           break
 
@@ -419,7 +462,8 @@ Flickable {
     addrController.loading = true
 
     var result = agent.geminiModelize(titanUrl.toString(), null, {
-      titanUploadPath: filePath
+      titanUploadPath: filePath,
+      linksMode: Conf.ui.links.layoutMode
     })
   }
 
@@ -436,7 +480,8 @@ Flickable {
     reset()
 
     agent.geminiModelize(urlObject.toString(), null, {
-      downloadsPath: Conf.c.downloadsPath
+      downloadsPath: Conf.c.downloadsPath,
+      linksMode: Conf.ui.links.layoutMode
     })
 
     addrController.loading = true
@@ -637,7 +682,6 @@ Flickable {
         let item = children[i]
         if (item.activeFocus == true) {
           item.focus = false
-          console.log(item + 'had the focus')
           children[i+1].focus = true
           return
         }
@@ -659,6 +703,7 @@ Flickable {
 
         if (itemVisible(item) &&
            (item.objectName.startsWith('linkItem') ||
+            item.objectName.startsWith('linksGroupItem') ||
             item.objectName.startsWith('textItem'))) {
           item.focus = true
           break
@@ -667,22 +712,37 @@ Flickable {
     }
 
     function focusLinkForSequence(seq) {
+      var item
+      var subitem
+      var itemypos
+
       for (var i=0; i < children.length; i++) {
-        let item = children[i]
+        item = children[i]
+        itemypos = item.y
 
-        if (item.keybAccessSeq == seq) {
-          var posm = (flickable.height + item.y) - 128
+        if (item.hasOwnProperty('keybSeqLookup')) {
+          /* This is a links group item (grid). Check if a link in the
+           * group matches the keyboard sequence */
 
+          subitem = item.keybSeqLookup(seq)
+
+          if (subitem !== null) {
+            itemypos = item.y + subitem.y
+            item = subitem
+          }
+        }
+
+        if (item.keybAccessSeq === seq) {
           linkSeqInput = ''
           item.focus = true
 
-          if (item.y > (flickable.contentY + flickable.height) ||
-              item.y < flickable.contentY) {
+          if (itemypos > (flickable.contentY + flickable.height) ||
+              itemypos < flickable.contentY) {
             /* The link isn't visible to the user: scroll the flickable to its
              * position in the page but don't activate it (it's unlikely that
              * you'd want to open a link that's outside of the page's scope
              * just based on its number) */
-            flickable.contentY = item.y - (flickable.height / 8)
+            flickable.contentY = itemypos - (flickable.height / 8)
           } else {
             /* The link is visible, just open it */
 

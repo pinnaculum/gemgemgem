@@ -175,6 +175,7 @@ class GeminiInterface(QObject):
         title = None
         opts = options.toVariant()
         dlRootPath = opts.get('downloadsPath')
+        linksMode = opts.get('linksMode', 'list')
 
         try:
             extra = {}
@@ -303,8 +304,9 @@ class GeminiInterface(QObject):
                 doc.append(line)
 
             hrefPrev = None
-            pf = []
-            quoteb = []
+            pf: list = []
+            quoteb: list = []
+            linksGroup: list = []
 
             for line in doc.emit_line_objects(auto_tidy=True):
                 if line.type != GmiLineType.QUOTE and quoteb:
@@ -314,6 +316,15 @@ class GeminiInterface(QObject):
                         'text': '\n'.join(quoteb)
                     })
                     quoteb = []
+
+                if line.type != GmiLineType.LINK and linksGroup and \
+                        linksMode == 'group':
+                    # Flush the links group
+                    model.append({
+                        'type': 'linksgroup',
+                        'links': linksGroup
+                    })
+                    linksGroup = []
 
                 if line.type == GmiLineType.LINK:
                     # Compute keyboard sequence shortcut
@@ -347,13 +358,19 @@ class GeminiInterface(QObject):
 
                     alpham = re.match(r'^.*?([\w0-9]+)', line.text)
 
-                    model.append({
+                    linke = {
                         'type': 'link',
                         'href': str(url),
                         'hrefPrev': hrefPrev,
                         'title': line.text if line.text else line.extra,
                         'alphan': alpham.group(1) if alpham else None
-                    })
+                    }
+
+                    if linksMode == 'group':
+                        linksGroup.append(linke)
+                    else:
+                        model.append(linke)
+
                     hrefPrev = str(url)
                     linkno += 1
                 elif line.type == GmiLineType.REGULAR:
@@ -401,6 +418,12 @@ class GeminiInterface(QObject):
                             'type': 'preformatted',
                             'text': '\n'.join(pf)
                         })
+
+            if linksGroup:
+                model.append({
+                    'type': 'linksgroup',
+                    'links': linksGroup
+                })
 
             resp = {
                 'url': href,

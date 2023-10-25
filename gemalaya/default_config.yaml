@@ -126,6 +126,17 @@ ui:
       pointSizeUrl: 10
       shortcutFontSize: 16
 
+  # Links configuration
+  links:
+    # Layout mode: 'group' (grid) or 'list'
+    layoutMode: 'group'
+
+    # Default number of columns in the links grid layouts
+    gridColumns: 3
+
+    # Space (in pixels) between rows in the links grid layouts
+    gridRowSpacing: 5
+
   # Shortcuts
   shortcuts:
     openConfigDialog: 'F12'
@@ -150,6 +161,9 @@ ui:
 
     # Misfin
     misfinCompose: 'Ctrl+m'
+
+    linksGridLessColumns: 'Ctrl+g'
+    linksGridMoreColumns: 'Ctrl+h'
 
   # Stack Layout Shortcuts
   stackShortcuts:

@@ -167,6 +167,28 @@ Rectangle {
     }
   }
 
+  Action {
+    shortcut: Conf.shortcuts.linksGridMoreColumns
+    enabled: gemspace.visible
+    onTriggered: {
+      if (Conf.ui.links.gridColumns < 10) {
+        Conf.set('ui.links.gridColumns', Conf.ui.links.gridColumns + 1)
+        Conf.update()
+      }
+    }
+  }
+
+  Action {
+    shortcut: Conf.shortcuts.linksGridLessColumns
+    enabled: gemspace.visible
+    onTriggered: {
+      if (Conf.ui.links.gridColumns > 1) {
+        Conf.set('ui.links.gridColumns', Conf.ui.links.gridColumns - 1)
+        Conf.update()
+      }
+    }
+  }
+
   Misfin {
     id: misfinc
   }

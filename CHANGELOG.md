@@ -1,3 +1,11 @@
+## [0.5.7] - 2023-11-07
+
+### Added
+
+- Support for laying out links in grid layouts
+- Config settings and shortcuts for configuring the links grids
+- Separators for gemini "blanks"
+
 ## [0.5.6] - 2023-10-23
 
 ### Added

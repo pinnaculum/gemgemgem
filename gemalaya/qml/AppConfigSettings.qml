@@ -3,6 +3,8 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.4
 
 ColumnLayout {
+  spacing: 10
+
   signal closeSettings()
 
   RowLayout {
@@ -62,6 +64,49 @@ ColumnLayout {
     BooleanCfgSetting {
       dotPath: 'ui.showLinkUrl'
       description: qsTr("Show the link's URL (when a link is focused)")
+    }
+  }
+
+  ColumnLayout {
+    Layout.leftMargin: 25
+
+    Text {
+      text: qsTr('Links layout')
+      font.pointSize: 16
+      font.bold: true
+    }
+
+    RowLayout {
+      ChoiceCfgSetting {
+        id: llMode
+        dotPath: 'ui.links.layoutMode'
+        description: qsTr("Links layout mode")
+        choices: [
+          'group',
+          'list'
+        ]
+      }
+    }
+
+    RowLayout {
+      visible: llMode.text === 'group'
+      IntegerCfgSetting {
+        dotPath: 'ui.links.gridColumns'
+        description: qsTr('Number of columns in the links grid layouts')
+        spin.from: 1
+        spin.to: 10
+        spin.stepSize: 1
+      }
+    }
+    RowLayout {
+      visible: llMode.text === 'group'
+      IntegerCfgSetting {
+        dotPath: 'ui.links.gridRowSpacing'
+        description: qsTr('Space between rows in the links grid layouts')
+        spin.from: 0
+        spin.to: 100
+        spin.stepSize: 1
+      }
     }
   }
 
