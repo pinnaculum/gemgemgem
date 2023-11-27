@@ -50,7 +50,8 @@ def run_levior(cfg_dir_path: Path,
             lev_path,
             '--cache-path',
             str(levior_cache_dir),
-            '--cache-enable'
+            '--cache-enable',
+            '--mode=proxy'
         ])
 
 

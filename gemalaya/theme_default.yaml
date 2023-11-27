@@ -111,6 +111,7 @@ text:
   fontFamily: 'DejaVuSans'
   fontSize: 16
   color: 'cornsilk'
+  colorPreformatted: 'yellow'
 
   # Style can be set to 'normal', 'outline', 'raised' or 'sunken'
   style: 'normal'

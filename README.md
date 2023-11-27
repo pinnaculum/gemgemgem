@@ -7,7 +7,7 @@ written in Python. It includes:
 
 - [gemalaya](https://gemalaya.gitlab.io): a keyboard-driven Gemini browser written in QML ([Download AppImage](https://gitlab.com/cipres/gemgemgem/-/releases/continuous-master/downloads/Gemalaya-latest-x86_64.AppImage))
 - [gemv](#gemv): a small [Gempub](https://codeberg.org/oppenlab/gempub) viewer
-- gempubify: a command to convert *epub* ebooks to gempub archives
+- gempubify: a program to convert *epub* ebooks to gempub archives
 
 ## Gemalaya
 
@@ -21,10 +21,11 @@ Links can be navigated from the keyboard using simple key sequences.
 Each link in a gemini page is assigned a number. To follow a link, just type in
 the number of the link on the keyboard.
 
-*Gemalaya* supports the automatic proxying of web (http/https) content
+*Gemalaya* supports the automatic proxying of web (http/https) and dweb content
 by running an instance of [levior](https://gitlab.com/cipres/levior).
 When *levior* is running, web URLs referenced in gemtext documents
-are rewritten to be served through the http-to-gemini proxy.
+are served through the web-to-gemini proxy. It also supports
+[Text-to-speech](https://gemalaya.gitlab.io/##text-to-speech).
 
 Please visit [gemalaya's website](https://gemalaya.gitlab.io) for more!
 
@@ -33,7 +34,7 @@ Please visit [gemalaya's website](https://gemalaya.gitlab.io) for more!
 Download the AppImage or install it with:
 
 ```sh
-pip install '.[gemalaya]'
+pip install '.[gemalaya,gemalaya-http-proxy]'
 python setup.py build_gemalaya install
 ```
 

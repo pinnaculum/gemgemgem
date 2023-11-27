@@ -130,7 +130,9 @@ Flickable {
 
       renderGemTextResponse(resp, 0)
 
-      pageTitle = resp.title
+      if (resp.title) {
+        pageTitle = resp.title
+      }
 
       addrController.histAdd(urlString)
 
@@ -209,17 +211,7 @@ Flickable {
   }
 
   function geminiLinkClicked(clickedUrlString, baseUrl) {
-    var clickedUrl = new URL(clickedUrlString)
-    var unsSchemes = ['http:', 'https:']
-
-    if (unsSchemes.includes(clickedUrl.protocol)) {
-      if (Conf.ui.openUnsupportedUrls == true)
-        gemalaya.browserOpenUrl(clickedUrl.toString())
-      else
-        console.log('Unsupported protocol: ' + clickedUrl.protocol)
-    } else {
-      linkActivated(clickedUrl, baseUrl)
-    }
+    linkActivated(new URL(clickedUrlString), baseUrl)
   }
 
   function geminiSendInput(sendUrl, value) {
@@ -271,12 +263,15 @@ Flickable {
   }
 
   function computeUrl(href, base) {
-    if (href.startsWith('http://') ||
-        href.startsWith('https://') ||
-        href.startsWith('misfin://'))
-      return new URL(href)
-    else
+    try {
+      var hrefu = new URL(href)
+
+      if (hrefu && Conf.supportedProtocols.includes(hrefu.protocol)) {
+        return hrefu
+      }
+    } catch(err) {
       return new URL(gem.buildUrl(href, base))
+    }
   }
 
   function renderGemTextResponse(resp, startItemIdx) {

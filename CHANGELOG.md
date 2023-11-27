@@ -1,3 +1,9 @@
+## [0.5.8] - 2023-11-25
+
+### Changed
+
+- Use levior in proxy mode
+
 ## [0.5.7] - 2023-11-07
 
 ### Added

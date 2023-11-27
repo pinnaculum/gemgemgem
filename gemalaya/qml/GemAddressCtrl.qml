@@ -266,6 +266,7 @@ Item {
     }
     onAccepted: {
       var rw
+      var uurl
 
       sched.cancel()
 
@@ -275,10 +276,13 @@ Item {
         return requested(rw)
       }
 
-      if (!text.startsWith('gemini://')) {
+      try {
+        uurl = new URL(text)
+        if (uurl && Conf.supportedProtocols.includes(uurl.protocol)) {
+          requested(text)
+        }
+      } catch(err) {
         requested('gemini://' + text)
-      } else {
-        requested(text)
       }
     }
   }

@@ -39,6 +39,7 @@ ColumnLayout {
   property int origHeight
 
   property string colorDefault: Conf.text.color
+  property string colorPreformatted: Conf.text.colorPreformatted
   property string colorHovered: Conf.text.focusZoom.color
   property string colorizationColor: Conf.text.focusZoom.colorizationColor
 
@@ -311,7 +312,7 @@ ColumnLayout {
       color: 'transparent'
     }
 
-    color: colorDefault
+    color: textType == "preformatted" ? colorPreformatted : colorDefault
     text: textmn.text
     font: textmn.font
     lineHeight: textType == "preformatted" ? 1 : Conf.text.lineHeight

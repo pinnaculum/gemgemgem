@@ -2,6 +2,15 @@ pragma Singleton
 import QtQuick 2.2
 
 QtObject {
+  property var supportedProtocols: [
+    'gemini:',
+    'http:',
+    'https:',
+    'ipfs:',
+    'ipns:',
+    'misfin:'
+  ]
+
   property var c: {
     return gemalaya.getConfig()
   }

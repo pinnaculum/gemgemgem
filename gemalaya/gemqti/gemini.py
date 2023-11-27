@@ -160,9 +160,16 @@ class GeminiInterface(QObject):
 
     @Slot(str, str, result=str)
     def buildUrl(self,
-                 path: str,
+                 href: str,
                  baseUrl: str):
-        return ignition.url(path, baseUrl)
+        ref = URL(href)
+        base = URL(baseUrl)
+
+        if base.scheme and base.scheme != 'gemini' and \
+           not ref.scheme and ref.path:
+            return str(base.join(ref))
+
+        return ignition.url(href, baseUrl)
 
     @tSlot(str, str, QJsonValue, sigSuccess="srvResponse")
     def geminiModelize(self,
@@ -180,6 +187,9 @@ class GeminiInterface(QObject):
         try:
             extra = {}
             requ = URL(href)
+
+            if requ.scheme in ['http', 'https', 'ipfs', 'ipns']:
+                extra['http_proxy'] = ('localhost', 1965)
 
             if requ.scheme == 'titan':
                 filePath = opts.get('titanUploadPath')
@@ -329,38 +339,11 @@ class GeminiInterface(QObject):
                 if line.type == GmiLineType.LINK:
                     # Compute keyboard sequence shortcut
 
-                    url = URL(line.extra)
-                    if url.scheme in ['http', 'https'] and \
-                            self.app.levior_proc:
-                        # Proxy web links to levior if it's running
-                        upath = url.path if url.path else '/'
-                        url = URL.build(
-                            scheme='gemini',
-                            host='localhost',
-                            path=f'/{url.host}{upath}',
-                            query=url.query,
-                            fragment=url.fragment
-                        )
-                    elif url.scheme in ['ipfs', 'ipns'] and \
-                            self.app.levior_proc:
-                        # IPFS urls, rewrite to go through the proxy
-                        # Use dweb.link as the default gateway for now
-
-                        host = f'{url.host}.{url.scheme}.dweb.link'
-                        upath = url.path if url.path else '/'
-                        url = URL.build(
-                            scheme='gemini',
-                            host='localhost',
-                            path=f'/{host}/{upath}',
-                            query=url.query,
-                            fragment=url.fragment
-                        )
-
                     alpham = re.match(r'^.*?([\w0-9]+)', line.text)
 
                     linke = {
                         'type': 'link',
-                        'href': str(url),
+                        'href': line.extra,
                         'hrefPrev': hrefPrev,
                         'title': line.text if line.text else line.extra,
                         'alphan': alpham.group(1) if alpham else None
@@ -371,7 +354,7 @@ class GeminiInterface(QObject):
                     else:
                         model.append(linke)
 
-                    hrefPrev = str(url)
+                    hrefPrev = line.extra
                     linkno += 1
                 elif line.type == GmiLineType.REGULAR:
                     model.append({
