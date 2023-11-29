@@ -124,6 +124,7 @@ Flickable {
         return
       } else if (resp.rsptype === 'raw') {
         displayRawFile(resp)
+        addrController.histAdd(urlString)
         pageOaRestore.running = true
         return
       }
@@ -235,6 +236,15 @@ Flickable {
         )
         break
 
+      case /^image\//i.test(resp.contentType):
+        Qt.createComponent('ImagePreview.qml').createObject(
+          flickable.page, {
+            imgPath: resp.downloadPath,
+            width: flickable.width
+          }
+        )
+        break
+
       case /^(video|audio)\/.*/i.test(resp.contentType):
         Qt.createComponent('MPlayer.qml').createObject(
           flickable.page, {
@@ -259,6 +269,26 @@ Flickable {
 
         fileDownloaded(resp.url, resp.downloadPath)
         break
+    }
+  }
+
+  function ttsReadNextItem(curItem) {
+    /* TTS: read the next text item found after curItem */
+    let found = false
+
+    for (var idx=0; idx < page.children.length; idx++) {
+      let item = page.children[idx]
+
+      if (found && item.objectName.startsWith('textItem')) {
+        item.focus = true
+        item.readThrough = true
+        page.showItemAtTop(item)
+        break
+      }
+      if (item.content === curItem.content) {
+        found = true
+        item.readThrough = false
+      }
     }
   }
 
@@ -399,6 +429,8 @@ Flickable {
             quote: gemItem.type === 'quote'
           }
           item = component.createObject(flickable.page, props)
+          item.ttsRtNextItem.connect(ttsReadNextItem)
+
           if (prevLink) {
             prevLink.nextLinkItem = item
           }
@@ -687,6 +719,10 @@ Flickable {
       /* Returns true if this item is in the visible part of the flickable */
       return (item.y < (flickable.contentY + flickable.height) &&
               item.y > flickable.contentY)
+    }
+
+    function showItemAtTop(item) {
+      flickable.contentY = item.y - (flickable.height / 4)
     }
 
     function focusFirstVisibleItem() {

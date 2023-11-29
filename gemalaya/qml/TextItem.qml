@@ -25,9 +25,13 @@ ColumnLayout {
   property var speechPlayer
   property string speechAudioFp
   property string ttsIconColor: 'transparent'
+  property bool readThrough: false
+  property bool ttsActive: (itemLayout.focus && itemLayout.visible) &&
+                           speechPlayer !== undefined
 
   /* TS */
   property TranslatorBox tsBox
+
   property bool wantTs: false
   property string tsContent
   property var translations: {'en': ''}
@@ -51,12 +55,22 @@ ColumnLayout {
 
   signal focusRequested()
 
+  /* Signal for playing the next text item in the page */
+  signal ttsRtNextItem(var currentItem)
+
+  function onTTSPlayFinished() {
+    /* The TTS for this text was fully played. If read-through is enabled, send a
+     * notification so that the next text item will be read automatically */
+    if (readThrough)
+      ttsRtNextItem(itemLayout)
+  }
+
   Scheduler {
     id: sched
   }
 
   Action {
-    enabled: (itemLayout.focus && itemLayout.visible) && speechPlayer !== undefined
+    enabled: ttsActive
     shortcut: 'r'
     onTriggered: {
       if (!speechPlayer.playing) {
@@ -68,7 +82,7 @@ ColumnLayout {
     }
   }
   Action {
-    enabled: (itemLayout.focus && itemLayout.visible) && speechPlayer !== undefined
+    enabled: ttsActive
     shortcut: 'Left'
     onTriggered: {
       if (speechPlayer.playing) {
@@ -78,7 +92,7 @@ ColumnLayout {
   }
 
   Action {
-    enabled: (itemLayout.focus && itemLayout.visible) && speechPlayer !== undefined
+    enabled: ttsActive
     shortcut: 'Right'
     onTriggered: {
       if (speechPlayer && speechPlayer.playing) {
@@ -88,7 +102,8 @@ ColumnLayout {
   }
 
   Action {
-    enabled: (itemLayout.focus && itemLayout.visible) && speechPlayer !== undefined
+    id: ttsStartAction
+    enabled: ttsActive
     shortcut: 'Space'
     onTriggered: {
       if (speechPlayer.playing) {
@@ -98,17 +113,37 @@ ColumnLayout {
       }
     }
   }
+
   Action {
-    enabled: (itemLayout.focus && itemLayout.visible) && speechPlayer !== undefined
+    enabled: ttsActive
+    shortcut: 'Ctrl+Space'
+    onTriggered: {
+      readThrough = true
+      ttsStartAction.trigger()
+    }
+  }
+
+  Action {
+    enabled: ttsActive
+    shortcut: 'n'
+    onTriggered: {
+      if (readThrough)
+        ttsRtNextItem(itemLayout)
+    }
+  }
+
+   Action {
+    enabled: ttsActive
     shortcut: Conf.ui.ttsPlayerShortcuts.playbackRateIncrease
     onTriggered: {
       if (speechPlayer.playing) {
         speechPlayer.playbackRate += 0.1
       }
-    }
-  }
+     }
+   }
+
   Action {
-    enabled: (itemLayout.focus && itemLayout.visible) && speechPlayer !== undefined
+    enabled: ttsActive
     shortcut: Conf.ui.ttsPlayerShortcuts.playbackRateDecrease
     onTriggered: {
       if (speechPlayer.playbackRate > 0.2) {
@@ -184,9 +219,7 @@ ColumnLayout {
   onFocusChanged: {
     /* Text-to-speech for regular text */
 
-    if (Conf.ui.tts.enabled && (textType === 'regular' || textType === 'quote') &&
-       (!vocalizer && !speechAudioFp)) {
-
+    if (Conf.ui.tts.enabled && (!vocalizer && !speechAudioFp)) {
       /* Instantiate the vocalizer */
       vocalizer = Qt.createComponent('TextVocalizer.qml').createObject(this, {
         text: tsContent.length > 0 ? tsContent : content
@@ -196,6 +229,11 @@ ColumnLayout {
         ttsError.text = error
         ttsBusy = false
         ttsIconColor = 'red'
+
+        /* If TTS on this text failed and read-through is enabled, read
+         * the next text item */
+        if (readThrough)
+          ttsRtNextItem(itemLayout)
       })
 
       vocalizer.converted.connect(function(audioFp) {
@@ -209,6 +247,7 @@ ColumnLayout {
               audioFile: speechAudioFp,
               playbackRate: Conf.ui.tts.playbackRate
             })
+          speechPlayer.playFinished.connect(onTTSPlayFinished)
         } else {
           /* TTS player already loaded, change the audio file
            * (this would happen when we translate the text to another language)
@@ -219,8 +258,9 @@ ColumnLayout {
           console.log('Audio file changed, target lang is: ' + targetLang)
         }
 
-        if (Conf.ui.tts.autoPlay && focus) {
-          /* Play it right away if autoplay is enabled and we're still focused */
+        if ((Conf.ui.tts.autoPlay || readThrough) && focus) {
+          /* Play it right away if autoplay is enabled and we're still focused,
+           * or if read-through is activated */
           speechPlayer.play()
         }
       })
@@ -409,8 +449,7 @@ ColumnLayout {
 
   /* Layout that contains the text-to-speech controls */
   RowLayout {
-    visible: Conf.ui.tts.enabled && itemLayout.focus &&
-      (textType === 'regular' || textType === 'quote')
+    visible: Conf.ui.tts.enabled && itemLayout.focus
 
     LoadingClip {
       visible: ttsBusy

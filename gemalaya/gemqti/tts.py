@@ -50,13 +50,19 @@ class TTSInterface(QObject):
             except Exception:
                 continue
 
-    def _preproc_clean(self, inputText: str) -> str:
+    def _preproc_clean(self, text: str) -> str:
+        # Keep alphanumerical characters, stuff inside
+        # parentheses, and most ponctuation marks
         # Remove anything inside square brackets
-        return re.sub(
-            r'\[.*?\]',
-            '',
-            inputText
-        )
+
+        return ' '.join(re.findall(
+            r"[\(^\)]+|\w+|[?!,\.;:]+",
+            re.sub(
+                r'\[.*?\]|[\-\+]',
+                '',
+                text
+            )
+        ))
 
     @tSlot(str, dict, sigSuccess="converted", sigError="convertError")
     def save(self, rtext: str, options: dict):

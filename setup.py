@@ -137,7 +137,8 @@ setup(
             'cryptography',
         ],
         'gemalaya-http-proxy': [
-            'levior @ git+https://gitlab.com/cipres/levior#egg=levior'
+            'levior @ git+https://gitlab.com/cipres/levior#'
+            '2db771bde0f18af502f1d023693ddb84ce4a45ad'
         ]
     },
     package_data={

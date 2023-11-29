@@ -34,25 +34,45 @@ def_bm_path = here.joinpath('bookmarks.yaml')
 pyv = f'{sys.version_info.major}.{sys.version_info.minor}'
 
 
+def levior_cfg_valid(cfg_path: Path) -> bool:
+    try:
+        with open(cfg_path, 'rt') as cfd:
+            OmegaConf.load(cfd)
+
+        return True
+    except Exception:
+        return False
+
+
 def run_levior(cfg_dir_path: Path,
                data_path: Path) -> subprocess.Popen:
     levior_dir = cfg_dir_path.joinpath('levior')
     levior_dir.mkdir(parents=True, exist_ok=True)
+    levior_cfgf_path = levior_dir.joinpath('levior.yaml')
 
     levior_cache_dir = data_path.joinpath('levior').joinpath('cache')
     levior_cache_dir.mkdir(parents=True, exist_ok=True)
 
-    lev_path = shutil.which('levior')
+    levior_bin_path = shutil.which('levior')
 
-    if lev_path:
+    if levior_bin_path:
+        if levior_cfgf_path.is_file() and levior_cfg_valid(levior_cfgf_path):
+            levior_run_args = [
+                '-c',
+                str(levior_cfgf_path)
+            ]
+        else:
+            levior_run_args = [
+                '--cache-path',
+                str(levior_cache_dir),
+                '--cache-enable',
+                '--mode=proxy'
+            ]
+
         return subprocess.Popen([
             f'python{pyv}',
-            lev_path,
-            '--cache-path',
-            str(levior_cache_dir),
-            '--cache-enable',
-            '--mode=proxy'
-        ])
+            levior_bin_path
+        ] + levior_run_args)
 
 
 def venvsitepackages(venvp: Path):

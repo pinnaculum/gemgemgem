@@ -1,3 +1,14 @@
+## [0.5.9] - 2023-11-29
+
+### Added
+
+- Text-to-speech: support read-through mode (automatic sequential TTS of
+  the entire page)
+
+### Changed
+
+- Make it possible to use a custom levior config file
+
 ## [0.5.8] - 2023-11-25
 
 ### Changed
