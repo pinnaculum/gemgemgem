@@ -3,13 +3,43 @@ import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.4
 
 GridLayout {
+  id: grid
   objectName: 'linksGroupItem'
   flow: GridLayout.LeftToRight
   layoutDirection: Qt.LeftToRight
   columns: Conf.ui.links.gridColumns
   rowSpacing: Conf.ui.links.gridRowSpacing
+  clip: Conf.ui.links.gridLimitHeight
+
+  property real limitedHeight: Conf.ui.links.gridMaxCollapsedHeight
+  property real mHeight: limitedHeight
+  Layout.maximumHeight: Conf.ui.links.gridLimitHeight ? mHeight : -1
 
   signal linkClicked(string baseUrl, string href)
+
+  /* Signal emitted when one of the links in the grid is focused/unfocused */
+  signal linkFocused(bool focused)
+
+  /* Skip the whole grid and focus the next thing in the page */
+  signal skipGrid()
+
+  onLinkFocused: {
+    for (var idx=0; idx < children.length; idx++) {
+      if (children[idx].focus) {
+        mHeight = -1
+        return
+      }
+    }
+    mHeight = limitedHeight
+  }
+
+  onSkipGrid: {
+    /* Get the last item in the grid and force the focus
+     * on the next item in the layout */
+
+     grid.children[grid.children.length - 1]
+      .nextLinkItem.forceActiveFocus()
+  }
 
   function keybSeqLookup(seq) {
     var item

@@ -108,6 +108,20 @@ ColumnLayout {
         spin.stepSize: 1
       }
     }
+
+    BooleanCfgSetting {
+      visible: llMode.text === 'group'
+      dotPath: 'ui.links.gridLimitHeight'
+      description: qsTr("Limit grid height (when unfocused)")
+    }
+    IntegerCfgSetting {
+      visible: llMode.text === 'group'
+      dotPath: 'ui.links.gridMaxCollapsedHeight'
+      description: qsTr('Maximum (collapsed) grid height (px)')
+      spin.from: 30
+      spin.to: 1000
+      spin.stepSize: 10
+    }
   }
 
   Text {
@@ -342,6 +356,38 @@ ColumnLayout {
     font.pointSize: 20
   }
 
+  /* Margins */
+
+  IntegerCfgSetting {
+    dotPath: 'ui.page.leftMargin'
+    description: qsTr('Left margin (px)')
+    spin.from: 0
+    spin.to: 300
+    spin.stepSize: 5
+  }
+  IntegerCfgSetting {
+    dotPath: 'ui.page.rightMargin'
+    description: qsTr('Right margin (px)')
+    spin.from: 0
+    spin.to: 300
+    spin.stepSize: 5
+  }
+  IntegerCfgSetting {
+    dotPath: 'ui.page.topMargin'
+    description: qsTr('Top margin (px)')
+    spin.from: 0
+    spin.to: 300
+    spin.stepSize: 5
+  }
+  IntegerCfgSetting {
+    dotPath: 'ui.page.bottomMargin'
+    description: qsTr('Bottom margin (px)')
+    spin.from: 0
+    spin.to: 300
+    spin.stepSize: 5
+  }
+
+  /* Flick settings */
   IntegerCfgSetting {
     dotPath: 'ui.page.flickDeceleration'
     description: qsTr('Page flick deceleration')
@@ -383,6 +429,8 @@ ColumnLayout {
     spin.to: 10000
     spin.stepSize: 50
   }
+
+  /* Max items per page */
   IntegerCfgSetting {
     dotPath: 'ui.page.maxItemsPerPageSection'
     description: qsTr('Maximum items rendered per page section')

@@ -28,6 +28,12 @@ ui:
 
   # Settings for the QML flickable item that contains the gemini page
   page:
+    # Flickable margins
+    leftMargin: 5
+    rightMargin: 5
+    topMargin: 5
+    bottomMargin: 5
+
     # The rate at which a flick will decelerate
     # The higher the number, the faster it slows down when the user
     # stops flicking via keyboard, touch, touchpad or mouse wheel.
@@ -137,6 +143,9 @@ ui:
     # Space (in pixels) between rows in the links grid layouts
     gridRowSpacing: 5
 
+    gridLimitHeight: false
+    gridMaxCollapsedHeight: 250
+
   # Shortcuts
   shortcuts:
     openConfigDialog: 'F12'
@@ -148,7 +157,7 @@ ui:
     urlEdit: 'Ctrl+l'
 
     # History
-    historyBack: 'Ctrl+backspace'
+    historyBack: 'Ctrl+k'
 
     linkOpenTargetSwitch: 'Ctrl+o'
 
@@ -182,6 +191,7 @@ ui:
   linksShortcuts:
     downloadObject: 'Ctrl+s'
     openInNewSpace: 'n'
+    skipLinksGrid: 'i'
 
   textItemShortcuts:
     translateText: 't'

@@ -35,6 +35,20 @@ Button {
 
   signal linkClicked(string baseUrl, string href)
 
+  onFocusChanged: {
+    /* Notify the link grid */
+    button.parent.linkFocused(focus)
+  }
+
+  Action {
+    /* Action to unfocus from this link and the grid it's bound to,
+     * and tell the grid to focus whatever is next in the layout */
+
+    enabled: button.activeFocus
+    shortcut: Conf.linksShortcuts.skipLinksGrid
+    onTriggered: button.parent.skipGrid()
+  }
+
   MouseArea {
     anchors.fill: parent
     hoverEnabled: true

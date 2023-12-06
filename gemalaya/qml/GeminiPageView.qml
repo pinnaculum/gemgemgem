@@ -7,6 +7,12 @@ import Gemalaya 1.0
 Flickable {
   id: flickable
 
+  /* Margins */
+  Layout.leftMargin: Conf.ui.page.leftMargin
+  Layout.rightMargin: Conf.ui.page.rightMargin
+  Layout.topMargin: Conf.ui.page.topMargin
+  Layout.bottomMargin: Conf.ui.page.bottomMargin
+
   clip: true
   flickDeceleration: Conf.ui.page.flickDeceleration
   flickableDirection: Flickable.VerticalFlick
@@ -401,6 +407,7 @@ Flickable {
               prevLink.nextLinkItem = litem
 
             prevLink = litem
+            lastSectionItem = item
 
             linkNum += 1
 
@@ -445,8 +452,15 @@ Flickable {
           item = component.createObject(flickable.page, {
             content: gemItem.text,
             hsize: gemItem.hsize,
+            nextLinkItem: prevLink ? prevLink : null,
             width: flickable.width * 0.95
           })
+
+          if (prevLink)
+            prevLink.nextLinkItem = item
+
+          prevLink = item
+          lastSectionItem = item
           break
 
         default:

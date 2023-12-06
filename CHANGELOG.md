@@ -1,3 +1,17 @@
+## [0.6.0] - 2023-12-06
+
+### Added
+- Config settings for the page margins
+- Link grids: make it possible to limit the grid's height when
+  no link in the grid is focused
+- Add a shortcut to skip a grid and focus the next element in the layout
+
+### Changed
+- Change the default shortcut to go back in the history
+
+### Fixed
+- Disable TTS, animations and MultiEffect on preformatted text items
+
 ## [0.5.9] - 2023-11-29
 
 ### Added

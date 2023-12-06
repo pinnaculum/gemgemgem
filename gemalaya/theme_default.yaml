@@ -85,8 +85,8 @@ links:
     borderColor: 'darkgray'
     borderColorHovered: '#DEB887'
 
-    borderWidth: 1
-    borderWidthHovered: 2
+    borderWidth: 0
+    borderWidthHovered: 1
 
   text:
     fontFamily: 'DejaVu sans'

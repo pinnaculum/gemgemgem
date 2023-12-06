@@ -219,7 +219,7 @@ ColumnLayout {
   onFocusChanged: {
     /* Text-to-speech for regular text */
 
-    if (Conf.ui.tts.enabled && (!vocalizer && !speechAudioFp)) {
+    if (Conf.ui.tts.enabled && (!vocalizer && !speechAudioFp) && textType !== 'preformatted') {
       /* Instantiate the vocalizer */
       vocalizer = Qt.createComponent('TextVocalizer.qml').createObject(this, {
         text: tsContent.length > 0 ? tsContent : content
@@ -279,7 +279,7 @@ ColumnLayout {
       }
     }
 
-    if (!Conf.text.focusZoom.enabled)
+    if (!Conf.text.focusZoom.enabled || textType === 'preformatted')
       return
 
     if (focus) {
@@ -319,7 +319,7 @@ ColumnLayout {
       return content.search(stext) != -1
     }
 
-    layer.enabled: activeFocus
+    layer.enabled: activeFocus && textType !== "preformatted"
     layer.effect: MultiEffect {
       id: multiEffect
       shadowEnabled: false
@@ -449,7 +449,8 @@ ColumnLayout {
 
   /* Layout that contains the text-to-speech controls */
   RowLayout {
-    visible: Conf.ui.tts.enabled && itemLayout.focus
+    visible: Conf.ui.tts.enabled && itemLayout.focus &&
+             textType !== 'preformatted'
 
     LoadingClip {
       visible: ttsBusy

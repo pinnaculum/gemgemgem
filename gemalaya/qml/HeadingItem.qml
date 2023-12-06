@@ -4,6 +4,8 @@ import QtQuick.Layouts 1.4
 
 Text {
   id: heading
+  objectName: 'headingItem'
+
   property string content
   property string hsize: 'h1'
 
@@ -56,4 +58,10 @@ Text {
   font: textmn.font
   antialiasing: true
   wrapMode: Text.WrapAnywhere
+
+  onFocusChanged: {
+    if (focus && nextLinkItem) {
+      nextLinkItem.forceActiveFocus()
+    }
+  }
 }
