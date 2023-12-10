@@ -44,6 +44,9 @@ Flickable {
   property int lastProcItemIdx: 0
   property var lastSectionItem: null
 
+  /* Last recorded vertical flicking velocity */
+  property real lastVFlickingVelocity: 0
+
   Layout.fillWidth: true
   Layout.fillHeight: true
 
@@ -555,6 +558,22 @@ Flickable {
         renderNextPageSection()
       }, 200)
     }
+
+    /* Record the vertical flicking velocity */
+    lastVFlickingVelocity = verticalVelocity
+  }
+
+  onFlickingVerticallyChanged: {
+    /* We've started to flick vertically or we're no longer flicking */
+
+    if (!flickingVertically && Conf.ui.page.focusTopItemAfterVFlick) {
+      /* A vertical flick has just ended and focusTopItemAfterVFlick is
+       * enabled. Focus the first visible item in the page, with some delay */
+
+      sched.delay(function() {
+        page.focusFirstVisibleItem()
+      }, 150)
+    }
   }
 
   Keys.onPressed: {
@@ -690,7 +709,7 @@ Flickable {
     }
 
     function delayScrollTo(pos){
-      if (Conf.ui.page.scrollToItemOnFocus == true) {
+      if (Conf.ui.page.scrollToItemOnFocus) {
         sched.delay(function() {
           instantScrollTo(pos)
         }, 800)
@@ -732,7 +751,7 @@ Flickable {
     function itemVisible(item) {
       /* Returns true if this item is in the visible part of the flickable */
       return (item.y < (flickable.contentY + flickable.height) &&
-              item.y > flickable.contentY)
+              item.y > (flickable.contentY + (flickable.height * 0.02)))
     }
 
     function showItemAtTop(item) {

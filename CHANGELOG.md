@@ -1,3 +1,13 @@
+## [0.6.1] - 2023-12-10
+
+### Added
+- Links grids: settings for the layout's opacity (when the grid is collapsed)
+- New theme: splendid
+
+### Changed
+- Automatic focus of the first visible element in the page when
+  a (vertical) flick is finished
+
 ## [0.6.0] - 2023-12-06
 
 ### Added

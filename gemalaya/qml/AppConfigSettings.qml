@@ -122,6 +122,14 @@ ColumnLayout {
       spin.to: 1000
       spin.stepSize: 10
     }
+    IntegerCfgSetting {
+      visible: llMode.text === 'group'
+      dotPath: 'ui.links.gridCollapsedOpacityPercentage'
+      description: qsTr('Grid layout opacity percentage (when collapsed)')
+      spin.from: 10
+      spin.to: 100
+      spin.stepSize: 5
+    }
   }
 
   Text {
@@ -348,6 +356,19 @@ ColumnLayout {
     dotPath: 'ui.keybSeqTimeout'
     description: qsTr('Keyboard sequence timeout')
     spin.stepSize: 50
+  }
+
+  Text {
+    text: qsTr('Focus')
+    font.bold: true
+    font.pointSize: 20
+  }
+
+  RowLayout {
+    BooleanCfgSetting {
+      dotPath: 'ui.page.focusTopItemAfterVFlick'
+      description: qsTr("Focus the first visible element after a vertical flick")
+    }
   }
 
   Text {

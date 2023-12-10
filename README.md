@@ -11,7 +11,9 @@ written in Python. It includes:
 
 ## Gemalaya
 
-![bbs](https://gitlab.com/cipres/gemgemgem/-/raw/master/media/screenshots/gemalaya-bbs-vim-small.png))
+![bbs](https://gitlab.com/cipres/gemgemgem/-/raw/master/media/screenshots/gemalaya-bbs-vim-small.png)
+
+![grids](https://gemalaya.gitlab.io/screenshots/gemalaya-20231210185143.png)
 
 [Download Gemalaya's latest AppImage (x86_64)](https://gitlab.com/cipres/gemgemgem/-/releases/continuous-master/downloads/Gemalaya-latest-x86_64.AppImage) **Be sure to have all the xcb libraries installed before running the AppImage** (run with *QT_DEBUG_PLUGINS=1* if you get an error the xcb plugin failing to
 load)

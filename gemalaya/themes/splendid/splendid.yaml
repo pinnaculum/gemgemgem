@@ -1,0 +1,41 @@
+url:
+  fontSize: 14
+  selectionColor: 'orange'
+  textColor: '#164863'
+
+  bg:
+    color: '#FFC47E'
+    colorFocused: '#FFD28F'
+    borderColor: '#F67E7D'
+
+  cursorWidth: 14
+  cursorColor1: '#164863'
+  cursorColor2: '#164863'
+  cursorColor3: '#164863'
+
+gemspace:
+  bgColor: '#164863'
+  stackIndex:
+    color: '#F67E7D'
+
+links:
+  shortcutButton:
+    color: '#F4DFB6'
+    borderColor: '#C70039'
+    colorFocused: '#FFD28F'
+    textColor: 'red'
+
+  bg:
+    colorActive: '#75C2F6'
+    borderColor: 'red'
+
+  text:
+    color: '#F4DFB6'
+    colorHovered: '#900C3F'
+
+text:
+  color: '#F4DFB6'
+  style: 'sunken'
+
+  focusZoom:
+    colorizationColor: '#FFAD84'

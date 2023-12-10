@@ -13,4 +13,8 @@
   <qresource>
     <file>gemalaya/themes/darkknight/darkknight.yaml</file>
   </qresource>
+
+  <qresource>
+    <file>gemalaya/themes/splendid/splendid.yaml</file>
+  </qresource>
 </RCC>
