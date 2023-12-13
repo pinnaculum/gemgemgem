@@ -149,10 +149,13 @@ text:
 heading:
   h1:
     color: '#4a9ea1'
+    colorFocused: 'red'
     fontSize: 24
   h2:
     color: 'lightsteelblue'
+    colorFocused: 'darkorange'
     fontSize: 20
   h3:
     color: 'lightsteelblue'
+    colorFocused: 'orange'
     fontSize: 16

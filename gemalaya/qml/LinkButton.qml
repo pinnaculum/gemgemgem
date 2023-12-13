@@ -78,7 +78,7 @@ Button {
     Rectangle {
       id: shortcutButton
       implicitWidth: keybSeqText.width + 8
-      implicitHeight: keybSeqText.height + 4
+      implicitHeight: keybSeqText.height + 8
       border.width: Conf.links.shortcutButton.borderWidth
       border.color: Conf.links.shortcutButton.borderColor
       radius: Conf.links.shortcutButton.radius
@@ -88,6 +88,8 @@ Button {
         id: keybSeqText
         text: keybAccessSeq
         font.pointSize: Conf.fontPrefs.links.shortcutFontSize
+        font.bold: true
+        font.family: 'Courier'
         color: Conf.links.shortcutButton.textColor
         anchors.centerIn: parent
         Layout.fillWidth: true

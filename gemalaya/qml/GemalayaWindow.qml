@@ -176,6 +176,16 @@ Window {
     }
   }
 
+  Action {
+    shortcut: Conf.shortcuts.openLinkFromClipboard
+    onTriggered: {
+      var linkUrl = gemalaya.getClipboardUrl('auto')
+
+      if (linkUrl && linkUrl.length > 0)
+        stackl.spawn(linkUrl, true)
+    }
+  }
+
   GemStackLayout {
     id: stackl
     anchors.fill: parent

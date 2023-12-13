@@ -1,5 +1,5 @@
 url:
-  fontSize: 14
+  fontSize: 13
   selectionColor: 'orange'
   textColor: '#164863'
 
@@ -20,10 +20,10 @@ gemspace:
 
 links:
   shortcutButton:
-    color: '#F4DFB6'
+    color: 'lightgray'
     borderColor: '#C70039'
     colorFocused: '#FFD28F'
-    textColor: 'red'
+    textColor: 'darkred'
 
   bg:
     colorActive: '#75C2F6'

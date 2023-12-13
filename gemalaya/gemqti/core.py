@@ -29,6 +29,7 @@ from PySide6.QtCore import QObject
 from PySide6.QtCore import QJsonValue
 from PySide6.QtCore import Slot
 from PySide6.QtCore import Signal
+from PySide6.QtGui import QClipboard
 from PySide6.QtWidgets import QApplication
 
 from .qt import tSlot
@@ -73,6 +74,38 @@ class GemalayaInterface(QObject):
 
     def __save_config(self):
         OmegaConf.save(config=self.config, f=str(self.cfg_path))
+
+    @Slot(str, result=str)
+    def getClipboardUrl(self, mode: str):
+        """
+        If there's a valid URL stored in the clipboard, return it as a string
+        """
+
+        if not mode or mode == 'auto':
+            cms = [QClipboard.Clipboard,
+                   QClipboard.Selection]
+        elif mode == 'clipboard':
+            cms = [QClipboard.Clipboard]
+        elif mode == 'system':
+            cms = [QClipboard.Selection]
+        else:
+            cms = [QClipboard.Clipboard]
+
+        for cm in cms:
+            try:
+                url = URL(self.app.clipboard().text(cm))
+                assert url.scheme
+
+                return str(url)
+            except Exception:
+                continue
+
+    @Slot(str)
+    def setClipboardText(self, text: str):
+        # Copy to both clipboards for now
+
+        self.app.clipboard().setText(text, QClipboard.Clipboard)
+        self.app.clipboard().setText(text, QClipboard.Selection)
 
     @Slot(str, result=bool)
     def installWheelUpdate(self, wheelUrl: str):

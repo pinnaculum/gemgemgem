@@ -1,3 +1,16 @@
+## [0.6.2] - 2023-12-13
+
+### Added
+- Qt slots for clipboard functions
+- Shortcut to open links from the clipboard
+- Shortcut to copy the content of text items to the clipboard
+
+### Changed
+- focusFirstVisibleItem(): focus text and links groups only
+
+### Fixed
+- Backtab (Shift+Tab) navigation between items
+
 ## [0.6.1] - 2023-12-10
 
 ### Added

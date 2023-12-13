@@ -361,7 +361,7 @@ Flickable {
             width: flickable.width,
             flickable: flickable,
             keybAccessSeq: linkNum,
-            nextLinkItem: prevLink ? prevLink : null
+            prevLinkItem: prevLink ? prevLink : null
           }
 
           if (component.status == Component.Ready) {
@@ -401,7 +401,7 @@ Flickable {
               linkUrl: linkUrl,
               baseUrl:urlString,
               href: link.href,
-              nextLinkItem: prevLink ? prevLink : null,
+              prevLinkItem: prevLink ? prevLink : null,
               keybAccessSeq: linkNum
             })
             litem.linkClicked.connect(geminiLinkClicked)
@@ -434,7 +434,7 @@ Flickable {
           props = {
             content: gemItem.text,
             width: flickable.width * 0.95,
-            nextLinkItem: prevLink ? prevLink : null,
+            prevLinkItem: prevLink ? prevLink : null,
             textType: gemItem.type,
             quote: gemItem.type === 'quote'
           }
@@ -455,7 +455,7 @@ Flickable {
           item = component.createObject(flickable.page, {
             content: gemItem.text,
             hsize: gemItem.hsize,
-            nextLinkItem: prevLink ? prevLink : null,
+            prevLinkItem: prevLink ? prevLink : null,
             width: flickable.width * 0.95
           })
 
@@ -566,7 +566,8 @@ Flickable {
   onFlickingVerticallyChanged: {
     /* We've started to flick vertically or we're no longer flicking */
 
-    if (!flickingVertically && Conf.ui.page.focusTopItemAfterVFlick) {
+    if (!flickingVertically &&
+        !atYEnd && Conf.ui.page.focusTopItemAfterVFlick) {
       /* A vertical flick has just ended and focusTopItemAfterVFlick is
        * enabled. Focus the first visible item in the page, with some delay */
 
@@ -760,17 +761,18 @@ Flickable {
 
     function focusFirstVisibleItem() {
       /* Focus the first visible item in the page. Only focus text or link
-       * items, because these are linked in the "Tab" navigation system */
+       * groups, because these are linked in the "Tab" navigation system */
 
-      for (var i=0; i < children.length; i++) {
-        let item = children[i]
+      for (var idx=0; idx < children.length; idx++) {
+        let item = children[idx]
 
-        if (itemVisible(item) &&
-           (item.objectName.startsWith('linkItem') ||
-            item.objectName.startsWith('linksGroupItem') ||
-            item.objectName.startsWith('textItem'))) {
-          item.focus = true
-          break
+        if (itemVisible(item)) {
+          if (item.objectName.startsWith('textItem') ||
+              (item.objectName.startsWith('linksGroupItem') &&
+               item.children.length >= 2)) {
+            item.focus = true
+            break
+          }
         }
       }
     }

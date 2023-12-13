@@ -70,6 +70,14 @@ ColumnLayout {
   }
 
   Action {
+    enabled: activeFocus
+    shortcut: Conf.ui.textItemShortcuts.copyTextToClipboard
+    onTriggered: {
+      gemalaya.setClipboardText(content)
+    }
+  }
+
+  Action {
     enabled: ttsActive
     shortcut: 'r'
     onTriggered: {

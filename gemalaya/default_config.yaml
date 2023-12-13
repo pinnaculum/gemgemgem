@@ -13,7 +13,7 @@ updates:
 
 ui:
   # active theme name
-  theme: 'sinister'
+  theme: 'splendid'
 
   # edition timeout (ms) for the address bar, completions are shown after that
   urlCompletionTimeout: 800
@@ -181,6 +181,9 @@ ui:
     linksGridLessColumns: 'Ctrl+g'
     linksGridMoreColumns: 'Ctrl+h'
 
+    # Open a URL stored in the clipboard
+    openLinkFromClipboard: 'F10'
+
   # Stack Layout Shortcuts
   stackShortcuts:
     stackCycle: 'Ctrl+Tab'
@@ -203,6 +206,7 @@ ui:
   textItemShortcuts:
     translateText: 't'
     translateChangeLanguage: 'l'
+    copyTextToClipboard: 'Ctrl+c'
 
   ttsPlayerShortcuts:
     playbackRateIncrease: 'x'
