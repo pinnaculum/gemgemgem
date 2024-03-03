@@ -1,3 +1,9 @@
+## [0.6.3] - 2024-03-03
+
+### Changed
+
+- misfin dependency version
+
 ## [0.6.2] - 2023-12-13
 
 ### Added

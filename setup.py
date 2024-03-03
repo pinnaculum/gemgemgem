@@ -111,7 +111,7 @@ setup(
         '1b01b54031d8dcb1bfd46bdab13f52c7cf3d5ef6',
         'misfin @ '
         'git+https://gitlab.com/cipres/misfin#'
-        'c19fb5d245825ba8d7769cb1189777d4a54193f0',
+        '60ee7747bcc9362236ee9b76e451de04b6f9862f',
         'ipfshttpclient==0.7.0',
         'md2gemini @ '
         'git+https://github.com/pinnaculum/md2gemini#egg=md2gemini',

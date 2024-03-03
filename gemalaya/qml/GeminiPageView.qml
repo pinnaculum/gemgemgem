@@ -769,7 +769,7 @@ Flickable {
         if (itemVisible(item)) {
           if (item.objectName.startsWith('textItem') ||
               (item.objectName.startsWith('linksGroupItem') &&
-               item.children.length >= 2)) {
+               item.children.length >= 1)) {
             item.focus = true
             break
           }
